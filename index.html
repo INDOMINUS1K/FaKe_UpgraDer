@@ -35,7 +35,11 @@
         .clicker-box { display: flex; flex-direction: column; align-items: center; gap: 20px; }
         .big-click-btn { width: 240px; height: 240px; border-radius: 50%; background: #e67e22; border: 6px solid #d35400; color: #fff; font-size: 32px; font-weight: bold; cursor: pointer; transition: 0.1s; }
         .big-click-btn:active { transform: scale(0.95); }
-        .upgrade-card { background: #2c3e50; padding: 20px; border-radius: 8px; width: 320px; margin-top: 15px; }
+        
+        .upgrades-grid { display: flex; gap: 15px; justify-content: center; flex-wrap: wrap; width: 100%; margin-top: 15px; }
+        .upgrade-card { background: #2c3e50; padding: 15px; border-radius: 8px; width: 220px; border: 2px solid #34495e; display: flex; flex-direction: column; justify-content: space-between; text-align: left; }
+        .upgrade-card h3 { font-size: 16px; margin-bottom: 5px; color: #f39c12; }
+        .upgrade-card p { font-size: 13px; margin-bottom: 8px; color: #bdc3c7; }
 
         .cases-grid { display: flex; gap: 20px; justify-content: center; flex-wrap: wrap; }
         .case-card { background: #2c3e50; border-radius: 12px; padding: 20px; width: 280px; border: 2px solid #34495e; display: flex; flex-direction: column; align-items: center; }
@@ -65,6 +69,10 @@
         .roulette-item img { width: 50px; height: 50px; object-fit: cover; margin-bottom: 5px; border-radius: 4px; background: #fff; }
         .roulette-item span { max-width: 90px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 
+        .mutation-wrapper { border-color: #9b59b6; display: none; }
+        .mutation-item { min-width: 100px; max-width: 100px; height: 100px; margin: 0 5px; background: #4a235a; border-radius: 6px; display: flex; flex-direction: column; justify-content: center; align-items: center; font-size: 11px; font-weight: bold; padding: 4px; text-align: center; color: #fff; }
+        .mutation-item span { max-width: 90px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 12px; }
+
         .card { border-radius: 8px; padding: 10px; margin: 8px 0; font-weight: bold; border: 2px solid transparent; text-align: left; display: flex; justify-content: space-between; align-items: center; }
         .common { background: #34495e; border-color: #7f8c8d; color: #ecf0f1; }
         .rare { background: #2980b9; border-color: #3498db; color: #fff; }
@@ -89,6 +97,13 @@
         .promo-box { max-width: 450px; margin: 0 auto; background: #2c3e50; padding: 25px; border-radius: 10px; border: 2px solid #34495e; }
         .promo-input { width: 100%; padding: 12px; border-radius: 6px; border: 1px solid #34495e; background: #1e1e24; color: #fff; font-size: 16px; margin-bottom: 12px; text-transform: uppercase; text-align: center; }
         .promo-status { margin-top: 15px; font-weight: bold; font-size: 16px; }
+
+        .daily-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 12px; max-width: 700px; margin: 20px auto; }
+        .daily-card { background: #2c3e50; border: 2px solid #34495e; border-radius: 8px; padding: 15px; text-align: center; display: flex; flex-direction: column; justify-content: space-between; position: relative; opacity: 0.6; }
+        .daily-card.available { border-color: #2ecc71; opacity: 1; box-shadow: 0 0 10px rgba(46, 204, 113, 0.3); }
+        .daily-card.claimed { border-color: #7f8c8d; opacity: 0.4; }
+        .daily-card h4 { margin-bottom: 10px; color: #f39c12; }
+        .daily-card p { font-size: 14px; color: #2ecc71; font-weight: bold; margin-bottom: 10px; }
     </style>
 </head>
 <body onload="init()">
@@ -111,6 +126,7 @@
         <button class="tab-btn" onclick="switchTab('clicker', event)" data-i18n="tab_clicker">Кликер</button>
         <button class="tab-btn" onclick="switchTab('inventory', event)" data-i18n="tab_inventory">Инвентарь</button>
         <button class="tab-btn" onclick="switchTab('upgrader', event)" data-i18n="tab_upgrader">Апгрейдер</button>
+        <button class="tab-btn" onclick="switchTab('daily', event)" data-i18n="tab_daily">Ежедневные</button>
         <button class="tab-btn" onclick="switchTab('promo', event)" data-i18n="tab_promo">Промокоды</button>
     </div>
 
@@ -124,6 +140,12 @@
             <div class="roulette-marker"></div>
             <div id="roulette-track" class="roulette-track"></div>
         </div>
+
+        <div id="mutation-wrapper" class="roulette-wrapper mutation-wrapper">
+            <div class="roulette-marker" style="background: #9b59b6;"></div>
+            <div id="mutation-track" class="roulette-track"></div>
+        </div>
+
         <div id="case-result" style="margin-top: 15px; font-size: 18px; font-weight: bold;"></div>
     </div>
 
@@ -135,11 +157,78 @@
             <button class="big-click-btn" onclick="clickCoin()" data-i18n="click_btn">КЛИК</button>
             <p style="font-size: 18px;"><span data-i18n="income_text">Текущий доход за клик</span>: <b id="click-power-text">10</b> <span data-i18n="coins">монет</span></p>
 
-            <div class="upgrade-card">
-                <h3 data-i18n="upgrade_title">Прокачка клика</h3>
-                <p style="margin: 8px 0;" data-i18n="upgrade_desc">+1 монета к клику</p>
-                <p style="color: #2ecc71; font-weight: bold;"><span data-i18n="price">Цена</span>: <span id="upgrade-cost-text">100</span> <span data-i18n="coins">монет</span></p>
-                <button class="action-btn" onclick="buyClickUpgrade()" data-i18n="upgrade_btn">Улучшить</button>
+            <div class="upgrades-grid">
+                <!-- Базовый апгрейд -->
+                <div class="upgrade-card">
+                    <div>
+                        <h3 data-i18n="upgrade_title">Прокачка клика</h3>
+                        <p data-i18n="upgrade_desc">+1 монета к клику</p>
+                    </div>
+                    <div>
+                        <p style="color: #2ecc71; font-weight: bold; font-size: 14px; margin-bottom: 5px;"><span id="upgrade-cost-text">100</span> <span data-i18n="coins">монет</span></p>
+                        <button class="action-btn" onclick="buyClickUpgrade('base')" data-i18n="upgrade_btn">Улучшить</button>
+                    </div>
+                </div>
+
+                <!-- Апгрейд +5 -->
+                <div class="upgrade-card">
+                    <div>
+                        <h3>Буст клика</h3>
+                        <p>+5 монет к клику</p>
+                    </div>
+                    <div>
+                        <p style="color: #2ecc71; font-weight: bold; font-size: 14px; margin-bottom: 5px;">500 <span data-i18n="coins">монет</span></p>
+                        <button class="action-btn" onclick="buyClickUpgrade('plus5')" data-i18n="upgrade_btn">Улучшить</button>
+                    </div>
+                </div>
+
+                <!-- Апгрейд +10 -->
+                <div class="upgrade-card">
+                    <div>
+                        <h3>Мега клик</h3>
+                        <p>+10 монет к клику</p>
+                    </div>
+                    <div>
+                        <p style="color: #2ecc71; font-weight: bold; font-size: 14px; margin-bottom: 5px;">1000 <span data-i18n="coins">монет</span></p>
+                        <button class="action-btn" onclick="buyClickUpgrade('plus10')" data-i18n="upgrade_btn">Улучшить</button>
+                    </div>
+                </div>
+
+                <!-- Апгрейд +15 -->
+                <div class="upgrade-card">
+                    <div>
+                        <h3>Супер клик</h3>
+                        <p>+15 монет к клику</p>
+                    </div>
+                    <div>
+                        <p style="color: #2ecc71; font-weight: bold; font-size: 14px; margin-bottom: 5px;">1500 <span data-i18n="coins">монет</span></p>
+                        <button class="action-btn" onclick="buyClickUpgrade('plus15')" data-i18n="upgrade_btn">Улучшить</button>
+                    </div>
+                </div>
+
+                <!-- Апгрейд +25 -->
+                <div class="upgrade-card">
+                    <div>
+                        <h3>Ультра клик</h3>
+                        <p>+25 монет к клику</p>
+                    </div>
+                    <div>
+                        <p style="color: #2ecc71; font-weight: bold; font-size: 14px; margin-bottom: 5px;">2500 <span data-i18n="coins">монет</span></p>
+                        <button class="action-btn" onclick="buyClickUpgrade('plus25')" data-i18n="upgrade_btn">Улучшить</button>
+                    </div>
+                </div>
+
+                <!-- Апгрейд +100 -->
+                <div class="upgrade-card" style="border-color: #f1c40f;">
+                    <div>
+                        <h3 style="color: #f1c40f;">ИНДОМИНУС КЛИК</h3>
+                        <p>+100 монет к клику</p>
+                    </div>
+                    <div>
+                        <p style="color: #2ecc71; font-weight: bold; font-size: 14px; margin-bottom: 5px;">10000 <span data-i18n="coins">монет</span></p>
+                        <button class="action-btn" onclick="buyClickUpgrade('plus100')" data-i18n="upgrade_btn">Улучшить</button>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -186,7 +275,14 @@
         <div id="upgrade-result" style="margin-top: 15px; font-size: 18px; font-weight: bold;"></div>
     </div>
 
-    <!-- РАЗДЕЛ 5: ПРОМОКОДЫ -->
+    <!-- РАЗДЕЛ 5: ЕЖЕДНЕВНЫЕ НАГРАДЫ -->
+    <div id="tab-daily" class="tab-content">
+        <h2 data-i18n="daily_title">Ежедневные Награды</h2>
+        <p style="font-size: 14px; color: #aaa; margin-bottom: 15px;" data-i18n="daily_sub">Заходите каждый день и получайте бесплатные монеты!</p>
+        <div class="daily-grid" id="daily-grid"></div>
+    </div>
+
+    <!-- РАЗДЕЛ 6: ПРОМОКОДЫ -->
     <div id="tab-promo" class="tab-content">
         <h2 data-i18n="promo_title">Активация Промокода</h2>
         <br>
@@ -201,7 +297,7 @@
         const I18N = {
             ru: {
                 balance: "Баланс", coins: "монет",
-                tab_cases: "Кейсы", tab_clicker: "Кликер", tab_inventory: "Инвентарь", tab_upgrader: "Апгрейдер", tab_promo: "Промокоды",
+                tab_cases: "Кейсы", tab_clicker: "Кликер", tab_inventory: "Инвентарь", tab_upgrader: "Апгрейдер", tab_daily: "Ежедневные", tab_promo: "Промокоды",
                 cases_title: "Магазин Кейсов", open_btn: "Открыть",
                 clicker_title: "Добыча Монет", click_btn: "КЛИК", income_text: "Текущий доход за клик",
                 upgrade_title: "Прокачка клика", upgrade_desc: "+1 монета к клику", price: "Цена", upgrade_btn: "Улучшить",
@@ -211,12 +307,14 @@
                 upg_step1: "1. Ваш предмет:", upg_step2: "2. Желаемая цель:",
                 opt_inv_empty: "-- Инвентарь пуст --", opt_select_inv: "-- Выберите предмет --", opt_select_first: "-- Сначала выберите свой предмет --",
                 chance: "Шанс", start_upgrade: "Начать Апгрейд",
+                daily_title: "Ежедневные Награды", daily_sub: "Заходите каждый день и получайте бесплатные монеты!", claim: "Забрать", claimed: "Получено",
                 promo_title: "Активация Промокода", promo_btn: "Активировать",
                 promo_empty: "Введите промокод!", promo_invalid: "Неверный промокод!", promo_used: "Вы уже активировали этот промокод!",
                 promo_success: "Промокод активирован! Получено: {amount} монет!",
                 not_enough_coins: "Недостаточно монет!", dropped: "Выпало:",
                 upg_success: "Успех! Получен", upg_fail: "Неудача! Предмет сгорел.", burned_item: "Сгоревший предмет",
                 cases: { case_main: "Дино-Кейс", case_ocean: "Океанский Кейс" },
+                mutations: { silver: "Серебро", gold: "Золото", diamond: "Алмаз", rgb: "РГБ", crystal: "Кристалик", emerald: "Эмеральд" },
                 cards: {
                     c1: "Раптор", c2: "Компи", c3: "Галимим", c4: "Аллозавр", c5: "Карнотавр", c6: "Трицератопс",
                     c7: "Тираннозавр Рекс", c8: "Спинозавр JWR", c9: "ИНДОМИНУС РЕКС", c10: "ДИСТОРТУС РЕКС", c11: "ИНДОРАПТОР",
@@ -226,7 +324,7 @@
             },
             uk: {
                 balance: "Баланс", coins: "монет",
-                tab_cases: "Кейси", tab_clicker: "Клікер", tab_inventory: "Інвентар", tab_upgrader: "Апгрейдер", tab_promo: "Промокоди",
+                tab_cases: "Кейси", tab_clicker: "Клікер", tab_inventory: "Інвентар", tab_upgrader: "Апгрейдер", tab_daily: "Щоденні", tab_promo: "Промокоди",
                 cases_title: "Магазин Кейсів", open_btn: "Відкрити",
                 clicker_title: "Видобуток Монет", click_btn: "КЛІК", income_text: "Поточний дохід за клік",
                 upgrade_title: "Прокачування кліку", upgrade_desc: "+1 монета до кліку", price: "Ціна", upgrade_btn: "Покращити",
@@ -236,22 +334,24 @@
                 upg_step1: "1. Ваш предмет:", upg_step2: "2. Бажана ціль:",
                 opt_inv_empty: "-- Інвентар порожній --", opt_select_inv: "-- Виберіть предмет --", opt_select_first: "-- Спочатку виберіть свій предмет --",
                 chance: "Шанс", start_upgrade: "Почати Апгрейд",
+                daily_title: "Щоденні Нагороди", daily_sub: "Заходьте щодня та отримуйте безкоштовні монети!", claim: "Забрати", claimed: "Отримано",
                 promo_title: "Активація Промокоду", promo_btn: "Активувати",
                 promo_empty: "Введіть промокод!", promo_invalid: "Невірний промокод!", promo_used: "Ви вже активували цей промокод!",
                 promo_success: "Промокод активовано! Отримано: {amount} монет!",
                 not_enough_coins: "Недостатньо монет!", dropped: "Випало:",
                 upg_success: "Успіх! Отримано", upg_fail: "Невдача! Предмет згорів.", burned_item: "Згорілий предмет",
                 cases: { case_main: "Дино-Кейс", case_ocean: "Океанський Кейс" },
+                mutations: { silver: "Срібло", gold: "Золото", diamond: "Діамант", rgb: "РГБ", crystal: "Кристалик", emerald: "Емеральд" },
                 cards: {
                     c1: "Раптор", c2: "Компі", c3: "Галімім", c4: "Алозавр", c5: "Карнотавр", c6: "Трицератопс",
                     c7: "Тиранозавр Рекс", c8: "Спінозавр JWR", c9: "ІНДОМІНУС РЕКС", c10: "ДИСТОРТУС РЕКС", c11: "ІНДОРАПТОР",
-                    w1: "Риба-Клоун", w2: "Риба-Фугу", w3: "Тюлень", w4: "Тунець", w5: "Мурена", w6: "Риба-Місяць",
+                    w1: "Риба-Клоун", w2: "Риба-Фугу", w3: "Тюлень", w4: "Тунец", w5: "Мурена", w6: "Риба-Місяць",
                     w7: "Блакитний Марлін", w8: "Кит-Акула", w9: "МЕГАЛОДОН", w10: "Косатка", w11: "Мозазавр"
                 }
             },
             ro: {
                 balance: "Sold", coins: "monede",
-                tab_cases: "Cufere", tab_clicker: "Clicker", tab_inventory: "Inventar", tab_upgrader: "Upgrader", tab_promo: "Coduri Promo",
+                tab_cases: "Cufere", tab_clicker: "Clicker", tab_inventory: "Inventar", tab_upgrader: "Upgrader", tab_daily: "Zilnice", tab_promo: "Coduri Promo",
                 cases_title: "Magazin de Cufere", open_btn: "Deschide",
                 clicker_title: "Minerit Monede", click_btn: "CLICK", income_text: "Venit curent pe click",
                 upgrade_title: "Upgrade Click", upgrade_desc: "+1 monedă pe click", price: "Preț", upgrade_btn: "Îmbunătățește",
@@ -261,12 +361,14 @@
                 upg_step1: "1. Obiectul dvs:", upg_step2: "2. Ținta dorită:",
                 opt_inv_empty: "-- Inventarul este gol --", opt_select_inv: "-- Selectați obiectul --", opt_select_first: "-- Mai întâi selectați obiectul dvs. --",
                 chance: "Șansă", start_upgrade: "Începe Upgrade-ul",
+                daily_title: "Recompense Zilnice", daily_sub: "Vino în fiecare zi și primește monede gratuite!", claim: "Revendică", claimed: "Primit",
                 promo_title: "Activare Cod Promoțional", promo_btn: "Activează",
                 promo_empty: "Introduceți un cod promoțional!", promo_invalid: "Cod promoțional invalid!", promo_used: "Ați folosit deja acest cod promoțional!",
                 promo_success: "Cod activat! Ați primit: {amount} monede!",
                 not_enough_coins: "Nu aveți suficiente monede!", dropped: "A căzut:",
                 upg_success: "Succes! Obținut", upg_fail: "Eșec! Obiectul a ars.", burned_item: "Obiect ars",
                 cases: { case_main: "Cufăr Dino", case_ocean: "Cufăr Ocean" },
+                mutations: { silver: "Argint", gold: "Aur", diamond: "Diamant", rgb: "RGB", crystal: "Cristal", emerald: "Smarald" },
                 cards: {
                     c1: "Raptor", c2: "Compy", c3: "Gallimimus", c4: "Allosaurus", c5: "Carnotaurus", c6: "Triceratops",
                     c7: "T-Rex", c8: "Spinosaurus JWR", c9: "INDOMINUS REX", c10: "DISTORTUS REX", c11: "INDORAPTOR",
@@ -276,7 +378,7 @@
             },
             pl: {
                 balance: "Saldo", coins: "monet",
-                tab_cases: "Skrzynie", tab_clicker: "Kliker", tab_inventory: "Ekwipunek", tab_upgrader: "Ulepszacz", tab_promo: "Kody Promo",
+                tab_cases: "Skrzynie", tab_clicker: "Kliker", tab_inventory: "Ekwipunek", tab_upgrader: "Ulepszacz", tab_daily: "Codzienne", tab_promo: "Kody Promo",
                 cases_title: "Sklep ze Skrzyniami", open_btn: "Otwórz",
                 clicker_title: "Wydobycie Monet", click_btn: "KLIK", income_text: "Obecny dochód za kliknięcie",
                 upgrade_title: "Ulepszenie kliknięcia", upgrade_desc: "+1 moneta za kliknięcie", price: "Cena", upgrade_btn: "Ulepsz",
@@ -286,12 +388,14 @@
                 upg_step1: "1. Twój przedmiot:", upg_step2: "2. Żądany cel:",
                 opt_inv_empty: "-- Ekwipunek jest pusty --", opt_select_inv: "-- Wybierz przedmiot --", opt_select_first: "-- Najpierw wybierz swój przedmiot --",
                 chance: "Szansa", start_upgrade: "Rozpocznij Ulepszenie",
+                daily_title: "Codzienne Nagrody", daily_sub: "Wchodź codziennie i odbieraj darmowe monety!", claim: "Odbierz", claimed: "Odebrano",
                 promo_title: "Aktywacja Kodu Promocyjnego", promo_btn: "Aktywuj",
                 promo_empty: "Wpisz kod promocyjny!", promo_invalid: "Nieprawidłowy kod promocyjny!", promo_used: "Już aktywowałeś ten kod promocyjny!",
-                promo_success: "Kod aktywowany! Otrzymano: {amount} monet!",
+                promo_success: "Kod aktywowano! Otrzymano: {amount} monet!",
                 not_enough_coins: "Za mało monet!", dropped: "Wypadło:",
                 upg_success: "Sukces! Otrzymano", upg_fail: "Porażka! Przedmiot spłonął.", burned_item: "Spalony przedmiot",
                 cases: { case_main: "Skrzynia Dino", case_ocean: "Skrzynia Oceaniczna" },
+                mutations: { silver: "Srebro", gold: "Złoto", diamond: "Diament", rgb: "RGB", crystal: "Krysztalık", emerald: "Szmaragd" },
                 cards: {
                     c1: "Raptor", c2: "Compy", c3: "Gallimimus", c4: "Allosaurus", c5: "Carnotaurus", c6: "Triceratops",
                     c7: "T-Rex", c8: "Spinosaurus JWR", c9: "INDOMINUS REX", c10: "DISTORTUS REX", c11: "INDORAPTOR",
@@ -301,7 +405,7 @@
             },
             en: {
                 balance: "Balance", coins: "coins",
-                tab_cases: "Cases", tab_clicker: "Clicker", tab_inventory: "Inventory", tab_upgrader: "Upgrader", tab_promo: "Promo Codes",
+                tab_cases: "Cases", tab_clicker: "Clicker", tab_inventory: "Inventory", tab_upgrader: "Upgrader", tab_daily: "Daily", tab_promo: "Promo Codes",
                 cases_title: "Case Shop", open_btn: "Open",
                 clicker_title: "Coin Mining", click_btn: "CLICK", income_text: "Current income per click",
                 upgrade_title: "Click Upgrade", upgrade_desc: "+1 coin per click", price: "Price", upgrade_btn: "Upgrade",
@@ -311,12 +415,14 @@
                 upg_step1: "1. Your item:", upg_step2: "2. Desired target:",
                 opt_inv_empty: "-- Inventory is empty --", opt_select_inv: "-- Select an item --", opt_select_first: "-- Select your item first --",
                 chance: "Chance", start_upgrade: "Start Upgrade",
+                daily_title: "Daily Rewards", daily_sub: "Log in every day and get free coins!", claim: "Claim", claimed: "Claimed",
                 promo_title: "Promo Code Activation", promo_btn: "Activate",
                 promo_empty: "Enter a promo code!", promo_invalid: "Invalid promo code!", promo_used: "You have already used this promo code!",
                 promo_success: "Promo code activated! Received: {amount} coins!",
                 not_enough_coins: "Not enough coins!", dropped: "Dropped:",
                 upg_success: "Success! Obtained", upg_fail: "Fail! Item burned.", burned_item: "Burned Item",
                 cases: { case_main: "Dino Case", case_ocean: "Ocean Case" },
+                mutations: { silver: "Silver", gold: "Gold", diamond: "Diamond", rgb: "RGB", crystal: "Crystal", emerald: "Emerald" },
                 cards: {
                     c1: "Raptor", c2: "Compy", c3: "Gallimimus", c4: "Allosaurus", c5: "Carnotaurus", c6: "Triceratops",
                     c7: "T-Rex", c8: "Spinosaurus JWR", c9: "INDOMINUS REX", c10: "DISTORTUS REX", c11: "INDORAPTOR",
@@ -331,6 +437,25 @@
             'TULENCHIK': 1200,
             'INDOM': 500
         };
+
+        const DAILY_REWARDS = [
+            { day: 1, reward: 250 },
+            { day: 2, reward: 500 },
+            { day: 3, reward: 1000 },
+            { day: 4, reward: 2000 },
+            { day: 5, reward: 4000 },
+            { day: 6, reward: 7500 },
+            { day: 7, reward: 15000 }
+        ];
+
+        const MUTATIONS = [
+            { id: 'silver', mult: 1.5, weight: 45 },
+            { id: 'gold', mult: 2, weight: 30 },
+            { id: 'diamond', mult: 3, weight: 15 },
+            { id: 'rgb', mult: 5, weight: 6 },
+            { id: 'crystal', mult: 7, weight: 3 },
+            { id: 'emerald', mult: 10, weight: 1 }
+        ];
 
         const ALL_CARDS = [
             { id: 'c1', category: 'dino', price: 50, rarity: 'common', img: 'images/c1.jpg' },
@@ -388,10 +513,90 @@
         let upgradeCost = parseInt(localStorage.getItem('upgradeCost')) || 100;
         let inventory = JSON.parse(localStorage.getItem('inventory')) || [];
         let usedPromos = JSON.parse(localStorage.getItem('usedPromos')) || [];
+        let dailyData = JSON.parse(localStorage.getItem('dailyData')) || { lastClaimDate: null, currentDay: 0 };
 
         let selectedInvIndex = null;
         let selectedTargetId = null;
         let isSpinning = false;
+        let rouletteSoundInterval = null;
+
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        function playSound(type) {
+            if (audioCtx.state === 'suspended') { audioCtx.resume(); }
+            const osc = audioCtx.createOscillator();
+            const gainNode = audioCtx.createGain();
+            osc.connect(gainNode);
+            gainNode.connect(audioCtx.destination);
+
+            let now = audioCtx.currentTime;
+            if (type === 'click') {
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(400, now);
+                osc.frequency.exponentialRampToValueAtTime(100, now + 0.05);
+                gainNode.gain.setValueAtTime(0.1, now);
+                gainNode.gain.linearRampToValueAtTime(0.01, now + 0.05);
+                osc.start(now);
+                osc.stop(now + 0.05);
+            } else if (type === 'tick') {
+                // Плотный, приятный кайфовый звук щелчка рулетки (как костяшка/механика)
+                osc.type = 'triangle';
+                osc.frequency.setValueAtTime(220, now);
+                osc.frequency.exponentialRampToValueAtTime(80, now + 0.03);
+                gainNode.gain.setValueAtTime(0.08, now);
+                gainNode.gain.linearRampToValueAtTime(0.001, now + 0.03);
+                osc.start(now);
+                osc.stop(now + 0.03);
+            } else if (type === 'win') {
+                osc.type = 'triangle';
+                osc.frequency.setValueAtTime(300, now);
+                osc.frequency.setValueAtTime(450, now + 0.1);
+                osc.frequency.setValueAtTime(600, now + 0.2);
+                gainNode.gain.setValueAtTime(0.15, now);
+                gainNode.gain.linearRampToValueAtTime(0.01, now + 0.4);
+                osc.start(now);
+                osc.stop(now + 0.4);
+            } else if (type === 'mutation') {
+                osc.type = 'square';
+                osc.frequency.setValueAtTime(500, now);
+                osc.frequency.setValueAtTime(750, now + 0.15);
+                osc.frequency.setValueAtTime(1000, now + 0.3);
+                gainNode.gain.setValueAtTime(0.12, now);
+                gainNode.gain.linearRampToValueAtTime(0.01, now + 0.45);
+                osc.start(now);
+                osc.stop(now + 0.45);
+            } else if (type === 'fail') {
+                osc.type = 'sawtooth';
+                osc.frequency.setValueAtTime(180, now);
+                osc.frequency.linearRampToValueAtTime(80, now + 0.3);
+                gainNode.gain.setValueAtTime(0.15, now);
+                gainNode.gain.linearRampToValueAtTime(0.01, now + 0.3);
+                osc.start(now);
+                osc.stop(now + 0.3);
+            }
+        }
+
+        // Функция запуска динамического звука крутящейся рулетки (ускоряется и замедляется)
+        function startRouletteSound() {
+            if (rouletteSoundInterval) clearInterval(rouletteSoundInterval);
+            let duration = 4000; // 4 секунды крутится
+            let startTime = Date.now();
+            
+            function scheduleTick() {
+                let elapsed = Date.now() - startTime;
+                if (elapsed >= duration) {
+                    if (rouletteSoundInterval) clearInterval(rouletteSoundInterval);
+                    return;
+                }
+                playSound('tick');
+                
+                // Интервал между тиками меняется: сначала часто (быстро), в конце редко (замедление)
+                let progress = elapsed / duration;
+                let currentInterval = 40 + (progress * progress * 350); 
+                
+                rouletteSoundInterval = setTimeout(scheduleTick, currentInterval);
+            }
+            scheduleTick();
+        }
 
         function getItemCategory(cardId) {
             if (!cardId) return 'ocean';
@@ -402,12 +607,17 @@
             return I18N[currentLang].cards[cardId] || cardId;
         }
 
+        function getMutationName(mutationId) {
+            return I18N[currentLang].mutations[mutationId] || mutationId;
+        }
+
         function getCaseName(caseId) {
             return I18N[currentLang].cases[caseId] || caseId;
         }
 
         function init() {
             setLanguage(currentLang);
+            checkDailyReset();
         }
 
         function saveData() {
@@ -417,6 +627,7 @@
             localStorage.setItem('upgradeCost', upgradeCost);
             localStorage.setItem('inventory', JSON.stringify(inventory));
             localStorage.setItem('usedPromos', JSON.stringify(usedPromos));
+            localStorage.setItem('dailyData', JSON.stringify(dailyData));
         }
 
         function setLanguage(lang) {
@@ -433,6 +644,7 @@
             });
 
             renderCases();
+            renderDailyRewards();
             updateUI();
         }
 
@@ -444,6 +656,7 @@
             populateMyItemSelect();
             populateTargetSelect();
             updateUpgrader();
+            renderDailyRewards();
             saveData();
         }
 
@@ -456,17 +669,45 @@
         }
 
         function clickCoin() {
+            playSound('click');
             balance += clickPower;
             updateUI();
         }
 
-        function buyClickUpgrade() {
-            if (balance >= upgradeCost) {
-                balance -= upgradeCost;
-                clickPower += 1;
-                upgradeCost = Math.round(upgradeCost * 1.5);
+        function buyClickUpgrade(type) {
+            let cost = 0;
+            let powerGain = 0;
+
+            if (type === 'base') {
+                cost = upgradeCost;
+                powerGain = 1;
+            } else if (type === 'plus5') {
+                cost = 500;
+                powerGain = 5;
+            } else if (type === 'plus10') {
+                cost = 1000;
+                powerGain = 10;
+            } else if (type === 'plus15') {
+                cost = 1500;
+                powerGain = 15;
+            } else if (type === 'plus25') {
+                cost = 2500;
+                powerGain = 25;
+            } else if (type === 'plus100') {
+                cost = 10000;
+                powerGain = 100;
+            }
+
+            if (balance >= cost) {
+                playSound('win');
+                balance -= cost;
+                clickPower += powerGain;
+                if (type === 'base') {
+                    upgradeCost = Math.round(upgradeCost * 1.5);
+                }
                 updateUI();
             } else {
+                playSound('fail');
                 alert(I18N[currentLang].not_enough_coins);
             }
         }
@@ -495,6 +736,7 @@
             const currentCase = CASES[caseIndex];
 
             if (balance < currentCase.price) {
+                playSound('fail');
                 alert(I18N[currentLang].not_enough_coins);
                 return;
             }
@@ -519,11 +761,14 @@
 
             const track = document.getElementById('roulette-track');
             const wrapper = document.getElementById('roulette-wrapper');
+            const mutationWrapper = document.getElementById('mutation-wrapper');
+            const mutationTrack = document.getElementById('mutation-track');
             const resDiv = document.getElementById('case-result');
             
             track.innerHTML = '';
             track.style.transition = 'none';
             track.style.transform = 'translateX(0)';
+            mutationWrapper.style.display = 'none';
             resDiv.innerText = '';
             wrapper.style.display = 'block';
 
@@ -542,6 +787,7 @@
             });
 
             isSpinning = true;
+            startRouletteSound(); // Запускаем треск рулетки
 
             setTimeout(() => {
                 track.style.transition = 'transform 4s cubic-bezier(0.1, 1, 0.1, 1)';
@@ -549,10 +795,71 @@
             }, 50);
 
             setTimeout(() => {
-                isSpinning = false;
-                inventory.push({...winningCard, instanceId: Date.now()});
-                resDiv.innerHTML = `${I18N[currentLang].dropped} <span class="${winningCard.rarity}" style="padding: 4px 10px; border-radius: 4px;">${getCardName(winningCard.id)} (${winningCard.price} ${I18N[currentLang].coins})</span>`;
-                updateUI();
+                let hasMutation = Math.random() < 0.20;
+                let finalCard = { ...winningCard };
+
+                if (hasMutation) {
+                    playSound('mutation');
+                    mutationWrapper.style.display = 'block';
+
+                    let totalMutWeight = MUTATIONS.reduce((sum, m) => sum + m.weight, 0);
+                    let mutRand = Math.random() * totalMutWeight;
+                    let chosenMutation = MUTATIONS[0];
+                    for (let m of MUTATIONS) {
+                        if (mutRand < m.weight) {
+                            chosenMutation = m;
+                            break;
+                        }
+                        mutRand -= m.weight;
+                    }
+
+                    mutationTrack.innerHTML = '';
+                    mutationTrack.style.transition = 'none';
+                    mutationTrack.style.transform = 'translateX(0)';
+
+                    let mutItems = [];
+                    for (let i = 0; i < 35; i++) {
+                        let randM = MUTATIONS[Math.floor(Math.random() * MUTATIONS.length)];
+                        mutItems.push(randM);
+                    }
+                    mutItems[28] = chosenMutation;
+
+                    mutItems.forEach(m => {
+                        let mEl = document.createElement('div');
+                        mEl.className = `mutation-item`;
+                        mEl.innerHTML = `<span>✨<br>${getMutationName(m.id)}<br>x${m.mult}</span>`;
+                        mutationTrack.appendChild(mEl);
+                    });
+
+                    startRouletteSound(); // Снова треск для мутации
+
+                    setTimeout(() => {
+                        mutationTrack.style.transition = 'transform 4s cubic-bezier(0.1, 1, 0.1, 1)';
+                        mutationTrack.style.transform = `translateX(-${(28 * 110) - (mutationWrapper.offsetWidth / 2) + 55}px)`;
+                    }, 50);
+
+                    setTimeout(() => {
+                        isSpinning = false;
+                        playSound('win');
+                        finalCard.mutation = chosenMutation.id;
+                        finalCard.mutationMult = chosenMutation.mult;
+                        finalCard.price = Math.round(winningCard.price * chosenMutation.mult);
+                        finalCard.instanceId = Date.now();
+
+                        inventory.push(finalCard);
+                        resDiv.innerHTML = `${I18N[currentLang].dropped} <span class="${winningCard.rarity}" style="padding: 4px 10px; border-radius: 4px;">${getCardName(winningCard.id)} [${getMutationName(chosenMutation.id)}] (${finalCard.price} ${I18N[currentLang].coins})</span>`;
+                        updateUI();
+                    }, 4100);
+
+                } else {
+                    isSpinning = false;
+                    playSound('win');
+                    finalCard.instanceId = Date.now();
+                    inventory.push(finalCard);
+                    resDiv.innerHTML = `${I18N[currentLang].dropped} <span class="${winningCard.rarity}" style="padding: 4px 10px; border-radius: 4px;">${getCardName(winningCard.id)} (${winningCard.price} ${I18N[currentLang].coins})</span>`;
+                    updateUI();
+                }
+
             }, 4100);
         }
 
@@ -568,10 +875,16 @@
             inventory.forEach((item, index) => {
                 const el = document.createElement('div');
                 el.className = `card ${item.rarity} inventory-item`;
+                
+                let displayName = getCardName(item.id);
+                if (item.mutation) {
+                    displayName += ` [${getMutationName(item.mutation)}]`;
+                }
+
                 el.innerHTML = `
                     <div style="display:flex; align-items:center;">
                         <img src="${item.img}" onerror="this.style.display='none'">
-                        <span>${getCardName(item.id)}</span>
+                        <span>${displayName}</span>
                     </div>
                     <div>
                         <span>${item.price} ${I18N[currentLang].coins}</span>
@@ -583,6 +896,7 @@
 
         function sellItem(event, index) {
             event.stopPropagation();
+            playSound('click');
             let item = inventory[index];
             balance += item.price;
             
@@ -615,7 +929,9 @@
             inventory.forEach((item, index) => {
                 let opt = document.createElement('option');
                 opt.value = index;
-                opt.innerText = `${getCardName(item.id)} (${item.price} ${I18N[currentLang].coins})`;
+                let name = getCardName(item.id);
+                if (item.mutation) name += ` [${getMutationName(item.mutation)}]`;
+                opt.innerText = `${name} (${item.price} ${I18N[currentLang].coins})`;
                 if (selectedInvIndex === index) opt.selected = true;
                 select.appendChild(opt);
             });
@@ -641,7 +957,6 @@
             defaultOpt.innerText = I18N[currentLang].opt_select_inv;
             select.appendChild(defaultOpt);
 
-            // Фильтруем цели той же категории, которые дороже или равны по стоимости (или любые более дорогие цели)
             let validTargets = ALL_CARDS.filter(c => getItemCategory(c.id) === myCategory && c.price > myCard.price);
 
             validTargets.forEach(card => {
@@ -657,7 +972,7 @@
             const select = document.getElementById('my-item-select');
             const val = select.value;
             selectedInvIndex = val === "" ? null : parseInt(val);
-            selectedTargetId = null; // Сбрасываем цель при смене своего предмета
+            selectedTargetId = null;
             updateUI();
         }
 
@@ -667,11 +982,6 @@
             updateUI();
         }
 
-        // Расчет шанса по вашим новым точным правилам:
-        // - Камон ➔ Легендарка = 1%
-        // - Рарка ➔ Легендарка = 15%
-        // - Эпик ➔ Легендарка = 50%
-        // - Легендарка дешевая ➔ Легендарка дорогая = 75%
         function calculateUpgradeChance(myCard, targetCard) {
             if (!myCard || !targetCard) return 0;
             
@@ -679,10 +989,9 @@
                 if (myCard.rarity === 'common') return 1;
                 if (myCard.rarity === 'rare') return 15;
                 if (myCard.rarity === 'epic') return 50;
-                if (myCard.rarity === 'legendary') return 75; // Легендарка -> Легендарка (дорогая)
+                if (myCard.rarity === 'legendary') return 75;
             }
 
-            // Стандартная математическая формула для остальных переходов (если вдруг рарка->эпик и т.д.)
             let chance = Math.round((myCard.price / targetCard.price) * 90);
             return Math.min(Math.max(chance, 1), 95);
         }
@@ -709,7 +1018,9 @@
             let upgradeData = getUpgradeData();
 
             if (myCard) {
-                slotFrom.innerHTML = `<img src="${myCard.img}" onerror="this.style.display='none'"><span>${getCardName(myCard.id)} (${myCard.price} ${I18N[currentLang].coins})</span>`;
+                let name = getCardName(myCard.id);
+                if (myCard.mutation) name += ` [${getMutationName(myCard.mutation)}]`;
+                slotFrom.innerHTML = `<img src="${myCard.img}" onerror="this.style.display='none'"><span>${name} (${myCard.price} ${I18N[currentLang].coins})</span>`;
             } else {
                 slotFrom.innerHTML = I18N[currentLang].slot_from_empty;
             }
@@ -776,6 +1087,7 @@
             });
 
             isSpinning = true;
+            startRouletteSound(); // Треск и для апгрейдера
 
             setTimeout(() => {
                 track.style.transition = 'transform 4s cubic-bezier(0.1, 1, 0.1, 1)';
@@ -785,13 +1097,77 @@
             setTimeout(() => {
                 isSpinning = false;
                 if (isSuccess) {
+                    playSound('win');
                     inventory.push({...targetCard, instanceId: Date.now()});
                     resDiv.innerHTML = `<span style="color: #2ecc71;">${I18N[currentLang].upg_success} <span class="${targetCard.rarity}" style="padding: 4px 10px; border-radius: 4px;">${getCardName(targetCard.id)}</span></span>`;
                 } else {
+                    playSound('fail');
                     resDiv.innerHTML = `<span style="color: #e74c3c;">${I18N[currentLang].upg_fail}</span>`;
                 }
                 updateUI();
             }, 4100);
+        }
+
+        function checkDailyReset() {
+            if (!dailyData.lastClaimDate) return;
+            let lastDate = new Date(dailyData.lastClaimDate);
+            let now = new Date();
+            let diffHours = (now - lastDate) / (1000 * 60 * 60);
+
+            if (diffHours >= 48) {
+                dailyData.currentDay = 0;
+                saveData();
+            }
+        }
+
+        function renderDailyRewards() {
+            const container = document.getElementById('daily-grid');
+            container.innerHTML = '';
+
+            let todayStr = new Date().toDateString();
+            let canClaimToday = dailyData.lastClaimDate !== todayStr;
+            let targetDayToClaim = dailyData.currentDay + (canClaimToday ? 1 : 0);
+
+            DAILY_REWARDS.forEach((d) => {
+                let card = document.createElement('div');
+                let statusClass = '';
+                let btnText = I18N[currentLang].claim;
+                let isDisabled = true;
+
+                if (d.day < targetDayToClaim || (d.day === dailyData.currentDay && !canClaimToday)) {
+                    statusClass = 'claimed';
+                    btnText = I18N[currentLang].claimed;
+                } else if (d.day === targetDayToClaim && canClaimToday) {
+                    statusClass = 'available';
+                    isDisabled = false;
+                }
+
+                card.className = `daily-card ${statusClass}`;
+                card.innerHTML = `
+                    <div>
+                        <h4>День ${d.day}</h4>
+                        <p>${d.reward} ${I18N[currentLang].coins}</p>
+                    </div>
+                    <button class="action-btn" ${isDisabled ? 'disabled' : ''} onclick="claimDaily(${d.day}, ${d.reward})">${btnText}</button>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        function claimDaily(dayNum, rewardAmount) {
+            let todayStr = new Date().toDateString();
+            if (dailyData.lastClaimDate === todayStr) return;
+
+            playSound('win');
+            balance += rewardAmount;
+            dailyData.lastClaimDate = todayStr;
+            dailyData.currentDay = dayNum;
+
+            if (dailyData.currentDay >= 7) {
+                dailyData.currentDay = 0;
+            }
+
+            updateUI();
         }
 
         function applyPromoCode() {
@@ -817,6 +1193,7 @@
                 return;
             }
 
+            playSound('win');
             const reward = PROMO_CODES[code];
             balance += reward;
             usedPromos.push(code);
