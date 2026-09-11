@@ -33,7 +33,8 @@ button.sell-btn:hover { background: #c0392b; }
 .upgrade-card h3 { font-size: 16px; margin-bottom: 5px; color: #f39c12; }
 .upgrade-card p { font-size: 13px; margin-bottom: 8px; color: #bdc3c7; }
 .cases-grid { display: flex; gap: 20px; justify-content: center; flex-wrap: wrap; }
-.case-card { background: #2c3e50; border-radius: 12px; padding: 20px; width: 280px; border: 2px solid #34495e; display: flex; flex-direction: column; align-items: center; }
+.case-card { background: #2c3e50; border-radius: 12px; padding: 20px; width: 280px; border: 2px solid #34495e; display: flex; flex-direction: column; align-items: center; cursor: pointer; transition: transform 0.15s, border-color 0.15s; }
+.case-card:hover { transform: translateY(-4px); border-color: var(--accent); }
 .case-img-wrapper { width: 180px; height: 180px; background: #ffffff; border-radius: 12px; display: flex; align-items: center; justify-content: center; margin: 10px 0; padding: 10px; box-shadow: 0 4px 10px rgba(0,0,0,0.3); }
 .case-img { max-width: 100%; max-height: 100%; object-fit: contain; }
 .roulette-wrapper { overflow: hidden; width: 100%; max-width: 650px; height: 130px; margin: 20px auto; border: 4px solid #f39c12; border-radius: 8px; position: relative; background: #111; display: none; }
@@ -73,7 +74,7 @@ select.upgrader-select { width: 100%; padding: 12px; background: #2c3e50; color:
 .header-btns { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
 .settings-btn { background: #2c3e50; border: 2px solid #34495e; color: #fff; width: 42px; height: 36px; border-radius: 6px; font-size: 18px; cursor: pointer; transition: 0.2s; }
 .settings-btn:hover { background: #34495e; transform: rotate(30deg); }
-.modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.7); z-index: 100; align-items: flex-start; justify-content: center; padding: 40px 15px; }
+.modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.7); z-index: 100; align-items: flex-start; justify-content: center; padding: 40px 15px; overflow-y: auto; }
 .modal-overlay.open { display: flex; }
 .modal { background: #1e1e24; border: 2px solid #34495e; border-radius: 12px; padding: 25px 30px; width: 100%; max-width: 460px; text-align: left; }
 .modal-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
@@ -85,6 +86,26 @@ select.upgrader-select { width: 100%; padding: 12px; background: #2c3e50; color:
 .theme-swatch { width: 44px; height: 44px; border-radius: 50%; border: 3px solid #34495e; cursor: pointer; transition: transform 0.15s, border-color 0.15s, box-shadow 0.15s; }
 .theme-swatch:hover { transform: scale(1.12); }
 .theme-swatch.active { border-color: #fff; box-shadow: 0 0 12px rgba(255,255,255,0.5); }
+/* --- CS2 case preview modal --- */
+.case-items-list { max-height: 340px; overflow-y: auto; display: flex; flex-direction: column; gap: 8px; margin-bottom: 6px; }
+.case-item-row { display: flex; align-items: center; gap: 12px; padding: 8px 12px; border-radius: 8px; border-left: 5px solid transparent; }
+.case-item-row img { width: 44px; height: 44px; object-fit: cover; border-radius: 6px; background: #fff; flex-shrink: 0; }
+.case-item-info { display: flex; flex-direction: column; flex-grow: 1; min-width: 0; }
+.case-item-name { font-weight: bold; font-size: 15px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.case-item-rarity { font-size: 12px; opacity: 0.85; }
+.case-item-chance { font-weight: bold; font-size: 15px; color: #f1c40f; flex-shrink: 0; }
+.case-modal-msg { color: #e74c3c; font-weight: bold; margin: 10px 0 4px; min-height: 18px; }
+.case-mutation-info { margin: 12px 0 2px; padding: 10px 12px; border-radius: 8px; background: #4a235a; border: 1px solid #9b59b6; color: #f5eafa; font-size: 14px; font-weight: bold; display: flex; align-items: center; gap: 8px; }
+.case-mutation-info .mut-pct { margin-left: auto; color: #e0b0ff; font-size: 16px; }
+.case-open-buttons { display: flex; flex-direction: column; gap: 4px; }
+#multi-roulette-container { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin: 15px auto; max-width: 900px; }
+.multi-cell { display: flex; flex-direction: column; gap: 4px; align-items: center; }
+.roulette-wrapper.multi-mini { display: block; width: 100%; max-width: none; height: 92px; margin: 0; border-width: 3px; }
+@media (max-width: 640px) { #multi-roulette-container { grid-template-columns: 1fr; } }
+.multi-mini .roulette-track { top: 8px; }
+.multi-mini .roulette-item, .multi-mini .mutation-item { min-width: 76px; max-width: 76px; height: 76px; font-size: 9px; margin: 0 4px; }
+.multi-mini .roulette-item img { width: 34px; height: 34px; }
+.multi-mini .mutation-item span { font-size: 10px; }
 </style>
 </head>
 <body onload="init()">
@@ -94,18 +115,16 @@ select.upgrader-select { width: 100%; padding: 12px; background: #2c3e50; color:
         <button class="settings-btn" onclick="openSettings()" title="Settings">&#9881;</button>
     </div>
 </div>
-
 <div class="balance-container"><span data-i18n="balance">Баланс</span>: <span id="balance">0</span> <span data-i18n="coins">монет</span></div>
-
 <div class="nav-tabs">
     <button class="tab-btn active" onclick="switchTab('cases', event)" data-i18n="tab_cases">Кейсы</button>
     <button class="tab-btn" onclick="switchTab('clicker', event)" data-i18n="tab_clicker">Кликер</button>
+    <button class="tab-btn" onclick="switchTab('shop', event)" data-i18n="tab_shop">Магазин</button>
     <button class="tab-btn" onclick="switchTab('inventory', event)" data-i18n="tab_inventory">Инвентарь</button>
     <button class="tab-btn" onclick="switchTab('upgrader', event)" data-i18n="tab_upgrader">Апгрейдер</button>
     <button class="tab-btn" onclick="switchTab('daily', event)" data-i18n="tab_daily">Ежедневные</button>
     <button class="tab-btn" onclick="switchTab('promo', event)" data-i18n="tab_promo">Промокоды</button>
 </div>
-
 <div id="tab-cases" class="tab-content active">
     <h2 data-i18n="cases_title">Магазин Кейсов</h2><br>
     <div class="cases-grid" id="cases-list"></div>
@@ -117,9 +136,10 @@ select.upgrader-select { width: 100%; padding: 12px; background: #2c3e50; color:
         <div class="roulette-marker" style="background: #9b59b6;"></div>
         <div id="mutation-track" class="roulette-track"></div>
     </div>
+    <div id="multi-roulette-container"></div>
+    <button id="skip-roulette-btn" class="action-btn" style="display:none; max-width:220px; margin:10px auto;" data-testid="skip-roulette-btn" onclick="skipCaseRoulette()" data-i18n="skip_btn">Пропустить</button>
     <div id="case-result" style="margin-top: 15px; font-size: 18px; font-weight: bold;"></div>
 </div>
-
 <div id="tab-clicker" class="tab-content">
     <h2 data-i18n="clicker_title">Добыча Монет</h2><br>
     <div class="clicker-box">
@@ -128,13 +148,17 @@ select.upgrader-select { width: 100%; padding: 12px; background: #2c3e50; color:
         <div class="upgrades-grid" id="upgrades-list"></div>
     </div>
 </div>
-
+<div id="tab-shop" class="tab-content">
+    <h2 data-i18n="shop_title">Магазин Улучшений</h2>
+    <p style="font-size: 14px; color: #aaa; margin-bottom: 15px;" data-i18n="shop_sub">Улучшения для кейсов (покупаются один раз)</p>
+    <div class="upgrades-grid" id="shop-list"></div>
+</div>
 <div id="tab-inventory" class="tab-content">
     <h2 data-i18n="tab_inventory">Инвентарь</h2>
     <p style="font-size: 14px; color: #aaa; margin-bottom: 15px;" data-i18n="inv_sub">Продавайте полученные карточки за монеты</p>
+    <button id="sell-all-common-btn" class="sell-btn" style="margin:0 0 15px 0;padding:10px 18px;font-size:14px;" data-testid="sell-all-common-btn" data-i18n="sell_all_common" onclick="sellAllCommon()">Продать все обычные</button>
     <div id="inventory" class="inventory-grid" data-i18n="inv_empty">Пусто...</div>
 </div>
-
 <div id="tab-upgrader" class="tab-content">
     <h2 data-i18n="tab_upgrader">Апгрейдер</h2>
     <p style="font-size: 14px; color: #aaa; margin-bottom: 15px;" data-i18n="upg_sub">Выберите свой предмет и желаемую цель для апгрейда</p>
@@ -164,13 +188,11 @@ select.upgrader-select { width: 100%; padding: 12px; background: #2c3e50; color:
     </div>
     <div id="upgrade-result" style="margin-top: 15px; font-size: 18px; font-weight: bold;"></div>
 </div>
-
 <div id="tab-daily" class="tab-content">
     <h2 data-i18n="daily_title">Ежедневные Награды</h2>
     <p style="font-size: 14px; color: #aaa; margin-bottom: 15px;" data-i18n="daily_sub">Заходите каждый день и получайте бесплатные монеты!</p>
     <div class="daily-grid" id="daily-grid"></div>
 </div>
-
 <div id="tab-promo" class="tab-content">
     <h2 data-i18n="promo_title">Активация Промокода</h2><br>
     <div class="promo-box">
@@ -179,7 +201,6 @@ select.upgrader-select { width: 100%; padding: 12px; background: #2c3e50; color:
         <div id="promo-status" class="promo-status"></div>
     </div>
 </div>
-
 <!-- МОДАЛКА НАСТРОЕК -->
 <div id="settings-overlay" class="modal-overlay" onclick="settingsBgClose(event)">
     <div class="modal">
@@ -203,9 +224,27 @@ select.upgrader-select { width: 100%; padding: 12px; background: #2c3e50; color:
             <button class="theme-swatch" data-theme="blue" style="background:#2980b9" onclick="setAccent('blue')"></button>
             <button class="theme-swatch" data-theme="yellow" style="background:#f1c40f" onclick="setAccent('yellow')"></button>
         </div>
+        <h3 data-i18n="settings_speed">Скорость рулетки</h3>
+        <div class="settings-langs">
+            <button class="lang-btn" data-speed="normal" onclick="setSpinSpeed('normal')" data-i18n="speed_normal">Обычная</button>
+            <button class="lang-btn" data-speed="fast" onclick="setSpinSpeed('fast')" data-i18n="speed_fast">Быстрая</button>
+        </div>
     </div>
 </div>
-
+<!-- МОДАЛКА КЕЙСА (CS2-меню) -->
+<div id="case-overlay" class="modal-overlay" onclick="caseBgClose(event)">
+    <div class="modal">
+        <div class="modal-head">
+            <h2 id="case-modal-title" data-testid="case-modal-title">Кейс</h2>
+            <button class="modal-close" data-testid="case-modal-close" onclick="closeCaseModal()">&#10005;</button>
+        </div>
+        <h3 id="case-modal-sub" data-i18n="case_contents">Возможные предметы</h3>
+        <div id="case-items-list" class="case-items-list" data-testid="case-items-list"></div>
+        <div id="case-mutation-info" class="case-mutation-info" data-testid="case-mutation-info"></div>
+        <div id="case-modal-msg" class="case-modal-msg" data-testid="case-modal-msg"></div>
+        <div id="case-open-buttons" class="case-open-buttons" data-testid="case-open-buttons"></div>
+    </div>
+</div>
 <script>
 /* ============ ЯЗЫКИ (lang) ============ */
 const I18N = {
@@ -213,10 +252,17 @@ const I18N = {
         balance: "Баланс", coins: "монет", day: "День",
         tab_cases: "Кейсы", tab_clicker: "Кликер", tab_inventory: "Инвентарь", tab_upgrader: "Апгрейдер", tab_daily: "Ежедневные", tab_promo: "Промокоды",
         cases_title: "Магазин Кейсов", open_btn: "Открыть",
+        case_contents: "Возможные предметы",
+        rarities: { common: "Обычный", rare: "Редкий", epic: "Эпический", legendary: "Легендарный" },
         clicker_title: "Добыча Монет", click_btn: "КЛИК", income_text: "Текущий доход за клик",
         upgrade_btn: "Улучшить", upg_bonus: "+{n} монет к клику",
         upgrades: { base: "Прокачка клика", plus5: "Буст клика", plus10: "Мега клик", plus15: "Супер клик", plus25: "Ультра клик", plus100: "ИНДОМИНУС КЛИК" },
         inv_sub: "Продавайте полученные карточки за монеты", inv_empty: "Пусто...", sell_btn: "Продать",
+        sell_all_common: "Продать все обычные", mutation_chance: "Шанс мутации", no_common_cards: "Нет обычных карт для продажи!",
+        tab_shop: "Магазин", shop_title: "Магазин Улучшений", shop_sub: "Улучшения для кейсов (покупаются один раз)",
+        shop_multi5_name: "Открытие 5 кейсов", shop_multi5_desc: "Открывай сразу 5 кейсов за раз",
+        shop_multi10_name: "Открытие 10 кейсов", shop_multi10_desc: "Открывай сразу 10 кейсов за раз",
+        buy_btn: "Купить", purchased: "Куплено", open_x: "Открыть {n}", skip_btn: "Пропустить", multi_results: "Результаты",
         upg_sub: "Выберите свой предмет и желаемую цель для апгрейда",
         slot_from_empty: "Ваш предмет не выбран", slot_to_empty: "Цель не выбрана",
         upg_step1: "1. Ваш предмет:", upg_step2: "2. Желаемая цель:",
@@ -225,6 +271,7 @@ const I18N = {
         daily_title: "Ежедневные Награды", daily_sub: "Заходите каждый день и получайте бесплатные монеты!", claim: "Забрать", claimed: "Получено",
         promo_title: "Активация Промокода", promo_btn: "Активировать", promo_placeholder: "ПРОМОКОД",
         settings_title: "Настройки", settings_language: "Язык", settings_theme: "Цвет интерфейса",
+        settings_speed: "Скорость рулетки", speed_normal: "Обычная", speed_fast: "Быстрая", multi_summary: "Итого: {coins} монет · мутаций: {muts}",
         promo_empty: "Введите промокод!", promo_invalid: "Неверный промокод!", promo_used: "Вы уже активировали этот промокод!",
         promo_success: "Промокод активирован! Получено: {amount} монет!",
         not_enough_coins: "Недостаточно монет!", dropped: "Выпало:",
@@ -242,10 +289,17 @@ const I18N = {
         balance: "Баланс", coins: "монет", day: "День",
         tab_cases: "Кейси", tab_clicker: "Клікер", tab_inventory: "Інвентар", tab_upgrader: "Апгрейдер", tab_daily: "Щоденні", tab_promo: "Промокоди",
         cases_title: "Магазин Кейсів", open_btn: "Відкрити",
+        case_contents: "Можливі предмети",
+        rarities: { common: "Звичайний", rare: "Рідкісний", epic: "Епічний", legendary: "Легендарний" },
         clicker_title: "Видобуток Монет", click_btn: "КЛІК", income_text: "Поточний дохід за клік",
         upgrade_btn: "Покращити", upg_bonus: "+{n} монет до кліку",
         upgrades: { base: "Прокачування кліку", plus5: "Буст кліку", plus10: "Мега клік", plus15: "Супер клік", plus25: "Ультра клік", plus100: "ІНДОМІНУС КЛІК" },
         inv_sub: "Продавайте отримані картки за монети", inv_empty: "Порожньо...", sell_btn: "Продати",
+        sell_all_common: "Продати всі звичайні", mutation_chance: "Шанс мутації", no_common_cards: "Немає звичайних карт для продажу!",
+        tab_shop: "Магазин", shop_title: "Магазин Покращень", shop_sub: "Покращення для кейсів (купуються один раз)",
+        shop_multi5_name: "Відкриття 5 кейсів", shop_multi5_desc: "Відкривай одразу 5 кейсів за раз",
+        shop_multi10_name: "Відкриття 10 кейсів", shop_multi10_desc: "Відкривай одразу 10 кейсів за раз",
+        buy_btn: "Купити", purchased: "Куплено", open_x: "Відкрити {n}", skip_btn: "Пропустити", multi_results: "Результати",
         upg_sub: "Виберіть свій предмет та бажану ціль для апгрейду",
         slot_from_empty: "Ваш предмет не вибрано", slot_to_empty: "Ціль не вибрано",
         upg_step1: "1. Ваш предмет:", upg_step2: "2. Бажана ціль:",
@@ -254,6 +308,7 @@ const I18N = {
         daily_title: "Щоденні Нагороди", daily_sub: "Заходьте щодня та отримуйте безкоштовні монети!", claim: "Забрати", claimed: "Отримано",
         promo_title: "Активація Промокоду", promo_btn: "Активувати", promo_placeholder: "ПРОМОКОД",
         settings_title: "Налаштування", settings_language: "Мова", settings_theme: "Колір інтерфейсу",
+        settings_speed: "Швидкість рулетки", speed_normal: "Звичайна", speed_fast: "Швидка", multi_summary: "Разом: {coins} монет · мутацій: {muts}",
         promo_empty: "Введіть промокод!", promo_invalid: "Невірний промокод!", promo_used: "Ви вже активували цей промокод!",
         promo_success: "Промокод активовано! Отримано: {amount} монет!",
         not_enough_coins: "Недостатньо монет!", dropped: "Випало:",
@@ -271,10 +326,17 @@ const I18N = {
         balance: "Sold", coins: "monede", day: "Ziua",
         tab_cases: "Cufere", tab_clicker: "Clicker", tab_inventory: "Inventar", tab_upgrader: "Upgrader", tab_daily: "Zilnice", tab_promo: "Coduri Promo",
         cases_title: "Magazin de Cufere", open_btn: "Deschide",
+        case_contents: "Obiecte posibile",
+        rarities: { common: "Comun", rare: "Rar", epic: "Epic", legendary: "Legendar" },
         clicker_title: "Minerit Monede", click_btn: "CLICK", income_text: "Venit curent pe click",
         upgrade_btn: "Îmbunătățește", upg_bonus: "+{n} monede pe click",
         upgrades: { base: "Upgrade Click", plus5: "Boost Click", plus10: "Mega Click", plus15: "Super Click", plus25: "Ultra Click", plus100: "CLICK INDOMINUS" },
         inv_sub: "Vindeți cardurile colectate pentru monede", inv_empty: "Gol...", sell_btn: "Vinde",
+        sell_all_common: "Vinde toate comune", mutation_chance: "Șansă de mutație", no_common_cards: "Nu există carduri comune de vândut!",
+        tab_shop: "Magazin", shop_title: "Magazin de Upgrade-uri", shop_sub: "Upgrade-uri pentru cufere (se cumpără o singură dată)",
+        shop_multi5_name: "Deschidere 5 cufere", shop_multi5_desc: "Deschide 5 cufere odată",
+        shop_multi10_name: "Deschidere 10 cufere", shop_multi10_desc: "Deschide 10 cufere odată",
+        buy_btn: "Cumpără", purchased: "Cumpărat", open_x: "Deschide {n}", skip_btn: "Sari peste", multi_results: "Rezultate",
         upg_sub: "Selectați obiectul dvs. și ținta dorită",
         slot_from_empty: "Obiectul dvs. nu este selectat", slot_to_empty: "Ținta nu este selectată",
         upg_step1: "1. Obiectul dvs:", upg_step2: "2. Ținta dorită:",
@@ -283,6 +345,7 @@ const I18N = {
         daily_title: "Recompense Zilnice", daily_sub: "Vino în fiecare zi și primește monede gratuite!", claim: "Revendică", claimed: "Primit",
         promo_title: "Activare Cod Promoțional", promo_btn: "Activează", promo_placeholder: "COD PROMO",
         settings_title: "Setări", settings_language: "Limbă", settings_theme: "Culoarea interfeței",
+        settings_speed: "Viteza ruletei", speed_normal: "Normală", speed_fast: "Rapidă", multi_summary: "Total: {coins} monede · mutații: {muts}",
         promo_empty: "Introduceți un cod promoțional!", promo_invalid: "Cod promoțional invalid!", promo_used: "Ați folosit deja acest cod promoțional!",
         promo_success: "Cod activat! Ați primit: {amount} monede!",
         not_enough_coins: "Nu aveți suficiente monede!", dropped: "A căzut:",
@@ -300,10 +363,17 @@ const I18N = {
         balance: "Saldo", coins: "monet", day: "Dzień",
         tab_cases: "Skrzynie", tab_clicker: "Kliker", tab_inventory: "Ekwipunek", tab_upgrader: "Ulepszacz", tab_daily: "Codzienne", tab_promo: "Kody Promo",
         cases_title: "Sklep ze Skrzyniami", open_btn: "Otwórz",
+        case_contents: "Możliwe przedmioty",
+        rarities: { common: "Zwykły", rare: "Rzadki", epic: "Epicki", legendary: "Legendarny" },
         clicker_title: "Wydobycie Monet", click_btn: "KLIK", income_text: "Obecny dochód za kliknięcie",
         upgrade_btn: "Ulepsz", upg_bonus: "+{n} monet za kliknięcie",
         upgrades: { base: "Ulepszenie kliknięcia", plus5: "Doładowanie kliknięcia", plus10: "Mega Klik", plus15: "Super Klik", plus25: "Ultra Klik", plus100: "KLIK INDOMINUS" },
         inv_sub: "Sprzedawaj zebrane karty za monety", inv_empty: "Pusto...", sell_btn: "Sprzedaj",
+        sell_all_common: "Sprzedaj wszystkie zwykłe", mutation_chance: "Szansa na mutację", no_common_cards: "Brak zwykłych kart do sprzedania!",
+        tab_shop: "Sklep", shop_title: "Sklep z Ulepszeniami", shop_sub: "Ulepszenia do skrzyń (kupowane jednorazowo)",
+        shop_multi5_name: "Otwieranie 5 skrzyń", shop_multi5_desc: "Otwieraj 5 skrzyń naraz",
+        shop_multi10_name: "Otwieranie 10 skrzyń", shop_multi10_desc: "Otwieraj 10 skrzyń naraz",
+        buy_btn: "Kup", purchased: "Kupiono", open_x: "Otwórz {n}", skip_btn: "Pomiń", multi_results: "Wyniki",
         upg_sub: "Wybierz swój przedmiot i żądany cel",
         slot_from_empty: "Nie wybrano Twojego przedmiotu", slot_to_empty: "Nie wybrano celu",
         upg_step1: "1. Twój przedmiot:", upg_step2: "2. Żądany cel:",
@@ -312,6 +382,7 @@ const I18N = {
         daily_title: "Codzienne Nagrody", daily_sub: "Wchodź codziennie i odbieraj darmowe monety!", claim: "Odbierz", claimed: "Odebrano",
         promo_title: "Aktywacja Kodu Promocyjnego", promo_btn: "Aktywuj", promo_placeholder: "KOD PROMOCYJNY",
         settings_title: "Ustawienia", settings_language: "Język", settings_theme: "Kolor interfejsu",
+        settings_speed: "Prędkość ruletki", speed_normal: "Normalna", speed_fast: "Szybka", multi_summary: "Razem: {coins} monet · mutacji: {muts}",
         promo_empty: "Wpisz kod promocyjny!", promo_invalid: "Nieprawidłowy kod promocyjny!", promo_used: "Już aktywowałeś ten kod promocyjny!",
         promo_success: "Kod aktywowano! Otrzymano: {amount} monet!",
         not_enough_coins: "Za mało monet!", dropped: "Wypadło:",
@@ -329,10 +400,17 @@ const I18N = {
         balance: "Balance", coins: "coins", day: "Day",
         tab_cases: "Cases", tab_clicker: "Clicker", tab_inventory: "Inventory", tab_upgrader: "Upgrader", tab_daily: "Daily", tab_promo: "Promo Codes",
         cases_title: "Case Shop", open_btn: "Open",
+        case_contents: "Possible items",
+        rarities: { common: "Common", rare: "Rare", epic: "Epic", legendary: "Legendary" },
         clicker_title: "Coin Mining", click_btn: "CLICK", income_text: "Current income per click",
         upgrade_btn: "Upgrade", upg_bonus: "+{n} coins per click",
         upgrades: { base: "Click Upgrade", plus5: "Click Boost", plus10: "Mega Click", plus15: "Super Click", plus25: "Ultra Click", plus100: "INDOMINUS CLICK" },
         inv_sub: "Sell your collected cards for coins", inv_empty: "Empty...", sell_btn: "Sell",
+        sell_all_common: "Sell all common", mutation_chance: "Mutation chance", no_common_cards: "No common cards to sell!",
+        tab_shop: "Shop", shop_title: "Upgrade Shop", shop_sub: "Case upgrades (one-time purchase)",
+        shop_multi5_name: "Open 5 cases", shop_multi5_desc: "Open 5 cases at once",
+        shop_multi10_name: "Open 10 cases", shop_multi10_desc: "Open 10 cases at once",
+        buy_btn: "Buy", purchased: "Purchased", open_x: "Open {n}", skip_btn: "Skip", multi_results: "Results",
         upg_sub: "Select your item and desired target for upgrade",
         slot_from_empty: "Your item is not selected", slot_to_empty: "Target is not selected",
         upg_step1: "1. Your item:", upg_step2: "2. Desired target:",
@@ -341,6 +419,7 @@ const I18N = {
         daily_title: "Daily Rewards", daily_sub: "Log in every day and get free coins!", claim: "Claim", claimed: "Claimed",
         promo_title: "Promo Code Activation", promo_btn: "Activate", promo_placeholder: "PROMO CODE",
         settings_title: "Settings", settings_language: "Language", settings_theme: "Interface Color",
+        settings_speed: "Roulette speed", speed_normal: "Normal", speed_fast: "Fast", multi_summary: "Total: {coins} coins · mutations: {muts}",
         promo_empty: "Enter a promo code!", promo_invalid: "Invalid promo code!", promo_used: "You have already used this promo code!",
         promo_success: "Promo code activated! Received: {amount} coins!",
         not_enough_coins: "Not enough coins!", dropped: "Dropped:",
@@ -355,7 +434,6 @@ const I18N = {
         }
     }
 };
-
 /* ============ КОНТЕНТ (data) — добавляй сюда ============ */
 const UPGRADES = [
     { id: 'base',    cost: 100,   power: 1,   scaling: 1.5 },
@@ -364,6 +442,11 @@ const UPGRADES = [
     { id: 'plus15',  cost: 1500,  power: 15 },
     { id: 'plus25',  cost: 2500,  power: 25 },
     { id: 'plus100', cost: 10000, power: 100, highlight: true }
+];
+const UPGRADE_SCALING = 1.5;
+const CASE_SHOP = [
+    { id: 'multi5',  count: 5,  cost: 50000 },
+    { id: 'multi10', count: 10, cost: 100000 }
 ];
 const PROMO_CODES = { 'INDOMINUS1K': 10000, 'TULENCHIK': 1200, 'INDOM': 500, 'INDOMADMINTESTIK': 1000000 };
 const DAILY_REWARDS = [
@@ -413,18 +496,32 @@ const CASES = [
 ];
 const MUTATION_CHANCE = 0.20;
 const START_BALANCE = 500, START_CLICK_POWER = 10, START_UPGRADE_COST = 100;
-
 /* ============ ЛОГИКА (game) ============ */
 let currentLang = localStorage.getItem('lang') || 'ru';
 let balance = parseInt(localStorage.getItem('balance'));
 if (isNaN(balance)) balance = START_BALANCE;
 let clickPower = parseInt(localStorage.getItem('clickPower')) || START_CLICK_POWER;
 let upgradeCost = parseInt(localStorage.getItem('upgradeCost')) || START_UPGRADE_COST;
+// кол-во покупок по каждому апгрейду (для роста цены x1.5)
+let upgradeLevels = JSON.parse(localStorage.getItem('upgradeLevels'));
+if (!upgradeLevels || typeof upgradeLevels !== 'object') {
+    upgradeLevels = {};
+    // Миграция: если было старое сохранение upgradeCost для base — восстанавливаем кол-во покупок
+    if (!isNaN(upgradeCost) && upgradeCost > START_UPGRADE_COST) {
+        upgradeLevels.base = Math.round(Math.log(upgradeCost / START_UPGRADE_COST) / Math.log(UPGRADE_SCALING));
+    }
+}
 let inventory = JSON.parse(localStorage.getItem('inventory')) || [];
 let usedPromos = JSON.parse(localStorage.getItem('usedPromos')) || [];
 let dailyData = JSON.parse(localStorage.getItem('dailyData')) || { lastClaimDate: null, currentDay: 0 };
 let selectedInvIndex = null, selectedTargetId = null, isSpinning = false, rouletteSoundInterval = null;
-
+let modalCaseIndex = null;
+// одноразовые улучшения магазина (мульти-открытие кейсов)
+let caseUpgrades = JSON.parse(localStorage.getItem('caseUpgrades')) || { multi5: false, multi10: false };
+let caseTimers = [], currentSpinFinalize = null;
+let fastSpin = localStorage.getItem('fastSpin') === '1';
+function spinDuration() { return fastSpin ? 1000 : 4000; }
+function spinTransition() { return `transform ${spinDuration() / 1000}s cubic-bezier(0.1, 1, 0.1, 1)`; }
 const THEMES = {
     orange: ['#e67e22', '#d35400'], green: ['#27ae60', '#1e8449'], red: ['#e74c3c', '#c0392b'],
     blue: ['#2980b9', '#1f6391'], yellow: ['#f1c40f', '#d4ac0d']
@@ -440,7 +537,6 @@ function setAccent(name) {
 function openSettings() { document.getElementById('settings-overlay').classList.add('open'); }
 function closeSettings() { document.getElementById('settings-overlay').classList.remove('open'); }
 function settingsBgClose(e) { if (e.target.id === 'settings-overlay') closeSettings(); }
-
 const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
 function playSound(type) {
     if (audioCtx.state === 'suspended') { audioCtx.resume(); }
@@ -453,9 +549,9 @@ function playSound(type) {
     else if (type === 'mutation') { osc.type='square'; osc.frequency.setValueAtTime(500, now); osc.frequency.setValueAtTime(750, now+0.15); osc.frequency.setValueAtTime(1000, now+0.3); gainNode.gain.setValueAtTime(0.12, now); gainNode.gain.linearRampToValueAtTime(0.01, now+0.45); osc.start(now); osc.stop(now+0.45); }
     else if (type === 'fail') { osc.type='sawtooth'; osc.frequency.setValueAtTime(180, now); osc.frequency.linearRampToValueAtTime(80, now+0.3); gainNode.gain.setValueAtTime(0.15, now); gainNode.gain.linearRampToValueAtTime(0.01, now+0.3); osc.start(now); osc.stop(now+0.3); }
 }
-function startRouletteSound() {
+function startRouletteSound(duration) {
     if (rouletteSoundInterval) clearTimeout(rouletteSoundInterval);
-    let duration = 4000, startTime = Date.now();
+    duration = duration || spinDuration(); let startTime = Date.now();
     function scheduleTick() {
         let elapsed = Date.now() - startTime;
         if (elapsed >= duration) { if (rouletteSoundInterval) clearTimeout(rouletteSoundInterval); return; }
@@ -465,24 +561,29 @@ function startRouletteSound() {
     }
     scheduleTick();
 }
-
 function t() { return I18N[currentLang]; }
 function getItemCategory(cardId) { if (!cardId) return 'ocean'; return cardId.startsWith('w') ? 'ocean' : 'dino'; }
 function getCardName(id) { return t().cards[id] || id; }
 function getMutationName(id) { return t().mutations[id] || id; }
 function getCaseName(id) { return t().cases[id] || id; }
-
-function init() { setAccent(currentAccent); setLanguage(currentLang); checkDailyReset(); renderDailyRewards(); }
+function getRarityName(r) { return (t().rarities && t().rarities[r]) || r; }
+function setSpinSpeed(mode) {
+    fastSpin = (mode === 'fast');
+    localStorage.setItem('fastSpin', fastSpin ? '1' : '0');
+    document.querySelectorAll('[data-speed]').forEach(b => b.classList.toggle('active', b.getAttribute('data-speed') === mode));
+}
+function init() { setAccent(currentAccent); setSpinSpeed(fastSpin ? 'fast' : 'normal'); setLanguage(currentLang); checkDailyReset(); renderDailyRewards(); }
 function saveData() {
     localStorage.setItem('lang', currentLang);
     localStorage.setItem('balance', balance);
     localStorage.setItem('clickPower', clickPower);
-    localStorage.setItem('upgradeCost', upgradeCost);
+    localStorage.setItem('upgradeCost', getUpgradeCost(UPGRADES[0])); // legacy-совместимость (base)
+    localStorage.setItem('upgradeLevels', JSON.stringify(upgradeLevels));
+    localStorage.setItem('caseUpgrades', JSON.stringify(caseUpgrades));
     localStorage.setItem('inventory', JSON.stringify(inventory));
     localStorage.setItem('usedPromos', JSON.stringify(usedPromos));
     localStorage.setItem('dailyData', JSON.stringify(dailyData));
 }
-
 function setLanguage(lang) {
     currentLang = I18N[lang] ? lang : 'ru';
     document.querySelectorAll('[data-lang]').forEach(btn => btn.classList.toggle('active', btn.getAttribute('data-lang') === currentLang));
@@ -494,7 +595,7 @@ function setLanguage(lang) {
 function updateUI() {
     document.getElementById('balance').innerText = balance;
     document.getElementById('click-power-text').innerText = clickPower;
-    renderUpgrades(); renderInventory(); populateMyItemSelect(); populateTargetSelect(); updateUpgrader(); renderDailyRewards(); saveData();
+    renderUpgrades(); renderShop(); renderInventory(); populateMyItemSelect(); populateTargetSelect(); updateUpgrader(); renderDailyRewards(); saveData();
 }
 function switchTab(tabName, event) {
     document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
@@ -503,104 +604,288 @@ function switchTab(tabName, event) {
     document.getElementById(`tab-${tabName}`).classList.add('active');
 }
 function clickCoin() { playSound('click'); balance += clickPower; updateUI(); }
-
+/* Текущая цена апгрейда = round(baseCost * 1.5^куплено) */
+function getUpgradeCost(u) {
+    const bought = upgradeLevels[u.id] || 0;
+    return Math.round(u.cost * Math.pow(UPGRADE_SCALING, bought));
+}
 function renderUpgrades() {
     const container = document.getElementById('upgrades-list');
     if (!container) return;
     container.innerHTML = '';
     UPGRADES.forEach(u => {
-        const cost = (u.id === 'base') ? upgradeCost : u.cost;
+        const cost = getUpgradeCost(u);
         const disabled = balance < cost ? 'disabled' : '';
         const card = document.createElement('div');
         card.className = 'upgrade-card';
         if (u.highlight) card.style.borderColor = '#f1c40f';
         const nameStyle = u.highlight ? 'style="color:#f1c40f;"' : '';
         card.innerHTML = `<div><h3 ${nameStyle}>${t().upgrades[u.id] || u.id}</h3><p>${t().upg_bonus.replace('{n}', u.power)}</p></div>
-            <div><p style="color:#2ecc71;font-weight:bold;font-size:14px;margin-bottom:5px;">${cost} ${t().coins}</p>
-            <button class="action-btn" ${disabled} onclick="buyClickUpgrade('${u.id}')">${t().upgrade_btn}</button></div>`;
+            <div><p style="color:#2ecc71;font-weight:bold;font-size:14px;margin-bottom:5px;" data-testid="upgrade-cost-${u.id}">${cost} ${t().coins}</p>
+            <button class="action-btn" data-testid="buy-upgrade-${u.id}" ${disabled} onclick="buyClickUpgrade('${u.id}')">${t().upgrade_btn}</button></div>`;
         container.appendChild(card);
     });
 }
 function buyClickUpgrade(type) {
     const u = UPGRADES.find(x => x.id === type); if (!u) return;
-    const cost = (u.id === 'base') ? upgradeCost : u.cost;
+    const cost = getUpgradeCost(u);
     if (balance >= cost) {
         playSound('win'); balance -= cost; clickPower += u.power;
-        if (u.id === 'base') upgradeCost = Math.round(upgradeCost * (u.scaling || 1.5));
+        upgradeLevels[u.id] = (upgradeLevels[u.id] || 0) + 1; // цена этого апгрейда вырастет x1.5
         updateUI();
     } else { playSound('fail'); alert(t().not_enough_coins); }
 }
-
+function renderShop() {
+    const container = document.getElementById('shop-list');
+    if (!container) return;
+    container.innerHTML = '';
+    CASE_SHOP.forEach(s => {
+        const owned = !!caseUpgrades[s.id];
+        const disabled = (owned || balance < s.cost) ? 'disabled' : '';
+        const card = document.createElement('div');
+        card.className = 'upgrade-card';
+        if (owned) card.style.borderColor = '#2ecc71';
+        card.innerHTML = `<div><h3>${t()['shop_' + s.id + '_name']}</h3><p>${t()['shop_' + s.id + '_desc']}</p></div>
+            <div><p style="color:#2ecc71;font-weight:bold;font-size:14px;margin-bottom:5px;" data-testid="shop-cost-${s.id}">${s.cost} ${t().coins}</p>
+            <button class="action-btn" data-testid="buy-shop-${s.id}" ${disabled} onclick="buyCaseUpgrade('${s.id}')">${owned ? t().purchased : t().buy_btn}</button></div>`;
+        container.appendChild(card);
+    });
+}
+function buyCaseUpgrade(id) {
+    const s = CASE_SHOP.find(x => x.id === id);
+    if (!s || caseUpgrades[id]) return;
+    if (balance < s.cost) { playSound('fail'); alert(t().not_enough_coins); return; }
+    playSound('win'); balance -= s.cost; caseUpgrades[id] = true; updateUI();
+}
 function renderCases() {
     const container = document.getElementById('cases-list'); container.innerHTML = '';
     CASES.forEach((c, index) => {
         const el = document.createElement('div'); el.className = 'case-card';
+        el.setAttribute('data-testid', `case-card-${c.id}`);
+        el.setAttribute('onclick', `openCaseModal(${index})`);
         el.innerHTML = `<h3>${getCaseName(c.id)}</h3>
             <div class="case-img-wrapper"><img src="${c.img}" class="case-img" onerror="this.onerror=null; this.src='${c.fallbackImg || ''}';"></div>
             <p style="margin:5px 0;color:#2ecc71;"><b>${c.price} ${t().coins}</b></p>
-            <button class="action-btn" onclick="openCase(${index})">${t().open_btn}</button>`;
+            <button class="action-btn" onclick="event.stopPropagation(); openCaseModal(${index})">${t().open_btn}</button>`;
         container.appendChild(el);
     });
 }
-function openCase(caseIndex) {
+/* ===== CS2-меню: модалка кейса ===== */
+function openCaseModal(index) {
+    if (isSpinning) return;
+    modalCaseIndex = index;
+    const c = CASES[index];
+    const totalWeight = c.items.reduce((s, i) => s + i.weight, 0);
+    document.getElementById('case-modal-title').innerText = getCaseName(c.id);
+    document.getElementById('case-modal-sub').innerText = t().case_contents;
+    const list = document.getElementById('case-items-list'); list.innerHTML = '';
+    c.items.forEach(it => {
+        const card = ALL_CARDS.find(x => x.id === it.cardId); if (!card) return;
+        const pct = it.weight / totalWeight * 100;
+        const pctStr = pct.toFixed(2).replace(/\.?0+$/, '');
+        const row = document.createElement('div');
+        row.className = `case-item-row ${card.rarity}`;
+        row.setAttribute('data-testid', `case-item-${card.id}`);
+        row.innerHTML = `<img src="${card.img}" onerror="this.style.display='none'">
+            <div class="case-item-info"><span class="case-item-name">${getCardName(card.id)}</span>
+            <span class="case-item-rarity">${getRarityName(card.rarity)}</span></div>
+            <span class="case-item-chance">${pctStr}%</span>`;
+        list.appendChild(row);
+    });
+    document.getElementById('case-modal-msg').innerText = '';
+    const mutInfo = document.getElementById('case-mutation-info');
+    mutInfo.innerHTML = `<span>✨ ${t().mutation_chance}</span><span class="mut-pct">${Math.round(MUTATION_CHANCE * 100)}%</span>`;
+    const btns = document.getElementById('case-open-buttons'); btns.innerHTML = '';
+    const counts = [1]; if (caseUpgrades.multi5) counts.push(5); if (caseUpgrades.multi10) counts.push(10);
+    counts.forEach(n => {
+        const b = document.createElement('button'); b.className = 'action-btn';
+        b.setAttribute('data-testid', `case-open-${n}`);
+        b.innerText = (n === 1) ? `${t().open_btn} — ${c.price} ${t().coins}` : `${t().open_x.replace('{n}', n)} — ${c.price * n} ${t().coins}`;
+        b.onclick = () => confirmOpenCase(n);
+        btns.appendChild(b);
+    });
+    document.getElementById('case-overlay').classList.add('open');
+}
+function closeCaseModal() { document.getElementById('case-overlay').classList.remove('open'); }
+function caseBgClose(e) { if (e.target.id === 'case-overlay') closeCaseModal(); }
+function confirmOpenCase(count) {
+    count = count || 1;
+    if (modalCaseIndex === null) return;
+    const c = CASES[modalCaseIndex];
+    const total = c.price * count;
+    if (balance < total) { // недостаток монет — сообщение, модалка остаётся
+        playSound('fail'); document.getElementById('case-modal-msg').innerText = t().not_enough_coins; return;
+    }
+    const idx = modalCaseIndex;
+    closeCaseModal();
+    openCase(idx, count);
+}
+function clearCaseTimers() {
+    caseTimers.forEach(id => clearTimeout(id)); caseTimers = [];
+    if (rouletteSoundInterval) { clearTimeout(rouletteSoundInterval); rouletteSoundInterval = null; }
+}
+// Чистая логика дропа одного кейса (мутация уже применена к карте)
+function rollCase(cc) {
+    const totalWeight = cc.items.reduce((s, i) => s + i.weight, 0);
+    let rand = Math.random() * totalWeight, id = cc.items[0].cardId;
+    for (let it of cc.items) { if (rand < it.weight) { id = it.cardId; break; } rand -= it.weight; }
+    const won = ALL_CARDS.find(c => c.id === id);
+    let card = { ...won, instanceId: Date.now() + Math.floor(Math.random() * 1000000) };
+    let mutation = null;
+    if (Math.random() < MUTATION_CHANCE) {
+        let tw = MUTATIONS.reduce((s, m) => s + m.weight, 0); let r = Math.random() * tw; mutation = MUTATIONS[0];
+        for (let m of MUTATIONS) { if (r < m.weight) { mutation = m; break; } r -= m.weight; }
+        card.mutation = mutation.id; card.mutationMult = mutation.mult; card.price = Math.round(won.price * mutation.mult);
+    }
+    return { won, card, mutation };
+}
+function resultSpan(won, card) {
+    let name = getCardName(won.id);
+    if (card.mutation) name += ` [${getMutationName(card.mutation)}]`;
+    return `<span class="${won.rarity}" style="padding:4px 10px;border-radius:4px;display:inline-block;margin:3px;">${name} (${card.price} ${t().coins})</span>`;
+}
+function openCase(caseIndex, count) {
+    count = count || 1;
     if (isSpinning) return;
     const currentCase = CASES[caseIndex];
-    if (balance < currentCase.price) { playSound('fail'); alert(t().not_enough_coins); return; }
-    balance -= currentCase.price; updateUI();
-    const totalWeight = currentCase.items.reduce((s, i) => s + i.weight, 0);
-    let rand = Math.random() * totalWeight, droppedCardId = currentCase.items[0].cardId;
-    for (let item of currentCase.items) { if (rand < item.weight) { droppedCardId = item.cardId; break; } rand -= item.weight; }
-    const winningCard = ALL_CARDS.find(c => c.id === droppedCardId);
+    const totalCost = currentCase.price * count;
+    if (balance < totalCost) { playSound('fail'); alert(t().not_enough_coins); return; }
+    balance -= totalCost; updateUI();
+    if (count > 1) { openCaseMulti(currentCase, count); return; }
+    // ---- одиночное открытие: рулетка + возможность пропустить ----
+    const { won, card, mutation } = rollCase(currentCase);
     const casePossibleCards = currentCase.items.map(i => ALL_CARDS.find(c => c.id === i.cardId));
     const track = document.getElementById('roulette-track'), wrapper = document.getElementById('roulette-wrapper');
     const mutationWrapper = document.getElementById('mutation-wrapper'), mutationTrack = document.getElementById('mutation-track');
-    const resDiv = document.getElementById('case-result');
+    const resDiv = document.getElementById('case-result'), skipBtn = document.getElementById('skip-roulette-btn');
     track.innerHTML = ''; track.style.transition = 'none'; track.style.transform = 'translateX(0)';
     mutationWrapper.style.display = 'none'; resDiv.innerText = ''; wrapper.style.display = 'block';
+    document.getElementById('multi-roulette-container').innerHTML = '';
     let rouletteItems = [];
     for (let i = 0; i < 35; i++) rouletteItems.push(casePossibleCards[Math.floor(Math.random() * casePossibleCards.length)]);
-    rouletteItems[28] = winningCard;
-    rouletteItems.forEach(card => {
-        let el = document.createElement('div'); el.className = `roulette-item ${card.rarity}`;
-        el.innerHTML = `<img src="${card.img}" onerror="this.style.display='none'"><span>${getCardName(card.id)}</span>`;
+    rouletteItems[28] = won;
+    rouletteItems.forEach(cd => {
+        let el = document.createElement('div'); el.className = `roulette-item ${cd.rarity}`;
+        el.innerHTML = `<img src="${cd.img}" onerror="this.style.display='none'"><span>${getCardName(cd.id)}</span>`;
         track.appendChild(el);
     });
-    isSpinning = true; startRouletteSound();
-    setTimeout(() => { track.style.transition = 'transform 4s cubic-bezier(0.1, 1, 0.1, 1)'; track.style.transform = `translateX(-${(28*110)-(wrapper.offsetWidth/2)+55}px)`; }, 50);
-    setTimeout(() => {
-        let hasMutation = Math.random() < MUTATION_CHANCE;
-        let finalCard = { ...winningCard };
-        if (hasMutation) {
-            playSound('mutation'); mutationWrapper.style.display = 'block';
-            let totalMutWeight = MUTATIONS.reduce((s, m) => s + m.weight, 0);
-            let mutRand = Math.random() * totalMutWeight, chosenMutation = MUTATIONS[0];
-            for (let m of MUTATIONS) { if (mutRand < m.weight) { chosenMutation = m; break; } mutRand -= m.weight; }
+    let finalized = false, mutationSoundPlayed = false;
+    function finalize() {
+        if (finalized) return; finalized = true;
+        clearCaseTimers(); currentSpinFinalize = null; isSpinning = false; skipBtn.style.display = 'none';
+        track.style.transition = 'none'; track.style.transform = `translateX(-${(28*110)-(wrapper.offsetWidth/2)+55}px)`;
+        if (mutation) {
+            mutationWrapper.style.display = 'block';
+            if (!mutationTrack.children.length) {
+                let mutItems = []; for (let i = 0; i < 35; i++) mutItems.push(MUTATIONS[Math.floor(Math.random() * MUTATIONS.length)]); mutItems[28] = mutation;
+                mutItems.forEach(m => { let el = document.createElement('div'); el.className = 'mutation-item'; el.innerHTML = `<span>✨<br>${getMutationName(m.id)}<br>x${m.mult}</span>`; mutationTrack.appendChild(el); });
+            }
+            mutationTrack.style.transition = 'none'; mutationTrack.style.transform = `translateX(-${(28*110)-(mutationWrapper.offsetWidth/2)+55}px)`;
+            if (!mutationSoundPlayed) { playSound('mutation'); mutationSoundPlayed = true; }
+        }
+        inventory.push(card);
+        resDiv.innerHTML = `${t().dropped} ${resultSpan(won, card)}`;
+        playSound('win'); updateUI();
+    }
+    currentSpinFinalize = finalize;
+    isSpinning = true; skipBtn.style.display = 'block'; startRouletteSound();
+    caseTimers.push(setTimeout(() => { track.style.transition = spinTransition(); track.style.transform = `translateX(-${(28*110)-(wrapper.offsetWidth/2)+55}px)`; }, 50));
+    caseTimers.push(setTimeout(() => {
+        if (mutation) {
+            playSound('mutation'); mutationSoundPlayed = true; mutationWrapper.style.display = 'block';
             mutationTrack.innerHTML = ''; mutationTrack.style.transition = 'none'; mutationTrack.style.transform = 'translateX(0)';
-            let mutItems = [];
-            for (let i = 0; i < 35; i++) mutItems.push(MUTATIONS[Math.floor(Math.random() * MUTATIONS.length)]);
-            mutItems[28] = chosenMutation;
+            let mutItems = []; for (let i = 0; i < 35; i++) mutItems.push(MUTATIONS[Math.floor(Math.random() * MUTATIONS.length)]); mutItems[28] = mutation;
             mutItems.forEach(m => { let el = document.createElement('div'); el.className = 'mutation-item'; el.innerHTML = `<span>✨<br>${getMutationName(m.id)}<br>x${m.mult}</span>`; mutationTrack.appendChild(el); });
             startRouletteSound();
-            setTimeout(() => { mutationTrack.style.transition = 'transform 4s cubic-bezier(0.1, 1, 0.1, 1)'; mutationTrack.style.transform = `translateX(-${(28*110)-(mutationWrapper.offsetWidth/2)+55}px)`; }, 50);
-            setTimeout(() => {
-                isSpinning = false; playSound('win');
-                finalCard.mutation = chosenMutation.id; finalCard.mutationMult = chosenMutation.mult;
-                finalCard.price = Math.round(winningCard.price * chosenMutation.mult); finalCard.instanceId = Date.now();
-                inventory.push(finalCard);
-                resDiv.innerHTML = `${t().dropped} <span class="${winningCard.rarity}" style="padding:4px 10px;border-radius:4px;">${getCardName(winningCard.id)} [${getMutationName(chosenMutation.id)}] (${finalCard.price} ${t().coins})</span>`;
-                updateUI();
-            }, 4100);
-        } else {
-            isSpinning = false; playSound('win');
-            finalCard.instanceId = Date.now(); inventory.push(finalCard);
-            resDiv.innerHTML = `${t().dropped} <span class="${winningCard.rarity}" style="padding:4px 10px;border-radius:4px;">${getCardName(winningCard.id)} (${winningCard.price} ${t().coins})</span>`;
-            updateUI();
-        }
-    }, 4100);
+            caseTimers.push(setTimeout(() => { mutationTrack.style.transition = spinTransition(); mutationTrack.style.transform = `translateX(-${(28*110)-(mutationWrapper.offsetWidth/2)+55}px)`; }, 50));
+            caseTimers.push(setTimeout(finalize, spinDuration() + 100));
+        } else { finalize(); }
+    }, spinDuration() + 100));
 }
-
+function skipCaseRoulette() { if (currentSpinFinalize) currentSpinFinalize(); }
+// Мгновенное открытие нескольких кейсов (без рулетки)
+// Прокрутка трека к элементу idx (без привязки к фиксированной ширине)
+function spinTo(track, wrapper, idx, animate) {
+    const el = track.children[idx];
+    const offset = el.offsetLeft - (wrapper.offsetWidth / 2) + (el.offsetWidth / 2);
+    track.style.transition = animate ? spinTransition() : 'none';
+    track.style.transform = `translateX(-${offset}px)`;
+}
+// Мульти-открытие: одновременно крутятся N рулеток + рулетки мутаций
+function openCaseMulti(cc, count) {
+    const container = document.getElementById('multi-roulette-container');
+    const resDiv = document.getElementById('case-result');
+    const skipBtn = document.getElementById('skip-roulette-btn');
+    document.getElementById('roulette-wrapper').style.display = 'none';
+    document.getElementById('mutation-wrapper').style.display = 'none';
+    container.innerHTML = ''; resDiv.innerText = '';
+    const casePossibleCards = cc.items.map(i => ALL_CARDS.find(c => c.id === i.cardId));
+    let rolls = [], cardTracks = [], mutTracks = [];
+    rolls = Array.from({ length: count }, () => rollCase(cc));
+    rolls.forEach(r => {
+        const row = document.createElement('div'); row.className = 'multi-cell';
+        // рулетка карты
+        const w = document.createElement('div'); w.className = 'roulette-wrapper multi-mini';
+        const mk = document.createElement('div'); mk.className = 'roulette-marker'; w.appendChild(mk);
+        const track = document.createElement('div'); track.className = 'roulette-track'; w.appendChild(track);
+        let items = []; for (let k = 0; k < 35; k++) items.push(casePossibleCards[Math.floor(Math.random() * casePossibleCards.length)]);
+        items[28] = r.won;
+        items.forEach(cd => { let el = document.createElement('div'); el.className = `roulette-item ${cd.rarity}`; el.innerHTML = `<img src="${cd.img}" onerror="this.style.display='none'"><span>${getCardName(cd.id)}</span>`; track.appendChild(el); });
+        row.appendChild(w); cardTracks.push({ track, wrapper: w });
+        // рулетка мутации (если выпала)
+        if (r.mutation) {
+            const mw = document.createElement('div'); mw.className = 'roulette-wrapper mutation-wrapper multi-mini';
+            const mmk = document.createElement('div'); mmk.className = 'roulette-marker'; mmk.style.background = '#9b59b6'; mw.appendChild(mmk);
+            const mt = document.createElement('div'); mt.className = 'roulette-track'; mw.appendChild(mt);
+            let mits = []; for (let k = 0; k < 35; k++) mits.push(MUTATIONS[Math.floor(Math.random() * MUTATIONS.length)]);
+            mits[28] = r.mutation;
+            mits.forEach(m => { let el = document.createElement('div'); el.className = 'mutation-item'; el.innerHTML = `<span>✨<br>${getMutationName(m.id)}<br>x${m.mult}</span>`; mt.appendChild(el); });
+            row.appendChild(mw); mutTracks.push({ track: mt, wrapper: mw });
+        }
+        container.appendChild(row);
+    });
+    let finalized = false;
+    function finalize() {
+        if (finalized) return; finalized = true;
+        clearCaseTimers(); currentSpinFinalize = null; isSpinning = false; skipBtn.style.display = 'none';
+        cardTracks.forEach(o => spinTo(o.track, o.wrapper, 28, false));
+        mutTracks.forEach(o => spinTo(o.track, o.wrapper, 28, false));
+        rolls.forEach(r => inventory.push(r.card));
+        let totalCoins = rolls.reduce((s, r) => s + r.card.price, 0);
+        let mutCount = rolls.filter(r => r.mutation).length;
+        resDiv.innerHTML = `<div style="margin-bottom:8px;">${t().multi_results} (${count}):</div>` + rolls.map(r => resultSpan(r.won, r.card)).join('')
+            + `<div style="margin-top:12px;font-size:16px;color:#2ecc71;">${t().multi_summary.replace('{coins}', totalCoins).replace('{muts}', mutCount)}</div>`;
+        playSound('win'); if (mutCount) playSound('mutation');
+        updateUI();
+    }
+    currentSpinFinalize = finalize;
+    isSpinning = true; skipBtn.style.display = 'block'; startRouletteSound();
+    caseTimers.push(setTimeout(() => { cardTracks.forEach(o => spinTo(o.track, o.wrapper, 28, true)); }, 50));
+    if (mutTracks.length) {
+        caseTimers.push(setTimeout(() => { playSound('mutation'); mutTracks.forEach(o => spinTo(o.track, o.wrapper, 28, true)); startRouletteSound(); }, spinDuration() + 100));
+        caseTimers.push(setTimeout(finalize, spinDuration() * 2 + 200));
+    } else {
+        caseTimers.push(setTimeout(finalize, spinDuration() + 200));
+    }
+}
+function sellAllCommon() {
+    // продаём только обычные карты без мутации
+    let commons = inventory.filter(i => i.rarity === 'common' && !i.mutation);
+    if (commons.length === 0) { playSound('fail'); alert(t().no_common_cards); return; }
+    playSound('click');
+    let total = commons.reduce((s, i) => s + i.price, 0);
+    balance += total;
+    let selectedCard = (selectedInvIndex !== null) ? inventory[selectedInvIndex] : null;
+    inventory = inventory.filter(i => !(i.rarity === 'common' && !i.mutation));
+    // восстанавливаем выбор, если выбранная карта не была продана
+    if (selectedCard && inventory.indexOf(selectedCard) !== -1) { selectedInvIndex = inventory.indexOf(selectedCard); }
+    else { selectedInvIndex = null; selectedTargetId = null; }
+    updateUI();
+}
 function renderInventory() {
     const container = document.getElementById('inventory'); container.innerHTML = '';
+    const sellAllBtn = document.getElementById('sell-all-common-btn');
+    if (sellAllBtn) sellAllBtn.style.display = inventory.some(i => i.rarity === 'common' && !i.mutation) ? 'inline-block' : 'none';
     if (inventory.length === 0) { container.innerText = t().inv_empty; return; }
     inventory.forEach((item, index) => {
         const el = document.createElement('div'); el.className = `card ${item.rarity} inventory-item`;
@@ -618,7 +903,6 @@ function sellItem(event, index) {
     else if (selectedInvIndex > index) { selectedInvIndex--; }
     inventory.splice(index, 1); updateUI();
 }
-
 function populateMyItemSelect() {
     const select = document.getElementById('my-item-select'); select.innerHTML = '';
     if (inventory.length === 0) { select.innerHTML = `<option value="">${t().opt_inv_empty}</option>`; selectedInvIndex = null; return; }
@@ -646,7 +930,6 @@ function populateTargetSelect() {
 }
 function selectMyItemFromSelect() { const v = document.getElementById('my-item-select').value; selectedInvIndex = v === "" ? null : parseInt(v); selectedTargetId = null; updateUI(); }
 function selectTargetItemFromSelect() { const v = document.getElementById('target-item-select').value; selectedTargetId = v === "" ? null : v; updateUI(); }
-
 const RARITY_ORDER = { common: 0, rare: 1, epic: 2, legendary: 3 };
 function calculateUpgradeChance(myCard, targetCard) {
     if (!myCard || !targetCard) return 0;
@@ -683,6 +966,8 @@ function runUpgrade() {
     let upgradeData = getUpgradeData();
     if (!myCard || !upgradeData.target) return;
     let actualChance = upgradeData.chance, targetCard = upgradeData.target;
+    // запоминаем мутацию исходной карты, чтобы перенести её на выигрыш
+    let sourceMutation = myCard.mutation || null, sourceMutationMult = myCard.mutationMult || null;
     inventory.splice(selectedInvIndex, 1); selectedInvIndex = null; selectedTargetId = null; updateUI();
     const track = document.getElementById('upgrade-roulette-track'), wrapper = document.getElementById('upgrade-roulette-wrapper'), resDiv = document.getElementById('upgrade-result');
     track.innerHTML = ''; track.style.transition = 'none'; track.style.transform = 'translateX(0)'; resDiv.innerText = ''; wrapper.style.display = 'block';
@@ -698,15 +983,26 @@ function runUpgrade() {
         track.appendChild(el);
     });
     isSpinning = true; startRouletteSound();
-    setTimeout(() => { track.style.transition = 'transform 4s cubic-bezier(0.1, 1, 0.1, 1)'; track.style.transform = `translateX(-${(28*110)-(wrapper.offsetWidth/2)+55}px)`; }, 50);
+    setTimeout(() => { track.style.transition = spinTransition(); track.style.transform = `translateX(-${(28*110)-(wrapper.offsetWidth/2)+55}px)`; }, 50);
     setTimeout(() => {
         isSpinning = false;
-        if (isSuccess) { playSound('win'); inventory.push({ ...targetCard, instanceId: Date.now() }); resDiv.innerHTML = `<span style="color:#2ecc71;">${t().upg_success} <span class="${targetCard.rarity}" style="padding:4px 10px;border-radius:4px;">${getCardName(targetCard.id)}</span></span>`; }
+        if (isSuccess) {
+            playSound('win');
+            let newCard = { ...targetCard, instanceId: Date.now() };
+            if (sourceMutation) { // переносим мутацию и её множитель цены на новую карту
+                newCard.mutation = sourceMutation;
+                newCard.mutationMult = sourceMutationMult;
+                newCard.price = Math.round(targetCard.price * sourceMutationMult);
+            }
+            inventory.push(newCard);
+            let winName = getCardName(targetCard.id);
+            if (sourceMutation) winName += ` [${getMutationName(sourceMutation)}]`;
+            resDiv.innerHTML = `<span style="color:#2ecc71;">${t().upg_success} <span class="${targetCard.rarity}" style="padding:4px 10px;border-radius:4px;">${winName}</span></span>`;
+        }
         else { playSound('fail'); resDiv.innerHTML = `<span style="color:#e74c3c;">${t().upg_fail}</span>`; }
         updateUI();
-    }, 4100);
+    }, spinDuration() + 100);
 }
-
 function checkDailyReset() {
     if (!dailyData.lastClaimDate) return;
     let diffHours = (new Date() - new Date(dailyData.lastClaimDate)) / (1000 * 60 * 60);
@@ -735,7 +1031,6 @@ function claimDaily(dayNum, rewardAmount) {
     if (dailyData.currentDay >= 7) dailyData.currentDay = 0;
     updateUI();
 }
-
 function applyPromoCode() {
     const input = document.getElementById('promo-input'), status = document.getElementById('promo-status');
     const code = input.value.trim().toUpperCase();
@@ -749,6 +1044,6 @@ function applyPromoCode() {
     input.value = '';
 }
 </script>
+<script type="module" src="https://static.cloudflareinsights.com/beacon.min.js/v31edd6df95cf4e85bb4c19e7a9bdbcba1788362987495" integrity="sha512-iIg7k2xntmwu6/uSb5tpc/hySgZc4eoL31yB29W6tJFo2akwjPWcEqnCEdJvGexCL0KEQwVYv5BlowfhVz26hg==" data-cf-beacon='{"version":"2024.11.0","token":"7f7b0fd8732c4326aae4b9d58d5c514a","spa":2}' crossorigin="anonymous"></script>
 </body>
 </html>
-
