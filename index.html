@@ -81,6 +81,7 @@ select.upgrader-select { width: 100%; padding: 12px; background: #2c3e50; color:
 .modal-overlay.open { display: flex; }
 .modal { background: #1e1e24; border: 2px solid #34495e; border-radius: 12px; padding: 25px 30px; width: 100%; max-width: 460px; text-align: left; }
 .modal-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+.modal-head h2 { color: var(--accent); font-size: 22px; }
 .modal-close { background: transparent; border: none; color: #fff; font-size: 20px; cursor: pointer; line-height: 1; }
 .modal h3 { font-size: 13px; color: #bdc3c7; text-transform: uppercase; letter-spacing: 1px; margin: 18px 0 10px; }
 .settings-langs { display: flex; gap: 8px; flex-wrap: wrap; }
@@ -634,7 +635,17 @@ const CASE_SHOP = [
     { id: 'multi10', count: 10, cost: 100000 },
     { id: 'multi20', count: 20, cost: 250000 }
 ];
-const PROMO_CODES = { 'INDOMINUS1K': 10000, 'TULENCHIK': 1200, 'INDOM': 500, 'INDOMADMINTESTIK': 1000000, 'LIMITEDEVENT': 50000, 'ALLINDOMCARDSADMIN': 0, 'ALLMONEYADMINTESTIK': 1000000000000, 'DIMAGLESHADMININDOM': 0 };
+const PROMO_CODES = { 
+    'INDOMINUS1K': 10000, 
+    'TULENCHIK': 1200, 
+    'INDOM': 500, 
+    'INDOMADMINTESTIK': 1000000, 
+    'LIMITEDEVENT': 50000, 
+    'ALLINDOMCARDSADMIN': 0, 
+    'ALLMONEYADMINTESTIK': 1000000000000, 
+    'DIMAGLESHADMININDOM': 0,
+    'ADMINDIMASICTEST': 'ultra'
+};
 const DAILY_REWARDS = [
     { day: 1, reward: 250 }, { day: 2, reward: 500 }, { day: 3, reward: 1000 },
     { day: 4, reward: 2000 }, { day: 5, reward: 4000 }, { day: 6, reward: 7500 }, { day: 7, reward: 15000 }
@@ -1420,9 +1431,6 @@ function runUpgrade() {
     const success = Math.random() * 100 < chance;
     
     // Правильное чередование: карта ↔ НЕТ
-    // 28 — чётная позиция, поэтому:
-    // успех  → карта на чётных, НЕТ на нечётных
-    // неудача → НЕТ на чётных, карта на нечётных
     let items = [];
     const putTargetOnEven = success;
     for (let i = 0; i < 35; i++) {
@@ -1511,13 +1519,38 @@ function applyPromoCode() {
     const code = input.value.trim().toUpperCase();
     if (!code) { status.style.color = '#e74c3c'; status.innerText = t().promo_empty; return; }
     if (usedPromos.includes(code)) { status.style.color = '#e74c3c'; status.innerText = t().promo_used; return; }
+    
+    // Специальный промокод на карточку "Дима и Леша"
+    if (code === 'ADMINDIMASICTEST' || code === 'DIMAGLESHADMININDOM') {
+        const ultraCard = ALL_CARDS.find(c => c.id === 'ultra');
+        if (ultraCard) {
+            let card = { ...ultraCard, instanceId: Date.now() + Math.floor(Math.random() * 1000000) };
+            inventory.push(card);
+            playSound('win');
+            usedPromos.push(code);
+            status.style.color = '#2ecc71';
+            status.innerText = `Промокод активирован! Получен: ${getCardName('ultra')}`;
+            input.value = '';
+            updateUI();
+            return;
+        }
+    }
+    
     if (PROMO_CODES[code] !== undefined) {
         const amount = PROMO_CODES[code];
-        playSound('win'); balance += amount; usedPromos.push(code);
-        status.style.color = '#2ecc71'; status.innerText = t().promo_success.replace('{amount}', amount);
-        input.value = ''; updateUI();
+        if (typeof amount === 'number') {
+            playSound('win'); 
+            balance += amount; 
+            usedPromos.push(code);
+            status.style.color = '#2ecc71'; 
+            status.innerText = t().promo_success.replace('{amount}', amount);
+            input.value = ''; 
+            updateUI();
+        }
     } else {
-        playSound('fail'); status.style.color = '#e74c3c'; status.innerText = t().promo_invalid;
+        playSound('fail'); 
+        status.style.color = '#e74c3c'; 
+        status.innerText = t().promo_invalid;
     }
 }
 
