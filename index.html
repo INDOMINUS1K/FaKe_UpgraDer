@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>FAKE UPGRADER</title>
+<title>INDO DROP</title>
 <style>
 :root { --accent: #e67e22; --accent-dark: #d35400; }
 * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
@@ -35,7 +35,7 @@ button.sell-btn:hover { background: #c0392b; }
 .cases-grid { display: flex; gap: 20px; justify-content: center; flex-wrap: wrap; }
 .case-card { background: #2c3e50; border-radius: 12px; padding: 20px; width: 280px; border: 2px solid #34495e; display: flex; flex-direction: column; align-items: center; cursor: pointer; transition: transform 0.15s, border-color 0.15s; position: relative; }
 .case-card:hover { transform: translateY(-4px); border-color: var(--accent); }
-.case-img-wrapper { width: 180px; height: 180px; /* фон убран: прозрачный */ background: transparent; border-radius: 12px; display: flex; align-items: center; justify-content: center; margin: 10px 0; padding: 10px; box-shadow: 0 4px 10px rgba(0,0,0,0.3); }
+.case-img-wrapper { width: 180px; height: 180px; background: transparent; border-radius: 12px; display: flex; align-items: center; justify-content: center; margin: 10px 0; padding: 10px; box-shadow: 0 4px 10px rgba(0,0,0,0.3); }
 .case-img { max-width: 100%; max-height: 100%; object-fit: contain; }
 .roulette-wrapper { overflow: hidden; width: 100%; max-width: 650px; height: 130px; margin: 20px auto; border: 4px solid #f39c12; border-radius: 8px; position: relative; background: #111; display: none; }
 .roulette-marker { position: absolute; top: 0; left: 50%; transform: translateX(-50%); width: 4px; height: 100%; background: #e74c3c; z-index: 10; }
@@ -107,14 +107,17 @@ select.upgrader-select { width: 100%; padding: 12px; background: #2c3e50; color:
 .multi-mini .roulette-track { top: 8px; }
 .multi-mini .roulette-item, .multi-mini .mutation-item { min-width: 76px; max-width: 76px; height: 76px; font-size: 9px; margin: 0 4px; }
 .multi-mini .roulette-item img { width: 34px; height: 34px; }
-.multi-mini .mutation-item span { font-size: 10px; }
 .lock-overlay { position: absolute; inset: 0; display:flex; align-items:center; justify-content:center; background: rgba(0,0,0,0.65); border-radius: 12px; }
 .lock-text { color:#e74c3c; font-weight:bold; padding: 10px 12px; border: 2px solid #e74c3c; border-radius: 8px; background: rgba(0,0,0,0.4); }
+.autosell-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 10px; margin: 15px 0; }
+.autosell-btn { padding: 10px; border: 2px solid #34495e; background: #2c3e50; color: #fff; border-radius: 8px; cursor: pointer; font-weight: bold; transition: 0.2s; }
+.autosell-btn.active { border-color: #2ecc71; background: #1e4620; }
+.autosell-btn:hover { border-color: var(--accent); }
 </style>
 </head>
 <body onload="init()">
 <div class="header-top">
-    <h1>FAKE UPGRADER</h1>
+    <h1>INDO DROP</h1>
     <div class="header-btns">
         <button class="settings-btn" onclick="openSettings()" title="Settings">&#9881;</button>
     </div>
@@ -128,6 +131,7 @@ select.upgrader-select { width: 100%; padding: 12px; background: #2c3e50; color:
     <button class="tab-btn" onclick="switchTab('upgrader', event)" data-i18n="tab_upgrader">Апгрейдер</button>
     <button class="tab-btn" onclick="switchTab('daily', event)" data-i18n="tab_daily">Ежедневные</button>
     <button class="tab-btn" onclick="switchTab('promo', event)" data-i18n="tab_promo">Промокоды</button>
+    <button class="tab-btn" onclick="switchTab('index', event)" data-i18n="tab_index">Индекс</button>
 </div>
 <div id="tab-cases" class="tab-content active">
     <h2 data-i18n="cases_title">Магазин Кейсов</h2><br>
@@ -205,6 +209,11 @@ select.upgrader-select { width: 100%; padding: 12px; background: #2c3e50; color:
         <div id="promo-status" class="promo-status"></div>
     </div>
 </div>
+<div id="tab-index" class="tab-content">
+    <h2 data-i18n="index_title">Индекс Предметов</h2>
+    <p style="font-size: 14px; color: #aaa; margin-bottom: 15px;" data-i18n="index_sub">Все карточки и кейсы, из которых их можно получить</p>
+    <div id="index-list" class="case-items-list" style="max-height:600px;"></div>
+</div>
 <div id="settings-overlay" class="modal-overlay" onclick="settingsBgClose(event)">
     <div class="modal">
         <div class="modal-head">
@@ -233,6 +242,10 @@ select.upgrader-select { width: 100%; padding: 12px; background: #2c3e50; color:
             <button class="lang-btn" data-speed="fast" onclick="setSpinSpeed('fast')" data-i18n="speed_fast">Быстрая</button>
         </div>
 
+        <h3 data-i18n="autosell_title">Автопродажа</h3>
+        <p style="font-size: 12px; color: #aaa; margin-bottom: 10px;" data-i18n="autosell_desc">Выберите редкость для автоматической продажи</p>
+        <div class="autosell-grid" id="autosell-buttons"></div>
+
         <h3 data-i18n="rebirth_title">Перерождение</h3>
         <p style="color:#bdc3c7;margin-bottom:8px;" data-i18n="rebirth_desc">Перерождение стирает монеты, инвентарь и апгрейды кликера, но даёт доступ к особому кейсу.</p>
         <div style="display:flex;gap:8px;align-items:center;margin-bottom:10px;">
@@ -256,13 +269,13 @@ select.upgrader-select { width: 100%; padding: 12px; background: #2c3e50; color:
     </div>
 </div>
 <script>
-/* Переводы и данные (с измененными ценами для Komaru-карт *3 и Leviathan (w14) *1.5) */
 const I18N = {
     ru: {
         balance: "Баланс", coins: "монет", day: "День",
         tab_cases: "Кейсы", tab_clicker: "Кликер", tab_inventory: "Инвентарь", tab_upgrader: "Апгрейдер", tab_daily: "Ежедневные", tab_promo: "Промокоды",
         cases_title: "Магазин Кейсов", open_btn: "Открыть",
         case_contents: "Возможные предметы",
+        tab_index: "Индекс", index_title: "Индекс Предметов", index_sub: "Все карточки и кейсы, из которых их можно получить",
         rarities: { common: "Обычный", rare: "Редкий", epic: "Эпический", legendary: "Легендарный", mythic: "Мифик", secret: "Секрет", ultrasecret: "Ультра Секрет" },
         clicker_title: "Добыча Монет", click_btn: "КЛИК", income_text: "Текущий доход за клик",
         upgrade_btn: "Улучшить", upg_bonus: "+{n} монет к клику",
@@ -272,6 +285,7 @@ const I18N = {
         tab_shop: "Магазин", shop_title: "Магазин Улучшений", shop_sub: "Улучшения для кейсов (покупаются один раз)",
         shop_multi5_name: "Открытие 5 кейсов", shop_multi5_desc: "Открывай сразу 5 кейсов за раз",
         shop_multi10_name: "Открытие 10 кейсов", shop_multi10_desc: "Открывай сразу 10 кейсов за раз",
+        shop_multi20_name: "Открытие 20 кейсов", shop_multi20_desc: "Открывай сразу 20 кейсов за раз (цена x20)",
         buy_btn: "Купить", purchased: "Куплено", open_x: "Открыть {n}", skip_btn: "Пропустить", multi_results: "Результаты",
         upg_sub: "Выберите свой предмет и желаемую цель для апгрейда",
         slot_from_empty: "Ваш предмет не выбран", slot_to_empty: "Цель не выбрана",
@@ -286,7 +300,7 @@ const I18N = {
         promo_success: "Промокод активирован! Получено: {amount} монет!",
         not_enough_coins: "Недостаточно монет!", dropped: "Выпало:",
         upg_success: "Успех! Получен", upg_fail: "Неудача! Предмет сгорел.", burned_item: "Сгоревший предмет",
-        cases: { case_main: "Дино-Кейс", case_ocean: "Океанский Кейс", case_komaru: "Комару Кейс" },
+        cases: { case_main: "Дино-Кейс", case_ocean: "Океанский Кейс", case_komaru: "Комару Кейс", case_rm: "Rick and Morty Case", case_cs: "Counter Strike Case" },
         mutations: { silver: "Серебро", gold: "Золото", diamond: "Алмаз", rgb: "РГБ", crystal: "Кристалик", emerald: "Эмеральд" },
         cards: {
             c1: "Раптор", c2: "Компи", c3: "Галимим", c4: "Аллозавр", c5: "Карнотавр", c6: "Трицератопс",
@@ -300,20 +314,36 @@ const I18N = {
             kom5: "Комару в бассейне", kom6: "Комару в лесу", kom7: "Комару природа",
             kom8: "Комару поезд", kom9: "Комару рыбалка",
             kom10: "Комару ангел", kom11: "Комару где-то", kom12: "Комару пират",
-            kom13: "Комару школа", kom14: "Комару детектив", kom15: "Комару бар"
+            kom13: "Комару школа", kom14: "Комару детектив", kom15: "Комару бар",
+            rm1: "Richard Daniel Sanchez", rm2: "Rick's clone", rm3: "Sammer",
+            rm4: "Bet Smith", rm5: "Mr. Poopybutthole", rm6: "Gearhead",
+            rm7: "Smart Triceratops", rm8: "Smart Brachiosaurus",
+            rm9: "Smart T-rex", rm10: "Morty", rm11: "Cosmo Bet Smith", rm12: "Mr. President",
+            rm13: "Rick C-137", rm14: "Evil Morty",
+            rm15: "Jerry Smith",
+            cs1: "Mullberry", cs2: "Cortex", cs3: "Block18",
+            cs4: "Food chain", cs5: "Wave Breaker", cs6: "Fade",
+            cs7: "Amberline", cs8: "Skkaku",
+            cs9: "Nightwishh", cs10: "Aphrodite", cs11: "Neon Rider",
+            cs12: "Bowie doppler", cs13: "Polygon",
+            cs14: "Butterfly Emerald", cs15: "Dragon Lore", cs16: "Wild Lotus"
         },
         rebirth_title: "Перерождение",
         rebirth_desc: "Перерождение стирает монеты, инвентарь и апгрейды кликера, но даёт доступ к особому кейсу.",
         rebirth_btn: "Перерождение — 100000",
         rebirth_unlocked: "Разблокировано", rebirth_locked: "Требуется перерождение",
         secret_upgrade_block: "Секретный предмет нельзя улучшить",
-        category_mismatch: "Цель должна быть из той же категории, что и исходный предмет"
+        category_mismatch: "Цель должна быть из той же категории, что и исходный предмет",
+        autosell_title: "Автопродажа",
+        autosell_desc: "Выберите редкость для автоматической продажи",
+        autosell_none: "Отключено"
     },
     en: {
         balance: "Balance", coins: "coins", day: "Day",
         tab_cases: "Cases", tab_clicker: "Clicker", tab_inventory: "Inventory", tab_upgrader: "Upgrader", tab_daily: "Daily", tab_promo: "Promo",
         cases_title: "Cases Shop", open_btn: "Open",
         case_contents: "Possible items",
+        tab_index: "Index", index_title: "Item Index", index_sub: "All cards and the cases they can drop from",
         rarities: { common: "Common", rare: "Rare", epic: "Epic", legendary: "Legendary", mythic: "Mythic", secret: "Secret", ultrasecret: "Ultra Secret" },
         clicker_title: "Coin Mining", click_btn: "CLICK", income_text: "Current income per click",
         upgrade_btn: "Upgrade", upg_bonus: "+{n} coins per click",
@@ -323,6 +353,7 @@ const I18N = {
         tab_shop: "Shop", shop_title: "Upgrades Shop", shop_sub: "Case upgrades (one-time purchase)",
         shop_multi5_name: "Open 5 cases", shop_multi5_desc: "Open 5 cases at once",
         shop_multi10_name: "Open 10 cases", shop_multi10_desc: "Open 10 cases at once",
+        shop_multi20_name: "Open 20 cases", shop_multi20_desc: "Open 20 cases at once (price x20)",
         buy_btn: "Buy", purchased: "Purchased", open_x: "Open {n}", skip_btn: "Skip", multi_results: "Results",
         upg_sub: "Choose your item and a target to upgrade to",
         slot_from_empty: "Your item is not selected", slot_to_empty: "Target is not selected",
@@ -337,7 +368,7 @@ const I18N = {
         promo_success: "Promo activated! Received: {amount} coins!",
         not_enough_coins: "Not enough coins!", dropped: "Dropped:",
         upg_success: "Success! Received", upg_fail: "Failure! Item burned.", burned_item: "Burned item",
-        cases: { case_main: "Dino Case", case_ocean: "Ocean Case", case_komaru: "Komaru Case" },
+        cases: { case_main: "Dino Case", case_ocean: "Ocean Case", case_komaru: "Komaru Case", case_rm: "Rick and Morty Case", case_cs: "Counter Strike Case" },
         mutations: { silver: "Silver", gold: "Gold", diamond: "Diamond", rgb: "RGB", crystal: "Crystal", emerald: "Emerald" },
         cards: {
             c1: "Raptor", c2: "Compi", c3: "Galimim", c4: "Allosaur", c5: "Carnotaur", c6: "Triceratops",
@@ -351,20 +382,36 @@ const I18N = {
             kom5: "Komaru by Pool", kom6: "Komaru in Forest", kom7: "Komaru Nature",
             kom8: "Komaru Train", kom9: "Komaru Fishing",
             kom10: "Komaru Angel", kom11: "Komaru Somewhere", kom12: "Komaru Pirate",
-            kom13: "Komaru School", kom14: "Komaru Detective", kom15: "Komaru Bar"
+            kom13: "Komaru School", kom14: "Komaru Detective", kom15: "Komaru Bar",
+            rm1: "Richard Daniel Sanchez", rm2: "Rick's clone", rm3: "Sammer",
+            rm4: "Bet Smith", rm5: "Mr. Poopybutthole", rm6: "Gearhead",
+            rm7: "Smart Triceratops", rm8: "Smart Brachiosaurus",
+            rm9: "Smart T-rex", rm10: "Morty", rm11: "Cosmo Bet Smith", rm12: "Mr. President",
+            rm13: "Rick C-137", rm14: "Evil Morty",
+            rm15: "Jerry Smith",
+            cs1: "Mullberry", cs2: "Cortex", cs3: "Block18",
+            cs4: "Food chain", cs5: "Wave Breaker", cs6: "Fade",
+            cs7: "Amberline", cs8: "Skkaku",
+            cs9: "Nightwishh", cs10: "Aphrodite", cs11: "Neon Rider",
+            cs12: "Bowie doppler", cs13: "Polygon",
+            cs14: "Butterfly Emerald", cs15: "Dragon Lore", cs16: "Wild Lotus"
         },
         rebirth_title: "Rebirth",
         rebirth_desc: "Rebirth erases coins, inventory and clicker upgrades but grants access to a special case.",
         rebirth_btn: "Rebirth — 100000",
         rebirth_unlocked: "Unlocked", rebirth_locked: "Requires rebirth",
         secret_upgrade_block: "Secret items cannot be upgraded",
-        category_mismatch: "Target must be from the same category as the source item"
+        category_mismatch: "Target must be from the same category as the source item",
+        autosell_title: "Auto Sell",
+        autosell_desc: "Select rarity for automatic sale",
+        autosell_none: "Disabled"
     },
     uk: {
         balance: "Баланс", coins: "монет", day: "День",
         tab_cases: "Кейси", tab_clicker: "Клікер", tab_inventory: "Інвентар", tab_upgrader: "Апгрейдер", tab_daily: "Щоденні", tab_promo: "Промокоди",
         cases_title: "Магазин Кейсів", open_btn: "Відкрити",
         case_contents: "Можливі предмети",
+        tab_index: "Індекс", index_title: "Індекс Предметів", index_sub: "Усі картки та кейси, з яких їх можна отримати",
         rarities: { common: "Звичайний", rare: "Рідкісний", epic: "Епічний", legendary: "Легендарний", mythic: "Міфічний", secret: "Секрет", ultrasecret: "Ультра Секрет" },
         clicker_title: "Добування Монет", click_btn: "КЛІК", income_text: "Поточний дохід за клік",
         upgrade_btn: "Покращити", upg_bonus: "+{n} монет за клік",
@@ -374,6 +421,7 @@ const I18N = {
         tab_shop: "Магазин", shop_title: "Магазин Покращень", shop_sub: "Покращення для кейсів (одноразова покупка)",
         shop_multi5_name: "Відкриття 5 кейсів", shop_multi5_desc: "Відкривай 5 кейсів одразу",
         shop_multi10_name: "Відкриття 10 кейсів", shop_multi10_desc: "Відкривай 10 кейсів одразу",
+        shop_multi20_name: "Відкриття 20 кейсів", shop_multi20_desc: "Відкривай 20 кейсів одразу (ціна x20)",
         buy_btn: "Купити", purchased: "Куплено", open_x: "Відкрити {n}", skip_btn: "Пропустити", multi_results: "Результати",
         upg_sub: "Виберіть свій предмет і бажану ціль для апгрейду",
         slot_from_empty: "Ваш предмет не вибрано", slot_to_empty: "Ціль не вибрана",
@@ -388,20 +436,182 @@ const I18N = {
         promo_success: "Промокод активовано! Отримано: {amount} монет!",
         not_enough_coins: "Недостатньо монет!", dropped: "Випало:",
         upg_success: "Успіх! Отримано", upg_fail: "Не вдалося! Предмет згорів.", burned_item: "Згорілий предмет",
-        cases: { case_main: "Дино-Кейс", case_ocean: "Океанський Кейс", case_komaru: "Комару Кейс" },
+        cases: { case_main: "Дино-Кейс", case_ocean: "Океанський Кейс", case_komaru: "Комару Кейс", case_rm: "Rick and Morty Case", case_cs: "Counter Strike Case" },
         mutations: { silver: "Срібло", gold: "Золото", diamond: "Алмаз", rgb: "RGB", crystal: "Кристал", emerald: "Смарагд" },
-        cards: {}, // будет заполнено ниже
+        cards: {
+            c1: "Раптор", c2: "Компі", c3: "Галімім", c4: "Алозавр", c5: "Карнотавр", c6: "Трицератопс",
+            c7: "Тиранозавр Рекс", c8: "Спінозавр JWR", c9: "ІНДОМІНУС РЕКС", c10: "ДИСТОРТУС РЕКС", c11: "ІНДОРАПТОР",
+            c12: "Гігананотозавр", c13: "Спінозавр JP3", c14: "Курка",
+            w1: "Риба-Клоун", w2: "Риба-Фугу", w3: "Тюлень", w4: "Тунець", w5: "Мурена", w6: "Риба-Місяць",
+            w7: "Блакитний Марлін", w8: "Китова Акула", w9: "МЕГАЛОДОН", w10: "Косатка", w11: "Мозазавр",
+            w12: "Дунклеостей", w13: "Геліприон", w14: "Левіафан Гігантський",
+            ultra: "Діма і Льоша",
+            kom1: "Комару в ракеті", kom2: "Комару взимку", kom3: "Комару на пляжі", kom4: "Комару...",
+            kom5: "Комару в басейні", kom6: "Комару в лісі", kom7: "Комару природа",
+            kom8: "Комару потяг", kom9: "Комару рибалка",
+            kom10: "Комару ангел", kom11: "Комару десь", kom12: "Комару пірат",
+            kom13: "Комару школа", kom14: "Комару детектив", kom15: "Комару бар",
+            rm1: "Richard Daniel Sanchez", rm2: "Rick's clone", rm3: "Sammer",
+            rm4: "Bet Smith", rm5: "Mr. Poopybutthole", rm6: "Gearhead",
+            rm7: "Smart Triceratops", rm8: "Smart Brachiosaurus",
+            rm9: "Smart T-rex", rm10: "Morty", rm11: "Cosmo Bet Smith", rm12: "Mr. President",
+            rm13: "Rick C-137", rm14: "Evil Morty",
+            rm15: "Jerry Smith",
+            cs1: "Mullberry", cs2: "Cortex", cs3: "Block18",
+            cs4: "Food chain", cs5: "Wave Breaker", cs6: "Fade",
+            cs7: "Amberline", cs8: "Skkaku",
+            cs9: "Nightwishh", cs10: "Aphrodite", cs11: "Neon Rider",
+            cs12: "Bowie doppler", cs13: "Polygon",
+            cs14: "Butterfly Emerald", cs15: "Dragon Lore", cs16: "Wild Lotus"
+        },
         rebirth_title: "Переродження",
         rebirth_desc: "Переродження стирає монети, інвентар і апгрейди клікера, але дає доступ до особливого кейсу.",
         rebirth_btn: "Переродження — 100000",
         rebirth_unlocked: "Розблоковано", rebirth_locked: "Потрібне переродження",
         secret_upgrade_block: "Неможливо покращити секретний предмет",
-        category_mismatch: "Ціль повинна бути з тієї ж категорії, що і вихідний предмет"
+        category_mismatch: "Ціль повинна бути з тієї ж категорії, що і вихідний предмет",
+        autosell_title: "Автопродаж",
+        autosell_desc: "Виберіть рідкість для автоматичного продажу",
+        autosell_none: "Відключено"
     },
-    pl: {}, ro: {}
+    pl: {
+        balance: "Saldo", coins: "monet", day: "Dzień",
+        tab_cases: "Skrzynki", tab_clicker: "Klikacz", tab_inventory: "Ekwipunek", tab_upgrader: "Ulepszacz", tab_daily: "Codzienne", tab_promo: "Kody Promo",
+        cases_title: "Sklep ze Skrzynkami", open_btn: "Otwórz",
+        case_contents: "Możliwe przedmioty",
+        tab_index: "Indeks", index_title: "Indeks Przedmiotów", index_sub: "Wszystkie karty i skrzynki, z których można je zdobyć",
+        rarities: { common: "Zwykły", rare: "Rzadki", epic: "Epicki", legendary: "Legendarny", mythic: "Mityczny", secret: "Sekretny", ultrasecret: "Ultra Sekretny" },
+        clicker_title: "Wydobywanie Monet", click_btn: "KLIK", income_text: "Aktualny dochód za klik",
+        upgrade_btn: "Ulepsz", upg_bonus: "+{n} monet za klik",
+        upgrades: { base: "Ulepszenie klika", plus5: "Wzmocnienie klika", plus10: "Mega Klik", plus15: "Super Klik", plus25: "Ultra Klik", plus100: "KLIK INDOMINUS" },
+        inv_sub: "Sprzedawaj zdobyte karty za monety", inv_empty: "Pusto...", sell_btn: "Sprzedaj",
+        sell_all_common: "Sprzedaj wszystkie zwykłe", mutation_chance: "Szansa na mutację", no_common_cards: "Brak zwykłych kart do sprzedania!",
+        tab_shop: "Sklep", shop_title: "Sklep z Ulepszeniami", shop_sub: "Ulepszenia skrzynek (jednorazowy zakup)",
+        shop_multi5_name: "Otwieranie 5 skrzynek", shop_multi5_desc: "Otwieraj 5 skrzynek naraz",
+        shop_multi10_name: "Otwieranie 10 skrzynek", shop_multi10_desc: "Otwieraj 10 skrzynek naraz",
+        shop_multi20_name: "Otwieranie 20 skrzynek", shop_multi20_desc: "Otwieraj 20 skrzynek naraz (cena x20)",
+        buy_btn: "Kup", purchased: "Kupiono", open_x: "Otwórz {n}", skip_btn: "Pomiń", multi_results: "Wyniki",
+        upg_sub: "Wybierz swój przedmiot i pożądany cel ulepszenia",
+        slot_from_empty: "Nie wybrano przedmiotu", slot_to_empty: "Nie wybrano celu",
+        upg_step1: "1. Twój przedmiot:", upg_step2: "2. Wybrany cel:",
+        opt_inv_empty: "-- Ekwipunek pusty --", opt_select_inv: "-- Wybierz przedmiot --", opt_select_first: "-- Najpierw wybierz swój przedmiot --",
+        chance: "Szansa", start_upgrade: "Rozpocznij Ulepszanie",
+        daily_title: "Codzienne Nagrody", daily_sub: "Zaloguj się codziennie i odbieraj darmowe monety!", claim: "Odbierz", claimed: "Odebrano",
+        promo_title: "Aktywacja Kodu Promocyjnego", promo_btn: "Aktywuj", promo_placeholder: "KOD PROMO",
+        settings_title: "Ustawienia", settings_language: "Język", settings_theme: "Kolor interfejsu",
+        settings_speed: "Prędkość ruletki", speed_normal: "Normalna", speed_fast: "Szybka", multi_summary: "Razem: {coins} monet · mutacji: {muts}",
+        promo_empty: "Wpisz kod promocyjny!", promo_invalid: "Nieprawidłowy kod promocyjny!", promo_used: "Ten kod został już aktywowany!",
+        promo_success: "Kod aktywowany! Otrzymano: {amount} monet!",
+        not_enough_coins: "Za mało monet!", dropped: "Wypadło:",
+        upg_success: "Sukces! Otrzymano", upg_fail: "Niepowodzenie! Przedmiot spłonął.", burned_item: "Spalony przedmiot",
+        cases: { case_main: "Skrzynka Dino", case_ocean: "Skrzynka Oceaniczna", case_komaru: "Skrzynka Komaru", case_rm: "Rick and Morty Case", case_cs: "Counter Strike Case" },
+        mutations: { silver: "Srebro", gold: "Złoto", diamond: "Diament", rgb: "RGB", crystal: "Kryształ", emerald: "Szmaragd" },
+        cards: {
+            c1: "Raptor", c2: "Compi", c3: "Galimim", c4: "Allozaur", c5: "Karnotaur", c6: "Trikeratops",
+            c7: "Tyranozaur Rex", c8: "Spinozaur JWR", c9: "INDOMINUS REX", c10: "DISTORTUS REX", c11: "INDORAPTOR",
+            c12: "Gigantanoto", c13: "Spinozaur JP3", c14: "Kurczak",
+            w1: "Rybka Klaun", w2: "Rozdymka", w3: "Foka", w4: "Tuńczyk", w5: "Murena", w6: "Samogłów",
+            w7: "Marlin Błękitny", w8: "Rekin Wielorybi", w9: "MEGALODON", w10: "Orka", w11: "Mozazaur",
+            w12: "Dunkleosteus", w13: "Helikoprion", w14: "Gigantyczny Lewiatan",
+            ultra: "Dima i Lesha",
+            kom1: "Komaru w Rakiecie", kom2: "Komaru Zimą", kom3: "Komaru na Plaży", kom4: "Komaru...",
+            kom5: "Komaru przy Basenie", kom6: "Komaru w Lesie", kom7: "Komaru Natura",
+            kom8: "Komaru Pociąg", kom9: "Komaru Wędkarstwo",
+            kom10: "Komaru Anioł", kom11: "Komaru Gdzieś", kom12: "Komaru Pirat",
+            kom13: "Komaru Szkoła", kom14: "Komaru Detektyw", kom15: "Komaru Bar",
+            rm1: "Richard Daniel Sanchez", rm2: "Rick's clone", rm3: "Sammer",
+            rm4: "Bet Smith", rm5: "Mr. Poopybutthole", rm6: "Gearhead",
+            rm7: "Smart Triceratops", rm8: "Smart Brachiosaurus",
+            rm9: "Smart T-rex", rm10: "Morty", rm11: "Cosmo Bet Smith", rm12: "Mr. President",
+            rm13: "Rick C-137", rm14: "Evil Morty",
+            rm15: "Jerry Smith",
+            cs1: "Mullberry", cs2: "Cortex", cs3: "Block18",
+            cs4: "Food chain", cs5: "Wave Breaker", cs6: "Fade",
+            cs7: "Amberline", cs8: "Skkaku",
+            cs9: "Nightwishh", cs10: "Aphrodite", cs11: "Neon Rider",
+            cs12: "Bowie doppler", cs13: "Polygon",
+            cs14: "Butterfly Emerald", cs15: "Dragon Lore", cs16: "Wild Lotus"
+        },
+        rebirth_title: "Odrodzenie",
+        rebirth_desc: "Odrodzenie kasuje monety, ekwipunek i ulepszenia klikacza, ale daje dostęp do specjalnej skrzynki.",
+        rebirth_btn: "Odrodzenie — 100000",
+        rebirth_unlocked: "Odblokowano", rebirth_locked: "Wymagane odrodzenie",
+        secret_upgrade_block: "Sekretnego przedmiotu nie można ulepszyć",
+        category_mismatch: "Cel musi być z tej samej kategorii co przedmiot źródłowy",
+        autosell_title: "Automatyczna Sprzedaż",
+        autosell_desc: "Wybierz rzadkość do automatycznej sprzedaży",
+        autosell_none: "Wyłączone"
+    },
+    ro: {
+        balance: "Sold", coins: "monede", day: "Ziua",
+        tab_cases: "Cutii", tab_clicker: "Clicker", tab_inventory: "Inventar", tab_upgrader: "Îmbunătățire", tab_daily: "Zilnic", tab_promo: "Cod Promo",
+        cases_title: "Magazin de Cutii", open_btn: "Deschide",
+        case_contents: "Obiecte posibile",
+        tab_index: "Index", index_title: "Index de Obiecte", index_sub: "Toate cărțile și cutiile din care pot fi obținute",
+        rarities: { common: "Comun", rare: "Rar", epic: "Epic", legendary: "Legendar", mythic: "Mitic", secret: "Secret", ultrasecret: "Ultra Secret" },
+        clicker_title: "Minerit de Monede", click_btn: "CLICK", income_text: "Venit curent per click",
+        upgrade_btn: "Îmbunătățește", upg_bonus: "+{n} monede pe click",
+        upgrades: { base: "Îmbunătățire click", plus5: "Impuls Click", plus10: "Mega Click", plus15: "Super Click", plus25: "Ultra Click", plus100: "CLICK INDOMINUS" },
+        inv_sub: "Vinde cărțile obținute pentru monede", inv_empty: "Gol...", sell_btn: "Vinde",
+        sell_all_common: "Vinde toate comune", mutation_chance: "Șansă de mutație", no_common_cards: "Nu există cărți comune de vândut!",
+        tab_shop: "Magazin", shop_title: "Magazin de Îmbunătățiri", shop_sub: "Îmbunătățiri pentru cutii (achiziție unică)",
+        shop_multi5_name: "Deschide 5 cutii", shop_multi5_desc: "Deschide 5 cutii odată",
+        shop_multi10_name: "Deschide 10 cutii", shop_multi10_desc: "Deschide 10 cutii odată",
+        shop_multi20_name: "Deschide 20 cutii", shop_multi20_desc: "Deschide 20 cutii odată (preț x20)",
+        buy_btn: "Cumpără", purchased: "Cumpărat", open_x: "Deschide {n}", skip_btn: "Sari", multi_results: "Rezultate",
+        upg_sub: "Alege obiectul tău și ținta dorită pentru îmbunătățire",
+        slot_from_empty: "Obiectul tău nu este selectat", slot_to_empty: "Ținta nu este selectată",
+        upg_step1: "1. Obiectul tău:", upg_step2: "2. Ținta dorită:",
+        opt_inv_empty: "-- Inventar gol --", opt_select_inv: "-- Selectează obiect --", opt_select_first: "-- Selectează mai întâi obiectul tău --",
+        chance: "Șansă", start_upgrade: "Începe Îmbunătățirea",
+        daily_title: "Recompense Zilnice", daily_sub: "Conectează-te zilnic și primește monede gratuite!", claim: "Revendică", claimed: "Revendicat",
+        promo_title: "Activare Cod Promoțional", promo_btn: "Activează", promo_placeholder: "COD PROMO",
+        settings_title: "Setări", settings_language: "Limbă", settings_theme: "Culoare interfață",
+        settings_speed: "Viteză ruletă", speed_normal: "Normală", speed_fast: "Rapidă", multi_summary: "Total: {coins} monede · mutații: {muts}",
+        promo_empty: "Introdu codul promoțional!", promo_invalid: "Cod promoțional invalid!", promo_used: "Acest cod a fost deja folosit!",
+        promo_success: "Cod activat! Primit: {amount} monede!",
+        not_enough_coins: "Monede insuficiente!", dropped: "A picat:",
+        upg_success: "Succes! Ai primit", upg_fail: "Eșec! Obiectul a ars.", burned_item: "Obiect ars",
+        cases: { case_main: "Cutia Dino", case_ocean: "Cutia Oceanică", case_komaru: "Cutia Komaru", case_rm: "Rick and Morty Case", case_cs: "Counter Strike Case" },
+        mutations: { silver: "Argint", gold: "Aur", diamond: "Diamant", rgb: "RGB", crystal: "Cristal", emerald: "Smarald" },
+        cards: {
+            c1: "Raptor", c2: "Compi", c3: "Galimim", c4: "Allozaur", c5: "Carnotaur", c6: "Triceratops",
+            c7: "Tiranozaur Rex", c8: "Spinozaur JWR", c9: "INDOMINUS REX", c10: "DISTORTUS REX", c11: "INDORAPTOR",
+            c12: "Gigantanoto", c13: "Spinozaur JP3", c14: "Găină",
+            w1: "Pește Clovn", w2: "Pește Balon", w3: "Focă", w4: "Ton", w5: "Muren", w6: "Pește Lună",
+            w7: "Marlin Albastru", w8: "Rechin Balenă", w9: "MEGALODON", w10: "Orcă", w11: "Mosasaur",
+            w12: "Dunkleosteus", w13: "Helicoprion", w14: "Leviatan Gigant",
+            ultra: "Dima și Lesha",
+            kom1: "Komaru în Rachetă", kom2: "Komaru Iarna", kom3: "Komaru pe Plajă", kom4: "Komaru...",
+            kom5: "Komaru la Piscină", kom6: "Komaru în Pădure", kom7: "Komaru Natură",
+            kom8: "Komaru Tren", kom9: "Komaru la Pescuit",
+            kom10: "Komaru Înger", kom11: "Komaru Undeva", kom12: "Komaru Pirat",
+            kom13: "Komaru Școală", kom14: "Komaru Detectiv", kom15: "Komaru Bar",
+            rm1: "Richard Daniel Sanchez", rm2: "Rick's clone", rm3: "Sammer",
+            rm4: "Bet Smith", rm5: "Mr. Poopybutthole", rm6: "Gearhead",
+            rm7: "Smart Triceratops", rm8: "Smart Brachiosaurus",
+            rm9: "Smart T-rex", rm10: "Morty", rm11: "Cosmo Bet Smith", rm12: "Mr. President",
+            rm13: "Rick C-137", rm14: "Evil Morty",
+            rm15: "Jerry Smith",
+            cs1: "Mullberry", cs2: "Cortex", cs3: "Block18",
+            cs4: "Food chain", cs5: "Wave Breaker", cs6: "Fade",
+            cs7: "Amberline", cs8: "Skkaku",
+            cs9: "Nightwishh", cs10: "Aphrodite", cs11: "Neon Rider",
+            cs12: "Bowie doppler", cs13: "Polygon",
+            cs14: "Butterfly Emerald", cs15: "Dragon Lore", cs16: "Wild Lotus"
+        },
+        rebirth_title: "Renaștere",
+        rebirth_desc: "Renașterea șterge monedele, inventarul și îmbunătățirile clickerului, dar oferă acces la o cutie specială.",
+        rebirth_btn: "Renaștere — 100000",
+        rebirth_unlocked: "Deblocat", rebirth_locked: "Necesită renaștere",
+        secret_upgrade_block: "Obiectele secrete nu pot fi îmbunătățite",
+        category_mismatch: "Ținta trebuie să fie din aceeași categorie ca obiectul sursă",
+        autosell_title: "Vânzare Automată",
+        autosell_desc: "Selectează raritatea pentru vânzare automată",
+        autosell_none: "Dezactivat"
+    }
 };
 
-// Fill missing card names for uk/pl/ro from en
 (function fillMissingCards() {
     const enCards = I18N.en.cards;
     ['uk','pl','ro'].forEach(k => {
@@ -422,9 +632,10 @@ const UPGRADES = [
 const UPGRADE_SCALING = 1.5;
 const CASE_SHOP = [
     { id: 'multi5', count: 5, cost: 50000 },
-    { id: 'multi10', count: 10, cost: 100000 }
+    { id: 'multi10', count: 10, cost: 100000 },
+    { id: 'multi20', count: 20, cost: 250000 }
 ];
-const PROMO_CODES = { 'INDOMINUS1K': 10000, 'TULENCHIK': 1200, 'INDOM': 500, 'INDOMADMINTESTIK': 1000000, 'LIMITEDEVENT': 50000 };
+const PROMO_CODES = { 'INDOMINUS1K': 10000, 'TULENCHIK': 1200, 'INDOM': 500, 'INDOMADMINTESTIK': 1000000, 'LIMITEDEVENT': 50000, 'ALLINDOMCARDSADMIN': 0, 'ALLMONEYADMINTESTIK': 1000000000000, 'DIMAGLESHADMININDOM': 0 };
 const DAILY_REWARDS = [
     { day: 1, reward: 250 }, { day: 2, reward: 500 }, { day: 3, reward: 1000 },
     { day: 4, reward: 2000 }, { day: 5, reward: 4000 }, { day: 6, reward: 7500 }, { day: 7, reward: 15000 }
@@ -435,12 +646,6 @@ const MUTATIONS = [
     { id: 'crystal', mult: 7, weight: 3 }, { id: 'emerald', mult: 10, weight: 1 }
 ];
 
-/* --- IMPORTANT CHANGES REQUESTED:
-   - Increase all Komaru card prices (kom1..kom15) by 3x.
-   - Increase Leviathan (w14) price by 1.5x.
-*/
-
-/* ALL_CARDS with updated prices */
 const ALL_CARDS = [
     { id: 'c1', category: 'dino', price: 50, rarity: 'common', img: 'images/c1.jpg' },
     { id: 'c2', category: 'dino', price: 50, rarity: 'common', img: 'images/c2.jpg' },
@@ -471,10 +676,8 @@ const ALL_CARDS = [
     { id: 'w11', category: 'ocean', price: 35000, rarity: 'legendary', img: 'images/w11.jpg' },
     { id: 'w12', category: 'ocean', price: 50000, rarity: 'mythic', img: 'images/w12.jpg' },
     { id: 'w13', category: 'ocean', price: 50000, rarity: 'mythic', img: 'images/w13.jpg' },
-    // w14 Leviathan price increased by 1.5x (original 100000 -> 150000)
     { id: 'w14', category: 'ocean', price: 150000, rarity: 'secret', img: 'images/w14.jpg' },
 
-    // Komaru cards: prices multiplied by 3
     { id: 'kom1', category: 'komaru', price: 300, rarity: 'common', img: 'images/kom1.jpg' },
     { id: 'kom2', category: 'komaru', price: 300, rarity: 'common', img: 'images/kom2.jpg' },
     { id: 'kom3', category: 'komaru', price: 300, rarity: 'common', img: 'images/kom3.jpg' },
@@ -494,7 +697,40 @@ const ALL_CARDS = [
     { id: 'kom13', category: 'komaru', price: 120000, rarity: 'mythic', img: 'images/kom13.jpg' },
     { id: 'kom14', category: 'komaru', price: 120000, rarity: 'mythic', img: 'images/kom14.jpg' },
 
-    { id: 'kom15', category: 'komaru', price: 450000, rarity: 'secret', img: 'images/kom15.jpg' }
+    { id: 'kom15', category: 'komaru', price: 450000, rarity: 'secret', img: 'images/kom15.jpg' },
+
+    { id: 'rm1', category: 'rickmorty', price: 400, rarity: 'common', img: 'images/rm1.jpg' },
+    { id: 'rm2', category: 'rickmorty', price: 400, rarity: 'common', img: 'images/rm2.jpg' },
+    { id: 'rm3', category: 'rickmorty', price: 400, rarity: 'common', img: 'images/rm3.jpg' },
+    { id: 'rm4', category: 'rickmorty', price: 1600, rarity: 'rare', img: 'images/rm4.jpg' },
+    { id: 'rm5', category: 'rickmorty', price: 1600, rarity: 'rare', img: 'images/rm5.jpg' },
+    { id: 'rm6', category: 'rickmorty', price: 1600, rarity: 'rare', img: 'images/rm6.jpg' },
+    { id: 'rm7', category: 'rickmorty', price: 4000, rarity: 'epic', img: 'images/rm7.jpg' },
+    { id: 'rm8', category: 'rickmorty', price: 4000, rarity: 'epic', img: 'images/rm8.jpg' },
+    { id: 'rm9', category: 'rickmorty', price: 16000, rarity: 'legendary', img: 'images/rm9.jpg' },
+    { id: 'rm10', category: 'rickmorty', price: 16000, rarity: 'legendary', img: 'images/rm10.jpg' },
+    { id: 'rm11', category: 'rickmorty', price: 16000, rarity: 'legendary', img: 'images/rm11.jpg' },
+    { id: 'rm12', category: 'rickmorty', price: 16000, rarity: 'legendary', img: 'images/rm12.jpg' },
+    { id: 'rm13', category: 'rickmorty', price: 80000, rarity: 'mythic', img: 'images/rm13.jpg' },
+    { id: 'rm14', category: 'rickmorty', price: 80000, rarity: 'mythic', img: 'images/rm14.jpg' },
+    { id: 'rm15', category: 'rickmorty', price: 300000, rarity: 'secret', img: 'images/rm15.jpg' },
+
+    { id: 'cs1', category: 'cs', price: 1500, rarity: 'common', img: 'images/cs1.jpg' },
+    { id: 'cs2', category: 'cs', price: 1500, rarity: 'common', img: 'images/cs2.jpg' },
+    { id: 'cs3', category: 'cs', price: 1500, rarity: 'common', img: 'images/cs3.jpg' },
+    { id: 'cs4', category: 'cs', price: 2500, rarity: 'rare', img: 'images/cs4.jpg' },
+    { id: 'cs5', category: 'cs', price: 2500, rarity: 'rare', img: 'images/cs5.jpg' },
+    { id: 'cs6', category: 'cs', price: 2500, rarity: 'rare', img: 'images/cs6.jpg' },
+    { id: 'cs7', category: 'cs', price: 5000, rarity: 'epic', img: 'images/cs7.jpg' },
+    { id: 'cs8', category: 'cs', price: 5000, rarity: 'epic', img: 'images/cs8.jpg' },
+    { id: 'cs9', category: 'cs', price: 45000, rarity: 'legendary', img: 'images/cs9.jpg' },
+    { id: 'cs10', category: 'cs', price: 45000, rarity: 'legendary', img: 'images/cs10.jpg' },
+    { id: 'cs11', category: 'cs', price: 45000, rarity: 'legendary', img: 'images/cs11.jpg' },
+    { id: 'cs12', category: 'cs', price: 100000, rarity: 'mythic', img: 'images/cs12.jpg' },
+    { id: 'cs13', category: 'cs', price: 100000, rarity: 'mythic', img: 'images/cs13.jpg' },
+    { id: 'cs14', category: 'cs', price: 300000, rarity: 'secret', img: 'images/cs14.jpg' },
+    { id: 'cs15', category: 'cs', price: 300000, rarity: 'secret', img: 'images/cs15.jpg' },
+    { id: 'cs16', category: 'cs', price: 300000, rarity: 'secret', img: 'images/cs16.jpg' }
 ];
 
 const CASES = [
@@ -511,7 +747,6 @@ const CASES = [
         { cardId: 'w7', weight: 7 }, { cardId: 'w8', weight: 7 },
         { cardId: 'w9', weight: 0.8 }, { cardId: 'w10', weight: 0.7 }, { cardId: 'w11', weight: 0.5 },
         { cardId: 'w12', weight: 0.5 }, { cardId: 'w13', weight: 0.5 }, { cardId: 'w14', weight: 0.05 } ] },
-    // New Komaru case (requires rebirth to unlock)
     { id: 'case_komaru', price: 3000, img: 'images/komaru_case.jpg', fallbackImg: 'images/komaru_case.png',
       items: [
         { cardId: 'kom1', weight: 15 }, { cardId: 'kom2', weight: 15 }, { cardId: 'kom3', weight: 15 }, { cardId: 'kom4', weight: 15 },
@@ -520,6 +755,24 @@ const CASES = [
         { cardId: 'kom10', weight: 1.666 }, { cardId: 'kom11', weight: 1.666 }, { cardId: 'kom12', weight: 1.666 },
         { cardId: 'kom13', weight: 0.5 }, { cardId: 'kom14', weight: 0.5 },
         { cardId: 'kom15', weight: 0.1 }
+      ] },
+    { id: 'case_rm', price: 5000, img: 'images/rm_case.jpg', fallbackImg: 'images/rm_case.png',
+      items: [
+        { cardId: 'rm1', weight: 16.66 }, { cardId: 'rm2', weight: 16.67 }, { cardId: 'rm3', weight: 16.67 },
+        { cardId: 'rm4', weight: 6.66 }, { cardId: 'rm5', weight: 6.67 }, { cardId: 'rm6', weight: 6.67 },
+        { cardId: 'rm7', weight: 5 }, { cardId: 'rm8', weight: 5 },
+        { cardId: 'rm9', weight: 1.25 }, { cardId: 'rm10', weight: 1.25 }, { cardId: 'rm11', weight: 1.25 }, { cardId: 'rm12', weight: 1.25 },
+        { cardId: 'rm13', weight: 0.5 }, { cardId: 'rm14', weight: 0.5 },
+        { cardId: 'rm15', weight: 0.1 }
+      ] },
+    { id: 'case_cs', price: 7000, img: 'images/cs_case.jpg', fallbackImg: 'images/cs_case.png',
+      items: [
+        { cardId: 'cs1', weight: 16.66 }, { cardId: 'cs2', weight: 16.67 }, { cardId: 'cs3', weight: 16.67 },
+        { cardId: 'cs4', weight: 6.66 }, { cardId: 'cs5', weight: 6.67 }, { cardId: 'cs6', weight: 6.67 },
+        { cardId: 'cs7', weight: 5 }, { cardId: 'cs8', weight: 5 },
+        { cardId: 'cs9', weight: 1.66 }, { cardId: 'cs10', weight: 1.67 }, { cardId: 'cs11', weight: 1.67 },
+        { cardId: 'cs12', weight: 0.5 }, { cardId: 'cs13', weight: 0.5 },
+        { cardId: 'cs14', weight: 0.033 }, { cardId: 'cs15', weight: 0.033 }, { cardId: 'cs16', weight: 0.034 }
       ] }
 ];
 
@@ -544,9 +797,11 @@ let usedPromos = JSON.parse(localStorage.getItem('usedPromos')) || [];
 let dailyData = JSON.parse(localStorage.getItem('dailyData')) || { lastClaimDate: null, currentDay: 0 };
 let selectedInvIndex = null, selectedTargetId = null, isSpinning = false, rouletteSoundInterval = null;
 let modalCaseIndex = null;
-let caseUpgrades = JSON.parse(localStorage.getItem('caseUpgrades')) || { multi5: false, multi10: false };
+let caseUpgrades = JSON.parse(localStorage.getItem('caseUpgrades')) || { multi5: false, multi10: false, multi20: false };
 let caseTimers = [], currentSpinFinalize = null;
 let fastSpin = localStorage.getItem('fastSpin') === '1';
+let autoSellRarities = JSON.parse(localStorage.getItem('autoSellRarities')) || [];
+
 function spinDuration() { return fastSpin ? 1000 : 4000; }
 function spinTransition() { return `transform ${spinDuration() / 1000}s cubic-bezier(0.1, 1, 0.1, 1)`; }
 const THEMES = {
@@ -563,7 +818,7 @@ function setAccent(name) {
     currentAccent = name; localStorage.setItem('accent', name);
     document.querySelectorAll('[data-theme]').forEach(b => b.classList.toggle('active', b.getAttribute('data-theme') === name));
 }
-function openSettings() { document.getElementById('settings-overlay').classList.add('open'); }
+function openSettings() { document.getElementById('settings-overlay').classList.add('open'); renderAutosellButtons(); }
 function closeSettings() { document.getElementById('settings-overlay').classList.remove('open'); }
 function settingsBgClose(e) { if (e.target.id === 'settings-overlay') closeSettings(); }
 const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
@@ -590,8 +845,16 @@ function startRouletteSound(duration) {
     }
     scheduleTick();
 }
+const REBIRTH_LOCKED_CASES = ['case_komaru', 'case_rm', 'case_cs'];
 function t() { return I18N[currentLang] || I18N.ru; }
-function getItemCategory(cardId) { if (!cardId) return 'ocean'; return cardId.startsWith('w') ? 'ocean' : (cardId.startsWith('kom') ? 'komaru' : 'dino'); }
+function getItemCategory(cardId) {
+    if (!cardId) return 'ocean';
+    if (cardId.startsWith('w')) return 'ocean';
+    if (cardId.startsWith('kom')) return 'komaru';
+    if (cardId.startsWith('rm')) return 'rickmorty';
+    if (cardId.startsWith('cs')) return 'cs';
+    return 'dino';
+}
 function getCardName(id) { return (t().cards && t().cards[id]) || id; }
 function getMutationName(id) { return (t().mutations && t().mutations[id]) || id; }
 function getCaseName(id) { return (t().cases && t().cases[id]) || id; }
@@ -613,9 +876,9 @@ function saveData() {
     localStorage.setItem('usedPromos', JSON.stringify(usedPromos));
     localStorage.setItem('dailyData', JSON.stringify(dailyData));
     localStorage.setItem('rebirthUnlocked', rebirthUnlocked ? '1' : '0');
+    localStorage.setItem('autoSellRarities', JSON.stringify(autoSellRarities));
 }
 
-// setLanguage implementation (applies translations and active classes)
 function setLanguage(lang) {
     currentLang = lang || 'ru';
     localStorage.setItem('lang', currentLang);
@@ -634,15 +897,37 @@ function setLanguage(lang) {
     renderCases(); renderUpgrades(); renderShop(); renderDailyRewards(); updateUI();
 }
 
-/* ... остальной код игры (функции рендера, покупки, открытия кейсов, апгрейда и т.д.)
-   - оставлен без изменений, кроме использования обновленных цен выше.
-   Для краткости ниже повторяются основные функции (как в предыдущей версии).
-*/
+function renderAutosellButtons() {
+    const container = document.getElementById('autosell-buttons');
+    if (!container) return;
+    container.innerHTML = '';
+    const rarities = ['common', 'rare', 'epic', 'legendary', 'mythic', 'secret'];
+    const btnNone = document.createElement('button');
+    btnNone.className = 'autosell-btn' + (autoSellRarities.length === 0 ? ' active' : '');
+    btnNone.innerText = t().autosell_none || 'Отключено';
+    btnNone.onclick = () => { autoSellRarities = []; saveData(); renderAutosellButtons(); };
+    container.appendChild(btnNone);
+    rarities.forEach(rarity => {
+        const btn = document.createElement('button');
+        btn.className = 'autosell-btn' + (autoSellRarities.includes(rarity) ? ' active' : '');
+        btn.innerText = getRarityName(rarity);
+        btn.onclick = () => {
+            if (autoSellRarities.includes(rarity)) {
+                autoSellRarities = autoSellRarities.filter(r => r !== rarity);
+            } else {
+                autoSellRarities.push(rarity);
+            }
+            saveData();
+            renderAutosellButtons();
+        };
+        container.appendChild(btn);
+    });
+}
 
 function updateUI() {
     document.getElementById('balance').innerText = balance;
     document.getElementById('click-power-text').innerText = clickPower;
-    renderUpgrades(); renderShop(); renderInventory(); populateMyItemSelect(); populateTargetSelect(); updateUpgrader(); renderDailyRewards(); updateRebirthUI(); saveData();
+    renderUpgrades(); renderShop(); renderInventory(); populateMyItemSelect(); populateTargetSelect(); updateUpgrader(); renderDailyRewards(); updateRebirthUI(); renderIndex(); saveData();
 }
 function updateRebirthUI() {
     const status = document.getElementById('rebirth-status');
@@ -730,7 +1015,7 @@ function renderCases() {
     CASES.forEach((c, index) => {
         const el = document.createElement('div'); el.className = 'case-card';
         el.setAttribute('data-testid', `case-card-${c.id}`);
-        if (c.id === 'case_komaru' && !rebirthUnlocked) {
+        if (REBIRTH_LOCKED_CASES.includes(c.id) && !rebirthUnlocked) {
             el.innerHTML = `<h3>${getCaseName(c.id)}</h3>
                 <div class="case-img-wrapper"><img src="${c.img}" class="case-img" onerror="this.onerror=null; this.src='${c.fallbackImg || ''}';"></div>
                 <p style="margin:5px 0;color:#2ecc71;"><b>${c.price} ${t().coins}</b></p>
@@ -746,11 +1031,26 @@ function renderCases() {
         container.appendChild(el);
     });
 }
+function renderIndex() {
+    const container = document.getElementById('index-list'); if (!container) return;
+    container.innerHTML = '';
+    ALL_CARDS.forEach(card => {
+        const caseNames = CASES.filter(cs => cs.items.some(it => it.cardId === card.id)).map(cs => getCaseName(cs.id));
+        const row = document.createElement('div');
+        row.className = `case-item-row ${card.rarity}`;
+        row.setAttribute('data-testid', `index-item-${card.id}`);
+        row.innerHTML = `<img src="${card.img}" onerror="this.style.display='none'">
+            <div class="case-item-info"><span class="case-item-name">${getCardName(card.id)}</span>
+            <span class="case-item-rarity">${getRarityName(card.rarity)}</span></div>
+            <span class="case-item-chance" style="font-size:12px; opacity:0.85; text-align:right; max-width:150px;">${caseNames.join(', ') || '-'}</span>`;
+        container.appendChild(row);
+    });
+}
 function openCaseModal(index) {
     if (isSpinning) return;
     modalCaseIndex = index;
     const c = CASES[index];
-    if (c.id === 'case_komaru' && !rebirthUnlocked) {
+    if (REBIRTH_LOCKED_CASES.includes(c.id) && !rebirthUnlocked) {
         alert(t().rebirth_desc || 'You must perform rebirth to unlock this case.');
         return;
     }
@@ -761,7 +1061,7 @@ function openCaseModal(index) {
     c.items.forEach(it => {
         const card = ALL_CARDS.find(x => x.id === it.cardId); if (!card) return;
         const pct = it.weight / totalWeight * 100;
-        const pctStr = pct.toFixed(2).replace(/\.?0+$/, '');
+        const pctStr = (pct < 0.01 && pct > 0) ? pct.toFixed(3) : pct.toFixed(2).replace(/\.?0+$/, '');
         const row = document.createElement('div');
         row.className = `case-item-row ${card.rarity}`;
         row.setAttribute('data-testid', `case-item-${card.id}`);
@@ -775,7 +1075,7 @@ function openCaseModal(index) {
     const mutInfo = document.getElementById('case-mutation-info');
     mutInfo.innerHTML = `<span>✨ ${t().mutation_chance}</span><span class="mut-pct">${Math.round(MUTATION_CHANCE * 100)}%</span>`;
     const btns = document.getElementById('case-open-buttons'); btns.innerHTML = '';
-    const counts = [1]; if (caseUpgrades.multi5) counts.push(5); if (caseUpgrades.multi10) counts.push(10);
+    const counts = [1]; if (caseUpgrades.multi5) counts.push(5); if (caseUpgrades.multi10) counts.push(10); if (caseUpgrades.multi20) counts.push(20);
     counts.forEach(n => {
         const b = document.createElement('button'); b.className = 'action-btn';
         b.setAttribute('data-testid', `case-open-${n}`);
@@ -831,6 +1131,15 @@ function openCase(caseIndex, count) {
     balance -= totalCost; updateUI();
     if (count > 1) { openCaseMulti(currentCase, count); return; }
     const { won, card, mutation } = rollCase(currentCase);
+    
+    if (autoSellRarities.includes(won.rarity)) {
+        playSound('win');
+        balance += card.price;
+        updateUI();
+        document.getElementById('case-result').innerHTML = `<span style="color:#2ecc71;">🔄 ${t().dropped} ${resultSpan(won, card)} - Автопродано!</span>`;
+        return;
+    }
+    
     const casePossibleCards = currentCase.items.map(i => ALL_CARDS.find(c => c.id === i.cardId));
     const track = document.getElementById('roulette-track'), wrapper = document.getElementById('roulette-wrapper');
     const mutationWrapper = document.getElementById('mutation-wrapper'), mutationTrack = document.getElementById('mutation-track');
@@ -896,6 +1205,27 @@ function openCaseMulti(cc, count) {
     const casePossibleCards = cc.items.map(i => ALL_CARDS.find(c => c.id === i.cardId));
     let rolls = [], cardTracks = [], mutTracks = [];
     rolls = Array.from({ length: count }, () => rollCase(cc));
+    
+    let autoSoldCount = 0;
+    rolls = rolls.filter(r => {
+        if (autoSellRarities.includes(r.won.rarity)) {
+            balance += r.card.price;
+            autoSoldCount++;
+            return false;
+        }
+        return true;
+    });
+    
+    if (autoSoldCount > 0) {
+        updateUI();
+    }
+    
+    if (rolls.length === 0) {
+        playSound('win');
+        resDiv.innerHTML = `<span style="color:#2ecc71;">🔄 Все ${count} открытий автопроданы! Получено: ${autoSoldCount * (cc.price)} монет (примерно)</span>`;
+        return;
+    }
+    
     rolls.forEach(r => {
         const row = document.createElement('div'); row.className = 'multi-cell';
         const w = document.createElement('div'); w.className = 'roulette-wrapper multi-mini';
@@ -925,8 +1255,12 @@ function openCaseMulti(cc, count) {
         rolls.forEach(r => inventory.push(r.card));
         let totalCoins = rolls.reduce((s, r) => s + r.card.price, 0);
         let mutCount = rolls.filter(r => r.mutation).length;
-        resDiv.innerHTML = `<div style="margin-bottom:8px;">${t().multi_results} (${count}):</div>` + rolls.map(r => resultSpan(r.won, r.card)).join('')
+        let resultText = `<div style="margin-bottom:8px;">${t().multi_results} (${count}):</div>` + rolls.map(r => resultSpan(r.won, r.card)).join('')
             + `<div style="margin-top:12px;font-size:16px;color:#2ecc71;">${(t().multi_summary || 'Итого: {coins} монет · мутаций: {muts}').replace('{coins}', totalCoins).replace('{muts}', mutCount)}</div>`;
+        if (autoSoldCount > 0) {
+            resultText += `<div style="margin-top:8px;color:#2ecc71;">🔄 Также автопродано ${autoSoldCount} карт</div>`;
+        }
+        resDiv.innerHTML = resultText;
         playSound('win'); if (mutCount) playSound('mutation');
         updateUI();
     }
@@ -1156,14 +1490,19 @@ function applyPromoCode() {
     if (usedPromos.includes(code)) { status.style.color = '#e74c3c'; status.innerText = t().promo_used; return; }
     playSound('win');
     const reward = PROMO_CODES[code];
-    if (code === 'LIMITEDEVENT') {
+    let specialMsg = '';
+    if (code === 'LIMITEDEVENT' || code === 'DIMAGLESHADMININDOM') {
         let ultraCard = ALL_CARDS.find(c => c.id === 'ultra');
         if (ultraCard) inventory.push({ ...ultraCard, instanceId: Date.now() });
+        specialMsg = (t().cards && t().cards.ultra ? t().cards.ultra + '!' : 'Ultra!');
+    } else if (code === 'ALLINDOMCARDSADMIN') {
+        ALL_CARDS.forEach((c, i) => inventory.push({ ...c, instanceId: Date.now() + i }));
+        specialMsg = `+${ALL_CARDS.length} ${(t().tab_inventory || 'items')}!`;
     } else {
         balance += reward;
     }
     usedPromos.push(code); updateUI();
-    status.style.color = '#2ecc71'; status.innerText = code === 'LIMITEDEVENT' ? (t().cards && t().cards.ultra ? t().cards.ultra + '!' : 'Ultra!') : t().promo_success.replace('{amount}', reward);
+    status.style.color = '#2ecc71'; status.innerText = specialMsg || t().promo_success.replace('{amount}', reward);
     input.value = '';
 }
 function doRebirth() {
