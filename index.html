@@ -153,9 +153,48 @@ select.upgrader-select { width: 100%; padding: 12px; background: #2c3e50; color:
 .autosell-btn { padding: 10px; border: 2px solid #34495e; background: #2c3e50; color: #fff; border-radius: 8px; cursor: pointer; font-weight: bold; transition: 0.2s; }
 .autosell-btn.active { border-color: #2ecc71; background: #1e4620; }
 .autosell-btn:hover { border-color: var(--accent); }
+.win-item { background: #1e8449; border-color: #2ecc71; color: #fff; }
+.lose-item { background: #922b21; border-color: #e74c3c; color: #fff; }
+@keyframes roulette-winner-pulse {
+    0% { box-shadow: 0 0 0px #f1c40f; transform: scale(1); }
+    50% { box-shadow: 0 0 22px #f1c40f; transform: scale(1.08); }
+    100% { box-shadow: 0 0 10px #f1c40f; transform: scale(1.05); }
+}
+.roulette-winner { animation: roulette-winner-pulse 0.6s ease-out forwards; border-color: #f1c40f !important; z-index: 2; position: relative; }
+.emerald-amount-input { width: 100%; padding: 12px; border-radius: 6px; border: 1px solid #34495e; background: #1e1e24; color: #fff; font-size: 16px; margin-bottom: 12px; text-align: center; }
+.emerald-chance-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-bottom: 15px; }
+.emerald-chance-btn { padding: 14px 10px; border: 2px solid #34495e; background: #2c3e50; color: #fff; border-radius: 8px; cursor: pointer; font-weight: bold; transition: 0.2s; text-align: center; font-size: 15px; }
+.emerald-chance-btn .ec-mult { display: block; font-size: 12px; color: #bdc3c7; margin-top: 4px; }
+.emerald-chance-btn.active { border-color: #2ecc71; background: #1e4620; }
+.emerald-chance-btn:hover { border-color: var(--accent); }
+.lang-gate-modal { max-width: 420px; text-align: center; }
+.lang-gate-question { font-size: 18px; margin-bottom: 18px; color: #ecf0f1; }
+.lang-gate-grid { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; }
+.lang-gate-btn { background: #2c3e50; border: 2px solid #34495e; color: #fff; padding: 14px 20px; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 16px; transition: 0.2s; min-width: 90px; }
+.lang-gate-btn:hover { background: var(--accent); border-color: var(--accent-dark); }
+.emerald-mode-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; max-width: 500px; margin: 20px auto; }
+.emerald-mode-btn { background: #2c3e50; border: 2px solid #34495e; color: #fff; padding: 22px 15px; border-radius: 10px; font-weight: bold; cursor: pointer; font-size: 16px; transition: 0.2s; }
+.emerald-mode-btn:hover { background: var(--accent); border-color: var(--accent-dark); transform: translateY(-3px); }
+.emerald-section-box { max-width: 520px; margin: 0 auto; }
+.back-btn { background: #34495e; border: none; color: #fff; padding: 8px 16px; border-radius: 6px; font-weight: bold; cursor: pointer; font-size: 14px; margin-bottom: 15px; }
+.back-btn:hover { background: #2c3e50; }
+@media (max-width: 480px) { .emerald-mode-grid, .emerald-chance-grid { grid-template-columns: 1fr; } }
 </style>
 </head>
 <body onload="init()">
+<div id="lang-gate-overlay" class="modal-overlay open" style="z-index:500;">
+    <div class="modal lang-gate-modal">
+        <h2 style="color: var(--accent); margin-bottom: 14px;">Choose your language</h2>
+        <p class="lang-gate-question">Which language would you like to use?</p>
+        <div class="lang-gate-grid">
+            <button class="lang-gate-btn" onclick="chooseLangGate('ru')">Русский</button>
+            <button class="lang-gate-btn" onclick="chooseLangGate('uk')">Українська</button>
+            <button class="lang-gate-btn" onclick="chooseLangGate('ro')">Română</button>
+            <button class="lang-gate-btn" onclick="chooseLangGate('pl')">Polski</button>
+            <button class="lang-gate-btn" onclick="chooseLangGate('en')">English</button>
+        </div>
+    </div>
+</div>
 <div class="header-top">
     <div class="header-btns">
         <button class="hamburger-btn" onclick="toggleSidebar()" title="Menu"><span></span><span></span><span></span></button>
@@ -181,6 +220,8 @@ select.upgrader-select { width: 100%; padding: 12px; background: #2c3e50; color:
     <button class="tab-btn" data-target="shop" onclick="switchTab('shop', event)" data-i18n="tab_shop">Магазин</button>
     <button class="tab-btn" data-target="inventory" onclick="switchTab('inventory', event)" data-i18n="tab_inventory">Инвентарь</button>
     <button class="tab-btn" data-target="upgrader" onclick="switchTab('upgrader', event)" data-i18n="tab_upgrader">Апгрейдер</button>
+    <button class="tab-btn" data-target="emerald-multiplier" onclick="switchTab('emerald-multiplier', event)" data-i18n="tab_emerald_multiplier">Умножитель Эмеральдов</button>
+    <button class="tab-btn" data-target="rebirth" onclick="switchTab('rebirth', event)" data-i18n="tab_rebirth">Перерождение</button>
     <button class="tab-btn" data-target="quests" onclick="switchTab('quests', event)" data-i18n="tab_quests">Квесты</button>
     <button class="tab-btn" data-target="daily" onclick="switchTab('daily', event)" data-i18n="tab_daily">Ежедневные</button>
     <button class="tab-btn" data-target="promo" onclick="switchTab('promo', event)" data-i18n="tab_promo">Промокоды</button>
@@ -249,6 +290,54 @@ select.upgrader-select { width: 100%; padding: 12px; background: #2c3e50; color:
     </div>
     <div id="upgrade-result" style="margin-top: 15px; font-size: 18px; font-weight: bold;"></div>
 </div>
+<div id="tab-emerald-multiplier" class="tab-content">
+    <h2 data-i18n="tab_emerald_multiplier">Умножитель Эмеральдов</h2>
+    <p style="font-size: 14px; color: #aaa; margin-bottom: 15px;" data-i18n="emerald_multiplier_sub">Выберите режим</p>
+
+    <div id="emerald-mode-select" class="emerald-mode-grid">
+        <button class="emerald-mode-btn" onclick="showEmeraldMode('wheel')" data-i18n="emerald_wheel_btn">Колесо Фортуны</button>
+        <button class="emerald-mode-btn" onclick="showEmeraldMode('upgrader')" data-i18n="emerald_upgrader_btn">Эмеральд Апгрейдер</button>
+    </div>
+
+    <div id="emerald-wheel-section" class="emerald-section-box" style="display:none;">
+        <button class="back-btn" onclick="showEmeraldMode('select')" data-i18n="back_btn">&larr; Назад</button>
+        <h3 data-i18n="emerald_wheel_btn">Колесо Фортуны</h3>
+        <p style="font-size: 14px; color: #aaa; margin: 8px 0 15px;">
+            <span data-i18n="wheel_price_label">Цена вращения</span>: <b id="wheel-price-text">50</b>
+            <img src="images/emerald.png" class="coin-icon small" alt="emerald" onerror="tryNextImage(this,'images/emerald')">
+        </p>
+        <button id="wheel-spin-btn" class="action-btn" onclick="spinFortuneWheel()" data-i18n="wheel_spin_btn">Крутить</button>
+        <div id="wheel-roulette-wrapper" class="roulette-wrapper">
+            <div class="roulette-marker"></div>
+            <div id="wheel-roulette-track" class="roulette-track"></div>
+        </div>
+        <div id="wheel-result" style="margin-top: 15px; font-size: 18px; font-weight: bold;"></div>
+    </div>
+
+    <div id="emerald-upgrader-section" class="emerald-section-box" style="display:none;">
+        <button class="back-btn" onclick="showEmeraldMode('select')" data-i18n="back_btn">&larr; Назад</button>
+        <h3 data-i18n="emerald_upgrader_btn">Эмеральд Апгрейдер</h3>
+        <p style="font-size: 14px; color: #aaa; margin: 8px 0 15px;" data-i18n="emerald_upgrader_desc">Выберите сумму эмеральдов и шанс на апгрейд</p>
+        <label style="display:block;text-align:left;margin-bottom:6px;font-weight:bold;font-size:14px;" data-i18n="emerald_amount_label">Сумма эмеральдов:</label>
+        <input type="number" id="emerald-upgrade-amount" class="emerald-amount-input" min="1" step="1" placeholder="0" oninput="updateEmeraldUpgraderUI()">
+        <label style="display:block;text-align:left;margin-bottom:6px;font-weight:bold;font-size:14px;" data-i18n="emerald_chance_label">Выберите шанс:</label>
+        <div class="emerald-chance-grid" id="emerald-chance-grid"></div>
+        <button id="emerald-upgrade-btn" class="action-btn" onclick="runEmeraldUpgrade()" disabled data-i18n="emerald_upgrade_start_btn">Начать</button>
+        <div id="emerald-upgrade-roulette-wrapper" class="roulette-wrapper">
+            <div class="roulette-marker"></div>
+            <div id="emerald-upgrade-roulette-track" class="roulette-track"></div>
+        </div>
+        <div id="emerald-upgrade-result" style="margin-top: 15px; font-size: 18px; font-weight: bold;"></div>
+    </div>
+</div>
+<div id="tab-rebirth" class="tab-content">
+    <h2 data-i18n="rebirth_title">Перерождение</h2>
+    <p style="color:#bdc3c7;margin-bottom:15px;max-width:600px;margin-left:auto;margin-right:auto;" data-i18n="rebirth_desc">Перерождение стирает монеты, инвентарь и апгрейды кликера, но даёт доступ к особому кейсу.</p>
+    <div style="display:flex;flex-direction:column;gap:10px;align-items:center;max-width:420px;margin:0 auto;">
+        <button id="rebirth-btn" class="action-btn" onclick="doRebirth()" style="width:100%;">Перерождение — 100000</button>
+        <div id="rebirth-status" style="min-width:150px;text-align:center;font-weight:bold;"></div>
+    </div>
+</div>
 <div id="tab-quests" class="tab-content">
     <h2 data-i18n="tab_quests">Квесты</h2>
     <p style="font-size: 14px; color: #aaa; margin-bottom: 10px;" data-i18n="quests_sub">Выполняй задания и получай эмеральды!</p>
@@ -312,13 +401,6 @@ select.upgrader-select { width: 100%; padding: 12px; background: #2c3e50; color:
         <p style="font-size: 12px; color: #aaa; margin-bottom: 10px;" data-i18n="autosell_desc">Выберите редкость для автоматической продажи</p>
         <div class="autosell-grid" id="autosell-buttons"></div>
 
-        <h3 data-i18n="rebirth_title">Перерождение</h3>
-        <p style="color:#bdc3c7;margin-bottom:8px;" data-i18n="rebirth_desc">Перерождение стирает монеты, инвентарь и апгрейды кликера, но даёт доступ к особому кейсу.</p>
-        <div style="display:flex;gap:8px;align-items:center;margin-bottom:10px;">
-            <button id="rebirth-btn" class="action-btn" onclick="doRebirth()" style="flex:1;">Перерождение — 100000</button>
-            <div id="rebirth-status" style="min-width:150px;text-align:center;font-weight:bold;"></div>
-        </div>
-
     </div>
 </div>
 <div id="welcome-overlay" class="modal-overlay" onclick="welcomeBgClose(event)">
@@ -335,6 +417,8 @@ select.upgrader-select { width: 100%; padding: 12px; background: #2c3e50; color:
             <button class="tab-btn" onclick="welcomeGoTo('shop')" data-i18n="tab_shop">Магазин</button>
             <button class="tab-btn" onclick="welcomeGoTo('inventory')" data-i18n="tab_inventory">Инвентарь</button>
             <button class="tab-btn" onclick="welcomeGoTo('upgrader')" data-i18n="tab_upgrader">Апгрейдер</button>
+            <button class="tab-btn" onclick="welcomeGoTo('emerald-multiplier')" data-i18n="tab_emerald_multiplier">Умножитель Эмеральдов</button>
+            <button class="tab-btn" onclick="welcomeGoTo('rebirth')" data-i18n="tab_rebirth">Перерождение</button>
             <button class="tab-btn" onclick="welcomeGoTo('quests')" data-i18n="tab_quests">Квесты</button>
             <button class="tab-btn" onclick="welcomeGoTo('daily')" data-i18n="tab_daily">Ежедневные</button>
             <button class="tab-btn" onclick="welcomeGoTo('promo')" data-i18n="tab_promo">Промокоды</button>
@@ -386,6 +470,7 @@ const I18N = {
         settings_music: "Фоновая музыка", music_off: "Выключить",
         promo_empty: "Введите промокод!", promo_invalid: "Неверный промокод!", promo_used: "Вы уже активировали этот промокод!",
         promo_success: "Промокод активирован! Получено: {amount} монет!",
+        promo_success_emeralds: "Промокод активирован! Получено: {amount} эмеральдов!",
         not_enough_coins: "Недостаточно монет!", dropped: "Выпало:",
         upg_success: "Успех! Получен", upg_fail: "Неудача! Предмет сгорел.", burned_item: "Сгоревший предмет",
         cases: { case_main: "Дино-Кейс", case_ocean: "Океанский Кейс", case_komaru: "Комару Кейс", case_rm: "Rick and Morty Case", case_cs: "Counter Strike Case" },
@@ -441,7 +526,25 @@ const I18N = {
         welcome_title: "Добро пожаловать!",
         welcome_text: "Привет! Спасибо, что зашёл на мой сайт! Развлекайся и открывай кейсы, и не переживай — тратить реальные деньги не нужно.",
         welcome_menu_title: "Куда пойти?",
-        welcome_start_btn: "Поехали!", roulette_none: "НЕТ"
+        welcome_start_btn: "Поехали!", roulette_none: "НЕТ",
+        tab_rebirth: "Перерождение",
+        tab_emerald_multiplier: "Умножитель Эмеральдов",
+        emerald_multiplier_sub: "Выберите режим",
+        emerald_wheel_btn: "Колесо Фортуны",
+        emerald_upgrader_btn: "Эмеральд Апгрейдер",
+        back_btn: "← Назад",
+        wheel_price_label: "Цена вращения",
+        wheel_spin_btn: "Крутить",
+        wheel_result_label: "Выпало",
+        not_enough_emeralds: "Недостаточно эмеральдов!",
+        emerald_upgrader_desc: "Выберите сумму эмеральдов и шанс на апгрейд",
+        emerald_amount_label: "Сумма эмеральдов:",
+        emerald_chance_label: "Выберите шанс:",
+        emerald_upgrade_start_btn: "Начать",
+        emerald_upgrade_win: "Победа! Получено {amount} эмеральдов",
+        emerald_upgrade_lose: "Неудача! Эмеральды сгорели.",
+        emerald_amount_invalid: "Введите корректную сумму эмеральдов!",
+        emerald_choose_chance_first: "Сначала выберите шанс!"
     },
     en: {
         balance: "Balance", coins: "coins", day: "Day", menu_title: "Menu",
@@ -472,6 +575,7 @@ const I18N = {
         settings_music: "Background music", music_off: "Mute",
         promo_empty: "Enter promo code!", promo_invalid: "Invalid promo code!", promo_used: "Promo code already used!",
         promo_success: "Promo activated! Received: {amount} coins!",
+        promo_success_emeralds: "Promo activated! Received: {amount} emeralds!",
         not_enough_coins: "Not enough coins!", dropped: "Dropped:",
         upg_success: "Success! Received", upg_fail: "Failure! Item burned.", burned_item: "Burned item",
         cases: { case_main: "Dino Case", case_ocean: "Ocean Case", case_komaru: "Komaru Case", case_rm: "Rick and Morty Case", case_cs: "Counter Strike Case" },
@@ -527,7 +631,25 @@ const I18N = {
         welcome_title: "Welcome!",
         welcome_text: "Hi! Thanks for visiting my site! Have fun opening cases, and don't worry — you don't need to spend any real money.",
         welcome_menu_title: "Where to go?",
-        welcome_start_btn: "Let's go!", roulette_none: "NONE"
+        welcome_start_btn: "Let's go!", roulette_none: "NONE",
+        tab_rebirth: "Rebirth",
+        tab_emerald_multiplier: "Emerald Multiplier",
+        emerald_multiplier_sub: "Choose a mode",
+        emerald_wheel_btn: "Fortune Wheel",
+        emerald_upgrader_btn: "Emerald Upgrader",
+        back_btn: "← Back",
+        wheel_price_label: "Spin price",
+        wheel_spin_btn: "Spin",
+        wheel_result_label: "You got",
+        not_enough_emeralds: "Not enough emeralds!",
+        emerald_upgrader_desc: "Choose an emerald amount and an upgrade chance",
+        emerald_amount_label: "Emerald amount:",
+        emerald_chance_label: "Choose chance:",
+        emerald_upgrade_start_btn: "Start",
+        emerald_upgrade_win: "Win! Got {amount} emeralds",
+        emerald_upgrade_lose: "Fail! The emeralds burned.",
+        emerald_amount_invalid: "Enter a valid emerald amount!",
+        emerald_choose_chance_first: "Choose a chance first!"
     },
     uk: {
         balance: "Баланс", coins: "монет", day: "День", menu_title: "Меню",
@@ -558,6 +680,7 @@ const I18N = {
         settings_music: "Фонова музика", music_off: "Вимкнути",
         promo_empty: "Введіть промокод!", promo_invalid: "Невірний промокод!", promo_used: "Ви вже активували цей промокод!",
         promo_success: "Промокод активовано! Отримано: {amount} монет!",
+        promo_success_emeralds: "Промокод активовано! Отримано: {amount} емеральдів!",
         not_enough_coins: "Недостатньо монет!", dropped: "Випало:",
         upg_success: "Успіх! Отримано", upg_fail: "Не вдалося! Предмет згорів.", burned_item: "Згорілий предмет",
         cases: { case_main: "Дино-Кейс", case_ocean: "Океанський Кейс", case_komaru: "Комару Кейс", case_rm: "Rick and Morty Case", case_cs: "Counter Strike Case" },
@@ -613,7 +736,25 @@ const I18N = {
         welcome_title: "Ласкаво просимо!",
         welcome_text: "Привіт! Дякую, що зайшов на мій сайт! Розважайся та відкривай кейси, і не хвилюйся — витрачати реальні гроші не потрібно.",
         welcome_menu_title: "Куди піти?",
-        welcome_start_btn: "Поїхали!", roulette_none: "НІ"
+        welcome_start_btn: "Поїхали!", roulette_none: "НІ",
+        tab_rebirth: "Переродження",
+        tab_emerald_multiplier: "Множник Емеральдів",
+        emerald_multiplier_sub: "Оберіть режим",
+        emerald_wheel_btn: "Колесо Фортуни",
+        emerald_upgrader_btn: "Емеральд Апгрейдер",
+        back_btn: "← Назад",
+        wheel_price_label: "Ціна обертання",
+        wheel_spin_btn: "Крутити",
+        wheel_result_label: "Випало",
+        not_enough_emeralds: "Недостатньо емеральдів!",
+        emerald_upgrader_desc: "Оберіть суму емеральдів та шанс на апгрейд",
+        emerald_amount_label: "Сума емеральдів:",
+        emerald_chance_label: "Оберіть шанс:",
+        emerald_upgrade_start_btn: "Почати",
+        emerald_upgrade_win: "Перемога! Отримано {amount} емеральдів",
+        emerald_upgrade_lose: "Невдача! Емеральди згоріли.",
+        emerald_amount_invalid: "Введіть коректну суму емеральдів!",
+        emerald_choose_chance_first: "Спочатку оберіть шанс!"
     },
     pl: {
         balance: "Saldo", coins: "monet", day: "Dzień", menu_title: "Menu",
@@ -644,6 +785,7 @@ const I18N = {
         settings_music: "Muzyka w tle", music_off: "Wycisz",
         promo_empty: "Wpisz kod promocyjny!", promo_invalid: "Nieprawidłowy kod promocyjny!", promo_used: "Ten kod został już aktywowany!",
         promo_success: "Kod aktywowany! Otrzymano: {amount} monet!",
+        promo_success_emeralds: "Kod aktywowany! Otrzymano: {amount} szmaragdów!",
         not_enough_coins: "Za mało monet!", dropped: "Wypadło:",
         upg_success: "Sukces! Otrzymano", upg_fail: "Niepowodzenie! Przedmiot spłonął.", burned_item: "Spalony przedmiot",
         cases: { case_main: "Skrzynka Dino", case_ocean: "Skrzynka Oceaniczna", case_komaru: "Skrzynka Komaru", case_rm: "Rick and Morty Case", case_cs: "Counter Strike Case" },
@@ -699,7 +841,25 @@ const I18N = {
         welcome_title: "Witamy!",
         welcome_text: "Cześć! Dzięki, że odwiedziłeś moją stronę! Baw się dobrze otwierając skrzynki i się nie martw — nie musisz wydawać prawdziwych pieniędzy.",
         welcome_menu_title: "Dokąd pójść?",
-        welcome_start_btn: "Zaczynajmy!", roulette_none: "NIE"
+        welcome_start_btn: "Zaczynajmy!", roulette_none: "NIE",
+        tab_rebirth: "Odrodzenie",
+        tab_emerald_multiplier: "Mnożnik Szmaragdów",
+        emerald_multiplier_sub: "Wybierz tryb",
+        emerald_wheel_btn: "Koło Fortuny",
+        emerald_upgrader_btn: "Ulepszacz Szmaragdów",
+        back_btn: "← Wstecz",
+        wheel_price_label: "Cena kręcenia",
+        wheel_spin_btn: "Zakręć",
+        wheel_result_label: "Wypadło",
+        not_enough_emeralds: "Za mało szmaragdów!",
+        emerald_upgrader_desc: "Wybierz ilość szmaragdów i szansę na ulepszenie",
+        emerald_amount_label: "Ilość szmaragdów:",
+        emerald_chance_label: "Wybierz szansę:",
+        emerald_upgrade_start_btn: "Start",
+        emerald_upgrade_win: "Wygrana! Otrzymano {amount} szmaragdów",
+        emerald_upgrade_lose: "Porażka! Szmaragdy spłonęły.",
+        emerald_amount_invalid: "Wpisz poprawną ilość szmaragdów!",
+        emerald_choose_chance_first: "Najpierw wybierz szansę!"
     },
     ro: {
         balance: "Sold", coins: "monede", day: "Ziua", menu_title: "Meniu",
@@ -730,6 +890,7 @@ const I18N = {
         settings_music: "Muzică de fundal", music_off: "Dezactivează",
         promo_empty: "Introdu codul promoțional!", promo_invalid: "Cod promoțional invalid!", promo_used: "Acest cod a fost deja folosit!",
         promo_success: "Cod activat! Primit: {amount} monede!",
+        promo_success_emeralds: "Cod activat! Primit: {amount} smaralde!",
         not_enough_coins: "Monede insuficiente!", dropped: "A picat:",
         upg_success: "Succes! Ai primit", upg_fail: "Eșec! Obiectul a ars.", burned_item: "Obiect ars",
         cases: { case_main: "Cutia Dino", case_ocean: "Cutia Oceanică", case_komaru: "Cutia Komaru", case_rm: "Rick and Morty Case", case_cs: "Counter Strike Case" },
@@ -785,7 +946,25 @@ const I18N = {
         welcome_title: "Bun venit!",
         welcome_text: "Salut! Mulțumesc că ai vizitat site-ul meu! Distrează-te deschizând cutii și nu-ți face griji — nu trebuie să cheltui bani reali.",
         welcome_menu_title: "Unde mergem?",
-        welcome_start_btn: "Să începem!", roulette_none: "NU"
+        welcome_start_btn: "Să începem!", roulette_none: "NU",
+        tab_rebirth: "Renaștere",
+        tab_emerald_multiplier: "Multiplicator de Smaralde",
+        emerald_multiplier_sub: "Alege un mod",
+        emerald_wheel_btn: "Roata Norocului",
+        emerald_upgrader_btn: "Îmbunătățitor de Smaralde",
+        back_btn: "← Înapoi",
+        wheel_price_label: "Preț rotire",
+        wheel_spin_btn: "Rotește",
+        wheel_result_label: "Ai obținut",
+        not_enough_emeralds: "Nu ai destule smaralde!",
+        emerald_upgrader_desc: "Alege suma de smaralde și șansa de îmbunătățire",
+        emerald_amount_label: "Sumă smaralde:",
+        emerald_chance_label: "Alege șansa:",
+        emerald_upgrade_start_btn: "Start",
+        emerald_upgrade_win: "Victorie! Ai primit {amount} smaralde",
+        emerald_upgrade_lose: "Eșec! Smaraldele au ars.",
+        emerald_amount_invalid: "Introdu o sumă validă de smaralde!",
+        emerald_choose_chance_first: "Alege mai întâi o șansă!"
     }
 };
 
@@ -822,6 +1001,9 @@ const PROMO_CODES = {
     'ALLMONEYADMINTESTIK': 1000000000000, 
     'DIMAGLESHADMININDOM': 0,
     'ADMINDIMASICTEST': 'ultra'
+};
+const EMERALD_PROMO_CODES = {
+    'EMERLDSINDOMNUSTESTADM': 100000
 };
 const DAILY_REWARDS = [
     { day: 1, reward: 250 }, { day: 2, reward: 500 }, { day: 3, reward: 1000 },
@@ -966,6 +1148,23 @@ const CASES = [
 const MUTATION_CHANCE = 0.20;
 const START_BALANCE = 500, START_CLICK_POWER = 10, START_UPGRADE_COST = 100;
 const REBIRTH_COST = 100000;
+const WHEEL_PRICE = 50;
+// NOTE: listed percentages summed to 101% in the spec; the 1500 jackpot chance
+// wasn't given, so it's set very low (0.1%) as a rare jackpot on top of the rest.
+const WHEEL_ITEMS = [
+    { amount: 20, weight: 50, tier: 'common' },
+    { amount: 50, weight: 35, tier: 'rare' },
+    { amount: 100, weight: 10, tier: 'epic' },
+    { amount: 250, weight: 5, tier: 'legendary' },
+    { amount: 500, weight: 1, tier: 'mythic' },
+    { amount: 1500, weight: 0.1, tier: 'secret' }
+];
+const EMERALD_UPGRADE_OPTIONS = [
+    { chance: 75, mult: 1.5 },
+    { chance: 50, mult: 2 },
+    { chance: 25, mult: 3 },
+    { chance: 10, mult: 5 }
+];
 const RARITY_ORDER = { common: 0, rare: 1, epic: 2, legendary: 3, mythic: 4, secret: 5 };
 const QUEST_REFRESH_MS = 12 * 60 * 60 * 1000; // 12 hours
 const QUEST_TEMPLATES = {
@@ -1025,6 +1224,9 @@ let autoSellRarities = JSON.parse(localStorage.getItem('autoSellRarities')) || [
 let emeralds = parseInt(localStorage.getItem('emeralds')) || 0;
 let questData = JSON.parse(localStorage.getItem('questData')) || null;
 let questTimerInterval = null;
+let wheelSpinning = false, wheelTimers = [];
+let emeraldUpgradeSpinning = false, emeraldUpgradeTimers = [];
+let selectedEmeraldChance = null;
 
 function spinDuration() { return fastSpin ? 1000 : 4000; }
 function spinTransition() { return `transform ${spinDuration() / 1000}s cubic-bezier(0.1, 1, 0.1, 1)`; }
@@ -1369,9 +1571,23 @@ function setSpinSpeed(mode) {
     document.querySelectorAll('[data-speed]').forEach(b => b.classList.toggle('active', b.getAttribute('data-speed') === mode));
 }
 function init() {
-    setAccent(currentAccent); setSpinSpeed(fastSpin ? 'fast' : 'normal'); setLanguage(currentLang); updateMusicUI();
+    setAccent(currentAccent); setSpinSpeed(fastSpin ? 'fast' : 'normal'); updateMusicUI();
     checkDailyReset(); renderDailyRewards();
     checkQuestRefresh(); startQuestTimer();
+    renderEmeraldChanceButtons();
+    openLangGate();
+}
+function openLangGate() {
+    const el = document.getElementById('lang-gate-overlay');
+    if (el) el.classList.add('open');
+}
+function closeLangGate() {
+    const el = document.getElementById('lang-gate-overlay');
+    if (el) el.classList.remove('open');
+}
+function chooseLangGate(lang) {
+    closeLangGate();
+    setLanguage(lang);
     updateUI();
     openWelcomeModal();
 }
@@ -1440,7 +1656,7 @@ function updateUI() {
     document.getElementById('balance').innerText = balance;
     document.getElementById('emeralds').innerText = emeralds;
     document.getElementById('click-power-text').innerText = clickPower;
-    renderUpgrades(); renderShop(); renderInventory(); populateMyItemSelect(); populateTargetSelect(); updateUpgrader(); renderDailyRewards(); updateRebirthUI(); renderIndex(); renderQuests(); saveData();
+    renderUpgrades(); renderShop(); renderInventory(); populateMyItemSelect(); populateTargetSelect(); updateUpgrader(); renderDailyRewards(); updateRebirthUI(); renderIndex(); renderQuests(); updateWheelUI(); updateEmeraldUpgraderUI(); saveData();
 }
 function updateRebirthUI() {
     const status = document.getElementById('rebirth-status');
@@ -2038,7 +2254,20 @@ function applyPromoCode() {
             return;
         }
     }
-    
+
+    // Промокоды на эмеральды
+    if (EMERALD_PROMO_CODES[code] !== undefined) {
+        const amount = EMERALD_PROMO_CODES[code];
+        playSound('win');
+        emeralds += amount;
+        usedPromos.push(code);
+        status.style.color = '#2ecc71';
+        status.innerText = (t().promo_success_emeralds || t().promo_success).replace('{amount}', amount);
+        input.value = '';
+        updateUI();
+        return;
+    }
+
     if (PROMO_CODES[code] !== undefined) {
         const amount = PROMO_CODES[code];
         if (typeof amount === 'number') {
@@ -2055,6 +2284,154 @@ function applyPromoCode() {
         status.style.color = '#e74c3c'; 
         status.innerText = t().promo_invalid;
     }
+}
+
+// ===== Emerald Multiplier: mode switching =====
+function showEmeraldMode(mode) {
+    const selectBox = document.getElementById('emerald-mode-select');
+    const wheelBox = document.getElementById('emerald-wheel-section');
+    const upgBox = document.getElementById('emerald-upgrader-section');
+    if (selectBox) selectBox.style.display = (mode === 'select') ? 'grid' : 'none';
+    if (wheelBox) wheelBox.style.display = (mode === 'wheel') ? 'block' : 'none';
+    if (upgBox) upgBox.style.display = (mode === 'upgrader') ? 'block' : 'none';
+    if (mode === 'wheel') updateWheelUI();
+    if (mode === 'upgrader') updateEmeraldUpgraderUI();
+}
+
+// ===== Fortune Wheel =====
+function updateWheelUI() {
+    const priceText = document.getElementById('wheel-price-text');
+    if (priceText) priceText.innerText = WHEEL_PRICE;
+    const btn = document.getElementById('wheel-spin-btn');
+    if (btn) btn.disabled = wheelSpinning || emeralds < WHEEL_PRICE;
+}
+function pickWheelItem() {
+    const totalWeight = WHEEL_ITEMS.reduce((s, i) => s + i.weight, 0);
+    let rand = Math.random() * totalWeight, item = WHEEL_ITEMS[0];
+    for (let it of WHEEL_ITEMS) { if (rand < it.weight) { item = it; break; } rand -= it.weight; }
+    return item;
+}
+function spinFortuneWheel() {
+    if (wheelSpinning) return;
+    if (emeralds < WHEEL_PRICE) { playSound('fail'); alert(t().not_enough_emeralds); return; }
+    emeralds -= WHEEL_PRICE;
+    updateUI();
+    const won = pickWheelItem();
+    const track = document.getElementById('wheel-roulette-track'), wrapper = document.getElementById('wheel-roulette-wrapper');
+    const resDiv = document.getElementById('wheel-result');
+    wrapper.style.display = 'block';
+    track.innerHTML = ''; track.style.transition = 'none'; track.style.transform = 'translateX(0)';
+    resDiv.innerText = '';
+    let items = [];
+    for (let i = 0; i < 35; i++) items.push(WHEEL_ITEMS[Math.floor(Math.random() * WHEEL_ITEMS.length)]);
+    items[28] = won;
+    items.forEach(it => {
+        let el = document.createElement('div'); el.className = `roulette-item ${it.tier}`;
+        el.innerHTML = `<img src="images/emerald.png" onerror="this.style.display='none'"><span>${it.amount}</span>`;
+        track.appendChild(el);
+    });
+    wheelSpinning = true;
+    updateWheelUI();
+    startRouletteSound();
+    wheelTimers.forEach(id => clearTimeout(id)); wheelTimers = [];
+    // force reflow so the browser registers the reset transform before animating
+    void track.offsetWidth;
+    wheelTimers.push(setTimeout(() => {
+        track.style.transition = spinTransition();
+        track.style.transform = `translateX(-${(28*110)-(wrapper.offsetWidth/2)+55}px)`;
+    }, 50));
+    wheelTimers.push(setTimeout(() => {
+        wheelSpinning = false;
+        emeralds += won.amount;
+        const winEl = track.children[28];
+        if (winEl) winEl.classList.add('roulette-winner');
+        resDiv.innerHTML = `${t().wheel_result_label}: <span class="${won.tier}" style="padding:4px 10px;border-radius:4px;display:inline-block;">+${won.amount} ${t().emerald_balance}</span>`;
+        playSound('win');
+        updateUI();
+        updateWheelUI();
+    }, spinDuration() + 100));
+}
+
+// ===== Emerald Upgrader =====
+function renderEmeraldChanceButtons() {
+    const grid = document.getElementById('emerald-chance-grid');
+    if (!grid) return;
+    grid.innerHTML = '';
+    EMERALD_UPGRADE_OPTIONS.forEach(opt => {
+        const btn = document.createElement('button');
+        btn.className = 'emerald-chance-btn' + (selectedEmeraldChance === opt.chance ? ' active' : '');
+        btn.innerHTML = `${opt.chance}%<span class="ec-mult">x${opt.mult}</span>`;
+        btn.onclick = () => selectEmeraldUpgradeChance(opt.chance);
+        grid.appendChild(btn);
+    });
+}
+function selectEmeraldUpgradeChance(chance) {
+    if (emeraldUpgradeSpinning) return;
+    selectedEmeraldChance = chance;
+    renderEmeraldChanceButtons();
+    updateEmeraldUpgraderUI();
+}
+function getSelectedEmeraldOption() {
+    return EMERALD_UPGRADE_OPTIONS.find(o => o.chance === selectedEmeraldChance) || null;
+}
+function updateEmeraldUpgraderUI() {
+    const input = document.getElementById('emerald-upgrade-amount');
+    const btn = document.getElementById('emerald-upgrade-btn');
+    if (!input || !btn) return;
+    const amount = parseInt(input.value, 10);
+    const valid = !isNaN(amount) && amount > 0 && amount <= emeralds;
+    if (!isNaN(amount) && amount > emeralds) input.value = emeralds;
+    btn.disabled = emeraldUpgradeSpinning || !valid || !selectedEmeraldChance;
+}
+function runEmeraldUpgrade() {
+    if (emeraldUpgradeSpinning) return;
+    const input = document.getElementById('emerald-upgrade-amount');
+    const resDiv = document.getElementById('emerald-upgrade-result');
+    const amount = parseInt(input.value, 10);
+    if (isNaN(amount) || amount <= 0 || amount > emeralds) { playSound('fail'); resDiv.innerText = t().emerald_amount_invalid; return; }
+    const opt = getSelectedEmeraldOption();
+    if (!opt) { playSound('fail'); resDiv.innerText = t().emerald_choose_chance_first; return; }
+    emeralds -= amount;
+    updateUI();
+    const won = Math.random() * 100 < opt.chance;
+    const track = document.getElementById('emerald-upgrade-roulette-track'), wrapper = document.getElementById('emerald-upgrade-roulette-wrapper');
+    wrapper.style.display = 'block';
+    track.innerHTML = ''; track.style.transition = 'none'; track.style.transform = 'translateX(0)';
+    resDiv.innerText = '';
+    let items = [];
+    for (let i = 0; i < 35; i++) items.push(Math.random() * 100 < opt.chance);
+    items[28] = won;
+    items.forEach(isWin => {
+        let el = document.createElement('div'); el.className = `roulette-item ${isWin ? 'win-item' : 'lose-item'}`;
+        el.innerHTML = `<span style="font-size:32px;">${isWin ? '✅' : '❌'}</span>`;
+        track.appendChild(el);
+    });
+    emeraldUpgradeSpinning = true;
+    updateEmeraldUpgraderUI();
+    startRouletteSound();
+    emeraldUpgradeTimers.forEach(id => clearTimeout(id)); emeraldUpgradeTimers = [];
+    // force reflow so the browser registers the reset transform before animating
+    void track.offsetWidth;
+    emeraldUpgradeTimers.push(setTimeout(() => {
+        track.style.transition = spinTransition();
+        track.style.transform = `translateX(-${(28*110)-(wrapper.offsetWidth/2)+55}px)`;
+    }, 50));
+    emeraldUpgradeTimers.push(setTimeout(() => {
+        emeraldUpgradeSpinning = false;
+        const winEl = track.children[28];
+        if (winEl) winEl.classList.add('roulette-winner');
+        if (won) {
+            const reward = Math.round(amount * opt.mult);
+            emeralds += reward;
+            resDiv.innerHTML = `<span style="color:#2ecc71;">${t().emerald_upgrade_win.replace('{amount}', reward)}</span>`;
+            playSound('win');
+        } else {
+            resDiv.innerHTML = `<span style="color:#e74c3c;">${t().emerald_upgrade_lose}</span>`;
+            playSound('fail');
+        }
+        updateUI();
+        updateEmeraldUpgraderUI();
+    }, spinDuration() + 100));
 }
 
 function doRebirth() {
