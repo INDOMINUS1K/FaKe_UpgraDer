@@ -230,17 +230,6 @@ select.upgrader-select { width: 100%; padding: 12px; background: #2c3e50; color:
 <div id="tab-cases" class="tab-content active">
     <h2 data-i18n="cases_title">Магазин Кейсов</h2><br>
     <div class="cases-grid" id="cases-list"></div>
-    <div id="roulette-wrapper" class="roulette-wrapper">
-        <div class="roulette-marker"></div>
-        <div id="roulette-track" class="roulette-track"></div>
-    </div>
-    <div id="mutation-wrapper" class="roulette-wrapper mutation-wrapper">
-        <div class="roulette-marker" style="background: #9b59b6;"></div>
-        <div id="mutation-track" class="roulette-track"></div>
-    </div>
-    <div id="multi-roulette-container"></div>
-    <button id="skip-roulette-btn" class="action-btn" style="display:none; max-width:220px; margin:10px auto;" data-testid="skip-roulette-btn" onclick="skipCaseRoulette()" data-i18n="skip_btn">Пропустить</button>
-    <div id="case-result" style="margin-top: 15px; font-size: 18px; font-weight: bold;"></div>
 </div>
 <div id="tab-clicker" class="tab-content">
     <h2 data-i18n="clicker_title">Добыча Монет</h2><br>
@@ -447,6 +436,28 @@ select.upgrader-select { width: 100%; padding: 12px; background: #2c3e50; color:
         <div id="case-mutation-info" class="case-mutation-info" data-testid="case-mutation-info"></div>
         <div id="case-modal-msg" class="case-modal-msg" data-testid="case-modal-msg"></div>
         <div id="case-open-buttons" class="case-open-buttons" data-testid="case-open-buttons"></div>
+        <div id="roulette-wrapper" class="roulette-wrapper">
+            <div class="roulette-marker"></div>
+            <div id="roulette-track" class="roulette-track"></div>
+        </div>
+        <div id="mutation-wrapper" class="roulette-wrapper mutation-wrapper">
+            <div class="roulette-marker" style="background: #9b59b6;"></div>
+            <div id="mutation-track" class="roulette-track"></div>
+        </div>
+        <div id="multi-roulette-container"></div>
+        <button id="skip-roulette-btn" class="action-btn" style="display:none; max-width:220px; margin:10px auto;" data-testid="skip-roulette-btn" onclick="skipCaseRoulette()" data-i18n="skip_btn">Пропустить</button>
+        <div id="case-result" style="margin-top: 15px; font-size: 18px; font-weight: bold; text-align:center;"></div>
+        <button id="case-open-more-btn" class="action-btn" style="display:none; margin-top:12px; width:100%;" data-testid="case-open-more-btn" onclick="openMoreCase()" data-i18n="open_more_btn">Открыть ещё</button>
+    </div>
+</div>
+<div id="card-detail-overlay" class="modal-overlay" onclick="cardDetailBgClose(event)">
+    <div class="modal" style="max-width:380px;text-align:center;">
+        <div class="modal-head">
+            <h2 id="card-detail-title" data-testid="card-detail-title">Карта</h2>
+            <button class="modal-close" data-testid="card-detail-close" onclick="closeCardDetail()">&#10005;</button>
+        </div>
+        <img id="card-detail-img" src="" alt="" style="max-width:200px;max-height:200px;border-radius:8px;margin:10px auto;display:block;" onerror="this.style.display='none'">
+        <div id="card-detail-stats" style="text-align:left;max-width:280px;margin:10px auto 0;" data-testid="card-detail-stats"></div>
     </div>
 </div>
 <script>
@@ -455,7 +466,7 @@ const I18N = {
         balance: "Баланс", coins: "монет", day: "День", menu_title: "Меню",
         tab_cases: "Кейсы", tab_clicker: "Кликер", tab_inventory: "Инвентарь", tab_upgrader: "Апгрейдер", tab_daily: "Ежедневные", tab_promo: "Промокоды",
         cases_title: "Магазин Кейсов", open_btn: "Открыть",
-        case_contents: "Возможные предметы",
+        case_contents: "Возможные предметы", detail_rarity: "Редкость", detail_price: "Цена", detail_case: "Кейс",
         tab_index: "Индекс", index_title: "Индекс Предметов", index_sub: "Все карточки и кейсы, из которых их можно получить",
         rarities: { common: "Обычный", rare: "Редкий", epic: "Эпический", legendary: "Легендарный", mythic: "Мифик", secret: "Секрет", ultrasecret: "Ультра Секрет" },
         clicker_title: "Добыча Монет", click_btn: "КЛИК", income_text: "Текущий доход за клик",
@@ -467,7 +478,7 @@ const I18N = {
         shop_multi5_name: "Открытие 5 кейсов", shop_multi5_desc: "Открывай сразу 5 кейсов за раз",
         shop_multi10_name: "Открытие 10 кейсов", shop_multi10_desc: "Открывай сразу 10 кейсов за раз",
         shop_multi20_name: "Открытие 20 кейсов", shop_multi20_desc: "Открывай сразу 20 кейсов за раз (цена x20)",
-        buy_btn: "Купить", purchased: "Куплено", open_x: "Открыть {n}", skip_btn: "Пропустить", multi_results: "Результаты",
+        buy_btn: "Купить", purchased: "Куплено", open_x: "Открыть {n}", skip_btn: "Пропустить", multi_results: "Результаты", open_more_btn: "Открыть ещё",
         upg_sub: "Выберите свой предмет и желаемую цель для апгрейда",
         slot_from_empty: "Ваш предмет не выбран", slot_to_empty: "Цель не выбрана",
         upg_step1: "1. Ваш предмет:", upg_step2: "2. Желаемая цель:",
@@ -515,7 +526,8 @@ const I18N = {
             rvm6: "Осётр", rvm7: "Жерех",
             rvm8: "Щука", rvm9: "Сом",
             rvm10: "Акула Бык", rvm11: "Тигровая Рыба",
-            rvm12: "Мятный Карась"
+            rvm12: "Мятный Карась",
+            rvm13: "Аропаима"
         },
         rebirth_title: "Перерождение",
         rebirth_desc: "Перерождение стирает монеты, инвентарь и апгрейды кликера, сбрасывает использованные промокоды (их можно ввести заново), но даёт доступ к особому кейсу.",
@@ -577,7 +589,7 @@ const I18N = {
         balance: "Balance", coins: "coins", day: "Day", menu_title: "Menu",
         tab_cases: "Cases", tab_clicker: "Clicker", tab_inventory: "Inventory", tab_upgrader: "Upgrader", tab_daily: "Daily", tab_promo: "Promo",
         cases_title: "Cases Shop", open_btn: "Open",
-        case_contents: "Possible items",
+        case_contents: "Possible items", detail_rarity: "Rarity", detail_price: "Price", detail_case: "Case",
         tab_index: "Index", index_title: "Item Index", index_sub: "All cards and the cases they can drop from",
         rarities: { common: "Common", rare: "Rare", epic: "Epic", legendary: "Legendary", mythic: "Mythic", secret: "Secret", ultrasecret: "Ultra Secret" },
         clicker_title: "Coin Mining", click_btn: "CLICK", income_text: "Current income per click",
@@ -589,7 +601,7 @@ const I18N = {
         shop_multi5_name: "Open 5 cases", shop_multi5_desc: "Open 5 cases at once",
         shop_multi10_name: "Open 10 cases", shop_multi10_desc: "Open 10 cases at once",
         shop_multi20_name: "Open 20 cases", shop_multi20_desc: "Open 20 cases at once (price x20)",
-        buy_btn: "Buy", purchased: "Purchased", open_x: "Open {n}", skip_btn: "Skip", multi_results: "Results",
+        buy_btn: "Buy", purchased: "Purchased", open_x: "Open {n}", skip_btn: "Skip", multi_results: "Results", open_more_btn: "Open More",
         upg_sub: "Choose your item and a target to upgrade to",
         slot_from_empty: "Your item is not selected", slot_to_empty: "Target is not selected",
         upg_step1: "1. Your item:", upg_step2: "2. Desired target:",
@@ -637,7 +649,8 @@ const I18N = {
             rvm6: "Sturgeon", rvm7: "Asp",
             rvm8: "Pike", rvm9: "Catfish",
             rvm10: "Bull Shark", rvm11: "Tigerfish",
-            rvm12: "Mint Crucian Carp"
+            rvm12: "Mint Crucian Carp",
+            rvm13: "Arapaima"
         },
         rebirth_title: "Rebirth",
         rebirth_desc: "Rebirth erases coins, inventory and clicker upgrades, resets used promo codes (you can enter them again), but grants access to a special case.",
@@ -699,7 +712,7 @@ const I18N = {
         balance: "Баланс", coins: "монет", day: "День", menu_title: "Меню",
         tab_cases: "Кейси", tab_clicker: "Клікер", tab_inventory: "Інвентар", tab_upgrader: "Апгрейдер", tab_daily: "Щоденні", tab_promo: "Промокоди",
         cases_title: "Магазин Кейсів", open_btn: "Відкрити",
-        case_contents: "Можливі предмети",
+        case_contents: "Можливі предмети", detail_rarity: "Рідкість", detail_price: "Ціна", detail_case: "Кейс",
         tab_index: "Індекс", index_title: "Індекс Предметів", index_sub: "Усі картки та кейси, з яких їх можна отримати",
         rarities: { common: "Звичайний", rare: "Рідкісний", epic: "Епічний", legendary: "Легендарний", mythic: "Міфічний", secret: "Секрет", ultrasecret: "Ультра Секрет" },
         clicker_title: "Добування Монет", click_btn: "КЛІК", income_text: "Поточний дохід за клік",
@@ -711,7 +724,7 @@ const I18N = {
         shop_multi5_name: "Відкриття 5 кейсів", shop_multi5_desc: "Відкривай 5 кейсів одразу",
         shop_multi10_name: "Відкриття 10 кейсів", shop_multi10_desc: "Відкривай 10 кейсів одразу",
         shop_multi20_name: "Відкриття 20 кейсів", shop_multi20_desc: "Відкривай 20 кейсів одразу (ціна x20)",
-        buy_btn: "Купити", purchased: "Куплено", open_x: "Відкрити {n}", skip_btn: "Пропустити", multi_results: "Результати",
+        buy_btn: "Купити", purchased: "Куплено", open_x: "Відкрити {n}", skip_btn: "Пропустити", multi_results: "Результати", open_more_btn: "Відкрити ще",
         upg_sub: "Виберіть свій предмет і бажану ціль для апгрейду",
         slot_from_empty: "Ваш предмет не вибрано", slot_to_empty: "Ціль не вибрана",
         upg_step1: "1. Ваш предмет:", upg_step2: "2. Бажана ціль:",
@@ -759,7 +772,8 @@ const I18N = {
             rvm6: "Осетер", rvm7: "Жерех",
             rvm8: "Щука", rvm9: "Сом",
             rvm10: "Акула-Бик", rvm11: "Тигрова Риба",
-            rvm12: "М'ятний Карась"
+            rvm12: "М'ятний Карась",
+            rvm13: "Аропаїма"
         },
         rebirth_title: "Переродження",
         rebirth_desc: "Переродження стирає монети, інвентар і апгрейди клікера, скидає використані промокоди (їх можна ввести знову), але дає доступ до особливого кейсу.",
@@ -821,7 +835,7 @@ const I18N = {
         balance: "Saldo", coins: "monet", day: "Dzień", menu_title: "Menu",
         tab_cases: "Skrzynki", tab_clicker: "Klikacz", tab_inventory: "Ekwipunek", tab_upgrader: "Ulepszacz", tab_daily: "Codzienne", tab_promo: "Kody Promo",
         cases_title: "Sklep ze Skrzynkami", open_btn: "Otwórz",
-        case_contents: "Możliwe przedmioty",
+        case_contents: "Możliwe przedmioty", detail_rarity: "Rzadkość", detail_price: "Cena", detail_case: "Skrzynka",
         tab_index: "Indeks", index_title: "Indeks Przedmiotów", index_sub: "Wszystkie karty i skrzynki, z których można je zdobyć",
         rarities: { common: "Zwykły", rare: "Rzadki", epic: "Epicki", legendary: "Legendarny", mythic: "Mityczny", secret: "Sekretny", ultrasecret: "Ultra Sekretny" },
         clicker_title: "Wydobywanie Monet", click_btn: "KLIK", income_text: "Aktualny dochód za klik",
@@ -833,7 +847,7 @@ const I18N = {
         shop_multi5_name: "Otwieranie 5 skrzynek", shop_multi5_desc: "Otwieraj 5 skrzynek naraz",
         shop_multi10_name: "Otwieranie 10 skrzynek", shop_multi10_desc: "Otwieraj 10 skrzynek naraz",
         shop_multi20_name: "Otwieranie 20 skrzynek", shop_multi20_desc: "Otwieraj 20 skrzynek naraz (cena x20)",
-        buy_btn: "Kup", purchased: "Kupiono", open_x: "Otwórz {n}", skip_btn: "Pomiń", multi_results: "Wyniki",
+        buy_btn: "Kup", purchased: "Kupiono", open_x: "Otwórz {n}", skip_btn: "Pomiń", multi_results: "Wyniki", open_more_btn: "Otwórz jeszcze",
         upg_sub: "Wybierz swój przedmiot i pożądany cel ulepszenia",
         slot_from_empty: "Nie wybrano przedmiotu", slot_to_empty: "Nie wybrano celu",
         upg_step1: "1. Twój przedmiot:", upg_step2: "2. Wybrany cel:",
@@ -881,7 +895,8 @@ const I18N = {
             rvm6: "Jesiotr", rvm7: "Boleń",
             rvm8: "Szczupak", rvm9: "Sum",
             rvm10: "Rekin Byk", rvm11: "Ryba Tygrysia",
-            rvm12: "Miętowy Karaś"
+            rvm12: "Miętowy Karaś",
+            rvm13: "Arapaima"
         },
         rebirth_title: "Odrodzenie",
         rebirth_desc: "Odrodzenie kasuje monety, ekwipunek i ulepszenia klikacza, resetuje wykorzystane kody promocyjne (można je wpisać ponownie), ale daje dostęp do specjalnej skrzynki.",
@@ -943,7 +958,7 @@ const I18N = {
         balance: "Sold", coins: "monede", day: "Ziua", menu_title: "Meniu",
         tab_cases: "Cutii", tab_clicker: "Clicker", tab_inventory: "Inventar", tab_upgrader: "Îmbunătățire", tab_daily: "Zilnic", tab_promo: "Cod Promo",
         cases_title: "Magazin de Cutii", open_btn: "Deschide",
-        case_contents: "Obiecte posibile",
+        case_contents: "Obiecte posibile", detail_rarity: "Raritate", detail_price: "Preț", detail_case: "Cutie",
         tab_index: "Index", index_title: "Index de Obiecte", index_sub: "Toate cărțile și cutiile din care pot fi obținute",
         rarities: { common: "Comun", rare: "Rar", epic: "Epic", legendary: "Legendar", mythic: "Mitic", secret: "Secret", ultrasecret: "Ultra Secret" },
         clicker_title: "Minerit de Monede", click_btn: "CLICK", income_text: "Venit curent per click",
@@ -955,7 +970,7 @@ const I18N = {
         shop_multi5_name: "Deschide 5 cutii", shop_multi5_desc: "Deschide 5 cutii odată",
         shop_multi10_name: "Deschide 10 cutii", shop_multi10_desc: "Deschide 10 cutii odată",
         shop_multi20_name: "Deschide 20 cutii", shop_multi20_desc: "Deschide 20 cutii odată (preț x20)",
-        buy_btn: "Cumpără", purchased: "Cumpărat", open_x: "Deschide {n}", skip_btn: "Sari", multi_results: "Rezultate",
+        buy_btn: "Cumpără", purchased: "Cumpărat", open_x: "Deschide {n}", skip_btn: "Sari", multi_results: "Rezultate", open_more_btn: "Deschide din nou",
         upg_sub: "Alege obiectul tău și ținta dorită pentru îmbunătățire",
         slot_from_empty: "Obiectul tău nu este selectat", slot_to_empty: "Ținta nu este selectată",
         upg_step1: "1. Obiectul tău:", upg_step2: "2. Ținta dorită:",
@@ -1003,7 +1018,8 @@ const I18N = {
             rvm6: "Sturion", rvm7: "Avat",
             rvm8: "Știucă", rvm9: "Somn",
             rvm10: "Rechin Taur", rvm11: "Pește Tigru",
-            rvm12: "Caras de Mentă"
+            rvm12: "Caras de Mentă",
+            rvm13: "Arapaima"
         },
         rebirth_title: "Renaștere",
         rebirth_desc: "Renașterea șterge monedele, inventarul și îmbunătățirile clickerului, resetează codurile promoționale folosite (pot fi introduse din nou), dar oferă acces la o cutie specială.",
@@ -1208,7 +1224,8 @@ const ALL_CARDS = [
     { id: 'rvm9', category: 'rivermonsters', currency: 'emerald', price: 250, rarity: 'legendary', img: 'images/rvm9.jpg' },
     { id: 'rvm10', category: 'rivermonsters', currency: 'emerald', price: 700, rarity: 'mythic', img: 'images/rvm10.jpg' },
     { id: 'rvm11', category: 'rivermonsters', currency: 'emerald', price: 700, rarity: 'mythic', img: 'images/rvm11.jpg' },
-    { id: 'rvm12', category: 'rivermonsters', currency: 'emerald', price: 1000, rarity: 'secret', img: 'images/rvm12.jpg' }
+    { id: 'rvm12', category: 'rivermonsters', currency: 'emerald', price: 1000, rarity: 'secret', img: 'images/rvm12.jpg' },
+    { id: 'rvm13', category: 'rivermonsters', currency: 'emerald', price: 3000, rarity: 'secret', img: 'images/rvm13.jpg' }
 ];
 
 const CASES = [
@@ -1259,7 +1276,7 @@ const CASES = [
         { cardId: 'rvm6', weight: 5 }, { cardId: 'rvm7', weight: 5 },
         { cardId: 'rvm8', weight: 2.5 }, { cardId: 'rvm9', weight: 2.5 },
         { cardId: 'rvm10', weight: 0.5 }, { cardId: 'rvm11', weight: 0.5 },
-        { cardId: 'rvm12', weight: 0.1 }
+        { cardId: 'rvm12', weight: 0.1 }, { cardId: 'rvm13', weight: 0.03 }
       ] }
 ];
 
@@ -1336,6 +1353,7 @@ let usedPromos = JSON.parse(localStorage.getItem('usedPromos')) || [];
 let dailyData = JSON.parse(localStorage.getItem('dailyData')) || { lastClaimDate: null, currentDay: 0 };
 let selectedInvIndex = null, selectedTargetId = null, isSpinning = false, rouletteSoundInterval = null;
 let modalCaseIndex = null;
+let lastOpenCount = 1;
 let caseUpgrades = JSON.parse(localStorage.getItem('caseUpgrades')) || { multi5: false, multi10: false, multi20: false };
 let caseTimers = [], currentSpinFinalize = null;
 let fastSpin = localStorage.getItem('fastSpin') === '1';
@@ -1930,6 +1948,8 @@ function renderIndex() {
         const row = document.createElement('div');
         row.className = `case-item-row ${card.rarity}`;
         row.setAttribute('data-testid', `index-item-${card.id}`);
+        row.style.cursor = 'pointer';
+        row.onclick = () => showCardDetail(card.id);
         row.innerHTML = `<img src="${card.img}" onerror="this.style.display='none'">
             <div class="case-item-info"><span class="case-item-name">${getCardName(card.id)}</span>
             <span class="case-item-rarity">${getRarityName(card.rarity)}</span></div>
@@ -1937,6 +1957,24 @@ function renderIndex() {
         container.appendChild(row);
     });
 }
+function getCardCaseNames(cardId) {
+    return CASES.filter(cs => cs.items.some(it => it.cardId === cardId)).map(cs => getCaseName(cs.id));
+}
+function showCardDetail(cardId) {
+    const card = ALL_CARDS.find(c => c.id === cardId);
+    if (!card) return;
+    document.getElementById('card-detail-title').innerText = getCardName(card.id);
+    const img = document.getElementById('card-detail-img');
+    img.style.display = ''; img.src = card.img;
+    const caseNames = getCardCaseNames(card.id);
+    document.getElementById('card-detail-stats').innerHTML = `
+        <p style="margin:6px 0;"><b>${t().detail_rarity}:</b> <span class="${card.rarity}" style="padding:2px 10px;border-radius:4px;display:inline-block;">${getRarityName(card.rarity)}</span></p>
+        <p style="margin:6px 0;"><b>${t().detail_price}:</b> ${card.price} ${curWord(card.currency)}</p>
+        <p style="margin:6px 0;"><b>${t().detail_case}:</b> ${caseNames.join(', ') || '—'}</p>`;
+    document.getElementById('card-detail-overlay').classList.add('open');
+}
+function closeCardDetail() { document.getElementById('card-detail-overlay').classList.remove('open'); }
+function cardDetailBgClose(e) { if (e.target.id === 'card-detail-overlay') closeCardDetail(); }
 function openCaseModal(index) {
     if (isSpinning) return;
     modalCaseIndex = index;
@@ -1978,9 +2016,21 @@ function openCaseModal(index) {
         b.onclick = () => confirmOpenCase(n);
         btns.appendChild(b);
     });
+    document.getElementById('case-items-list').style.display = '';
+    document.getElementById('case-mutation-info').style.display = '';
+    btns.style.display = '';
+    document.getElementById('roulette-wrapper').style.display = 'none';
+    document.getElementById('mutation-wrapper').style.display = 'none';
+    document.getElementById('multi-roulette-container').innerHTML = '';
+    document.getElementById('skip-roulette-btn').style.display = 'none';
+    document.getElementById('case-result').innerHTML = '';
+    document.getElementById('case-open-more-btn').style.display = 'none';
     document.getElementById('case-overlay').classList.add('open');
 }
-function closeCaseModal() { document.getElementById('case-overlay').classList.remove('open'); }
+function closeCaseModal() {
+    if (isSpinning && currentSpinFinalize) { currentSpinFinalize(); }
+    document.getElementById('case-overlay').classList.remove('open');
+}
 function caseBgClose(e) { if (e.target.id === 'case-overlay') closeCaseModal(); }
 function confirmOpenCase(count) {
     count = count || 1;
@@ -1992,8 +2042,25 @@ function confirmOpenCase(count) {
         playSound('fail'); document.getElementById('case-modal-msg').innerText = isEmeraldCase ? t().not_enough_emeralds : t().not_enough_coins; return;
     }
     const idx = modalCaseIndex;
-    closeCaseModal();
+    lastOpenCount = count;
+    document.getElementById('case-items-list').style.display = 'none';
+    document.getElementById('case-mutation-info').style.display = 'none';
+    document.getElementById('case-open-buttons').style.display = 'none';
+    document.getElementById('case-modal-msg').innerText = '';
+    document.getElementById('case-open-more-btn').style.display = 'none';
     openCase(idx, count);
+}
+function openMoreCase() {
+    if (modalCaseIndex === null) return;
+    document.getElementById('case-items-list').style.display = '';
+    document.getElementById('case-mutation-info').style.display = '';
+    document.getElementById('case-open-buttons').style.display = '';
+    document.getElementById('roulette-wrapper').style.display = 'none';
+    document.getElementById('mutation-wrapper').style.display = 'none';
+    document.getElementById('multi-roulette-container').innerHTML = '';
+    document.getElementById('skip-roulette-btn').style.display = 'none';
+    document.getElementById('case-open-more-btn').style.display = 'none';
+    document.getElementById('case-result').innerHTML = '';
 }
 function clearCaseTimers() {
     caseTimers.forEach(id => clearTimeout(id)); caseTimers = [];
@@ -2037,6 +2104,7 @@ function openCase(caseIndex, count) {
         recordQuestProgress('get_rarity', { rarity: won.rarity, amount: 1 });
         updateUI();
         document.getElementById('case-result').innerHTML = `<span style="color:#2ecc71;">🔄 ${t().dropped} ${resultSpan(won, card)} - Автопродано!</span>`;
+        document.getElementById('case-open-more-btn').style.display = 'block';
         return;
     }
     
@@ -2073,6 +2141,7 @@ function openCase(caseIndex, count) {
         recordQuestProgress('get_rarity', { rarity: won.rarity, amount: 1 });
         resDiv.innerHTML = `${t().dropped} ${resultSpan(won, card)}`;
         playSound('win'); updateUI();
+        document.getElementById('case-open-more-btn').style.display = 'block';
     }
     currentSpinFinalize = finalize;
     isSpinning = true; skipBtn.style.display = 'block'; startRouletteSound();
@@ -2126,6 +2195,7 @@ function openCaseMulti(cc, count) {
     if (rolls.length === 0) {
         playSound('win');
         resDiv.innerHTML = `<span style="color:#2ecc71;">🔄 Все ${count} открытий автопроданы! Получено: ${autoSoldCount * (cc.price)} ${curWord(cc.currency)} (примерно)</span>`;
+        document.getElementById('case-open-more-btn').style.display = 'block';
         return;
     }
     
@@ -2187,6 +2257,7 @@ function openCaseMulti(cc, count) {
         }
         resDiv.innerHTML = htmlRes;
         playSound('win'); updateUI();
+        document.getElementById('case-open-more-btn').style.display = 'block';
     }
     currentSpinFinalize = finalizeMulti;
     
@@ -2205,13 +2276,15 @@ function renderInventory() {
         const card = document.createElement('div');
         card.className = `card ${item.rarity}`;
         card.setAttribute('data-testid', `inv-item-${index}`);
+        card.style.cursor = 'pointer';
+        card.onclick = (e) => { if (e.target.closest('.sell-btn')) return; showCardDetail(item.id); };
         let name = getCardName(item.id);
         if (item.mutation) name += ` [${getMutationName(item.mutation)}]`;
         card.innerHTML = `<div style="display:flex;align-items:center;min-width:0;"><img src="${item.img}" onerror="this.style.display='none'">
             <div style="min-width:0;"><div style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${name}</div>
             <div style="font-size:12px;opacity:0.8;">${getRarityName(item.rarity)}</div></div></div>
             <div style="display:flex;align-items:center;flex-shrink:0;"><span style="margin-right:8px;font-size:14px;color:#2ecc71;">${item.price} ${curWord(item.currency)}</span>
-            <button class="sell-btn" data-testid="sell-item-${index}" onclick="sellItem(${index})">${t().sell_btn}</button></div>`;
+            <button class="sell-btn" data-testid="sell-item-${index}" onclick="event.stopPropagation(); sellItem(${index})">${t().sell_btn}</button></div>`;
         inv.appendChild(card);
     });
 }
