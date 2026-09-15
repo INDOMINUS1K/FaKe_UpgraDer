@@ -338,7 +338,7 @@ select.upgrader-select { width: 100%; padding: 12px; background: #2c3e50; color:
         <div id="rebirth-status" style="min-width:150px;text-align:center;font-weight:bold;"></div>
     </div>
     <hr style="width:100%;max-width:420px;margin:25px auto;border:none;border-top:1px solid #2c3e50;">
-    <p style="color:#bdc3c7;margin-bottom:15px;max-width:600px;margin-left:auto;margin-right:auto;" data-i18n="rebirth2_desc">Второе перерождение тратит 200 эмеральдов, полностью стирает монеты, инвентарь, апгрейды кликера и улучшения кейсов, но открывает доступ к новым кейсам — Кейсу Речных монстров.</p>
+    <p style="color:#bdc3c7;margin-bottom:15px;max-width:600px;margin-left:auto;margin-right:auto;" data-i18n="rebirth2_desc">Второе перерождение тратит 200 эмеральдов, стирает монеты, инвентарь и апгрейды кликера, сбрасывает использованные промокоды (их можно ввести заново) — улучшения кейсов при этом сохраняются, а доступ открывается к новым кейсам, включая Кейс Речных монстров.</p>
     <div style="display:flex;flex-direction:column;gap:10px;align-items:center;max-width:420px;margin:0 auto;">
         <button id="rebirth2-btn" class="action-btn" onclick="doRebirth2()" style="width:100%;">Второе перерождение — 200</button>
         <div id="rebirth2-status" style="min-width:150px;text-align:center;font-weight:bold;"></div>
@@ -518,10 +518,10 @@ const I18N = {
             rvm12: "Мятный Карась"
         },
         rebirth_title: "Перерождение",
-        rebirth_desc: "Перерождение стирает монеты, инвентарь и апгрейды кликера, но даёт доступ к особому кейсу.",
+        rebirth_desc: "Перерождение стирает монеты, инвентарь и апгрейды кликера, сбрасывает использованные промокоды (их можно ввести заново), но даёт доступ к особому кейсу.",
         rebirth_btn: "Перерождение — 100000",
         rebirth_unlocked: "Разблокировано", rebirth_locked: "Требуется перерождение",
-        rebirth2_desc: "Второе перерождение тратит 200 эмеральдов, полностью стирает монеты, инвентарь, апгрейды кликера и улучшения кейсов, но открывает доступ к новым кейсам — Кейсу Речных монстров.",
+        rebirth2_desc: "Второе перерождение тратит 200 эмеральдов, стирает монеты, инвентарь и апгрейды кликера, сбрасывает использованные промокоды (их можно ввести заново) — улучшения кейсов при этом сохраняются, а доступ открывается к новым кейсам, включая Кейс Речных монстров.",
         rebirth2_btn: "Второе перерождение — 200",
         rebirth2_unlocked: "Разблокировано", rebirth2_locked: "Требуется второе перерождение",
         rebirth2_need_first: "Сначала пройдите первое перерождение!",
@@ -640,10 +640,10 @@ const I18N = {
             rvm12: "Mint Crucian Carp"
         },
         rebirth_title: "Rebirth",
-        rebirth_desc: "Rebirth erases coins, inventory and clicker upgrades but grants access to a special case.",
+        rebirth_desc: "Rebirth erases coins, inventory and clicker upgrades, resets used promo codes (you can enter them again), but grants access to a special case.",
         rebirth_btn: "Rebirth — 100000",
         rebirth_unlocked: "Unlocked", rebirth_locked: "Requires rebirth",
-        rebirth2_desc: "Second rebirth costs 200 emeralds, fully erases coins, inventory, clicker upgrades and case upgrades, but unlocks new cases — the River Monsters Case.",
+        rebirth2_desc: "Second rebirth costs 200 emeralds, erases coins, inventory and clicker upgrades, and resets used promo codes (you can enter them again) — case upgrades are kept, and it unlocks new cases, including the River Monsters Case.",
         rebirth2_btn: "Second Rebirth — 200",
         rebirth2_unlocked: "Unlocked", rebirth2_locked: "Requires second rebirth",
         rebirth2_need_first: "Complete the first rebirth first!",
@@ -762,10 +762,10 @@ const I18N = {
             rvm12: "М'ятний Карась"
         },
         rebirth_title: "Переродження",
-        rebirth_desc: "Переродження стирає монети, інвентар і апгрейди клікера, але дає доступ до особливого кейсу.",
+        rebirth_desc: "Переродження стирає монети, інвентар і апгрейди клікера, скидає використані промокоди (їх можна ввести знову), але дає доступ до особливого кейсу.",
         rebirth_btn: "Переродження — 100000",
         rebirth_unlocked: "Розблоковано", rebirth_locked: "Потрібне переродження",
-        rebirth2_desc: "Друге переродження коштує 200 емеральдів, повністю стирає монети, інвентар, апгрейди клікера й покращення кейсів, але відкриває доступ до нових кейсів — Кейсу Річкових монстрів.",
+        rebirth2_desc: "Друге переродження коштує 200 емеральдів, стирає монети, інвентар і апгрейди клікера, скидає використані промокоди (їх можна ввести знову) — покращення кейсів зберігаються, а доступ відкривається до нових кейсів, включно з Кейсом Річкових монстрів.",
         rebirth2_btn: "Друге переродження — 200",
         rebirth2_unlocked: "Розблоковано", rebirth2_locked: "Потрібне друге переродження",
         rebirth2_need_first: "Спочатку пройдіть перше переродження!",
@@ -884,10 +884,10 @@ const I18N = {
             rvm12: "Miętowy Karaś"
         },
         rebirth_title: "Odrodzenie",
-        rebirth_desc: "Odrodzenie kasuje monety, ekwipunek i ulepszenia klikacza, ale daje dostęp do specjalnej skrzynki.",
+        rebirth_desc: "Odrodzenie kasuje monety, ekwipunek i ulepszenia klikacza, resetuje wykorzystane kody promocyjne (można je wpisać ponownie), ale daje dostęp do specjalnej skrzynki.",
         rebirth_btn: "Odrodzenie — 100000",
         rebirth_unlocked: "Odblokowano", rebirth_locked: "Wymagane odrodzenie",
-        rebirth2_desc: "Drugie odrodzenie kosztuje 200 szmaragdów, całkowicie kasuje monety, ekwipunek, ulepszenia klikacza i ulepszenia skrzynek, ale odblokowuje nowe skrzynki — Skrzynkę Rzecznych Potworów.",
+        rebirth2_desc: "Drugie odrodzenie kosztuje 200 szmaragdów, kasuje monety, ekwipunek i ulepszenia klikacza, resetuje wykorzystane kody promocyjne (można je wpisać ponownie) — ulepszenia skrzynek zostają zachowane, a dostęp otwiera się do nowych skrzynek, w tym Skrzynki Rzecznych Potworów.",
         rebirth2_btn: "Drugie odrodzenie — 200",
         rebirth2_unlocked: "Odblokowano", rebirth2_locked: "Wymagane drugie odrodzenie",
         rebirth2_need_first: "Najpierw wykonaj pierwsze odrodzenie!",
@@ -1006,10 +1006,10 @@ const I18N = {
             rvm12: "Caras de Mentă"
         },
         rebirth_title: "Renaștere",
-        rebirth_desc: "Renașterea șterge monedele, inventarul și îmbunătățirile clickerului, dar oferă acces la o cutie specială.",
+        rebirth_desc: "Renașterea șterge monedele, inventarul și îmbunătățirile clickerului, resetează codurile promoționale folosite (pot fi introduse din nou), dar oferă acces la o cutie specială.",
         rebirth_btn: "Renaștere — 100000",
         rebirth_unlocked: "Deblocat", rebirth_locked: "Necesită renaștere",
-        rebirth2_desc: "A doua renaștere costă 200 de smaralde, șterge complet monedele, inventarul, îmbunătățirile clickerului și upgrade-urile cutiilor, dar deblochează cutii noi — Cutia Monștrilor de Râu.",
+        rebirth2_desc: "A doua renaștere costă 200 de smaralde, șterge monedele, inventarul și îmbunătățirile clickerului, resetează codurile promoționale folosite (pot fi introduse din nou) — upgrade-urile cutiilor rămân neschimbate, iar accesul se deschide la cutii noi, inclusiv Cutia Monștrilor de Râu.",
         rebirth2_btn: "A doua renaștere — 200",
         rebirth2_unlocked: "Deblocat", rebirth2_locked: "Necesită a doua renaștere",
         rebirth2_need_first: "Finalizează mai întâi prima renaștere!",
@@ -2602,6 +2602,7 @@ function doRebirth() {
     if (rebirthUnlocked || balance < REBIRTH_COST) return;
     playSound('win');
     balance = 0; clickPower = START_CLICK_POWER; upgradeLevels = {}; inventory = [];
+    usedPromos = [];
     rebirthUnlocked = true;
     saveData(); updateUI();
     alert(t().rebirth_unlocked || 'Rebirth successful! New cases unlocked.');
@@ -2612,8 +2613,8 @@ function doRebirth2() {
     playSound('win');
     emeralds -= REBIRTH2_COST;
     balance = 0; clickPower = START_CLICK_POWER; upgradeLevels = {}; inventory = [];
-    caseUpgrades = { multi5: false, multi10: false, multi20: false };
     autoSellRarities = [];
+    usedPromos = [];
     rebirth2Unlocked = true;
     saveData(); updateUI();
     alert(t().rebirth2_unlocked || 'Second rebirth successful! New case unlocked.');
