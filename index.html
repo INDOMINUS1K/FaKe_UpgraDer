@@ -337,6 +337,12 @@ select.upgrader-select { width: 100%; padding: 12px; background: #2c3e50; color:
         <button id="rebirth-btn" class="action-btn" onclick="doRebirth()" style="width:100%;">Перерождение — 100000</button>
         <div id="rebirth-status" style="min-width:150px;text-align:center;font-weight:bold;"></div>
     </div>
+    <hr style="width:100%;max-width:420px;margin:25px auto;border:none;border-top:1px solid #2c3e50;">
+    <p style="color:#bdc3c7;margin-bottom:15px;max-width:600px;margin-left:auto;margin-right:auto;" data-i18n="rebirth2_desc">Второе перерождение тратит 200 эмеральдов, полностью стирает монеты, инвентарь, апгрейды кликера и улучшения кейсов, но открывает доступ к новым кейсам — Кейсу Речных монстров.</p>
+    <div style="display:flex;flex-direction:column;gap:10px;align-items:center;max-width:420px;margin:0 auto;">
+        <button id="rebirth2-btn" class="action-btn" onclick="doRebirth2()" style="width:100%;">Второе перерождение — 200</button>
+        <div id="rebirth2-status" style="min-width:150px;text-align:center;font-weight:bold;"></div>
+    </div>
 </div>
 <div id="tab-quests" class="tab-content">
     <h2 data-i18n="tab_quests">Квесты</h2>
@@ -400,6 +406,10 @@ select.upgrader-select { width: 100%; padding: 12px; background: #2c3e50; color:
         <h3 data-i18n="autosell_title">Автопродажа</h3>
         <p style="font-size: 12px; color: #aaa; margin-bottom: 10px;" data-i18n="autosell_desc">Выберите редкость для автоматической продажи</p>
         <div class="autosell-grid" id="autosell-buttons"></div>
+
+        <h3 data-i18n="reset_progress_title" style="color:#e74c3c;">Сброс прогресса</h3>
+        <p style="font-size: 12px; color: #aaa; margin-bottom: 10px;" data-i18n="reset_progress_desc">Полностью стирает весь прогресс на сайте. Отменить это будет нельзя.</p>
+        <button class="action-btn" style="background:#e74c3c;border-color:#c0392b;width:100%;" onclick="resetProgress()" data-i18n="reset_progress_btn">Сбросить прогресс</button>
 
     </div>
 </div>
@@ -466,14 +476,14 @@ const I18N = {
         daily_title: "Ежедневные Награды", daily_sub: "Заходите каждый день и получайте бесплатные монеты!", claim: "Забрать", claimed: "Получено",
         promo_title: "Активация Промокода", promo_btn: "Активировать", promo_placeholder: "ПРОМОКОД",
         settings_title: "Настройки", settings_language: "Язык", settings_theme: "Цвет интерфейса",
-        settings_speed: "Скорость рулетки", speed_normal: "Обычная", speed_fast: "Быстрая", multi_summary: "Итого: {coins} монет · мутаций: {muts}",
+        settings_speed: "Скорость рулетки", speed_normal: "Обычная", speed_fast: "Быстрая", multi_summary: "Итого: {coins} {unit} · мутаций: {muts}",
         settings_music: "Фоновая музыка", music_off: "Выключить",
         promo_empty: "Введите промокод!", promo_invalid: "Неверный промокод!", promo_used: "Вы уже активировали этот промокод!",
         promo_success: "Промокод активирован! Получено: {amount} монет!",
         promo_success_emeralds: "Промокод активирован! Получено: {amount} эмеральдов!",
         not_enough_coins: "Недостаточно монет!", dropped: "Выпало:",
         upg_success: "Успех! Получен", upg_fail: "Неудача! Предмет сгорел.", burned_item: "Сгоревший предмет",
-        cases: { case_main: "Дино-Кейс", case_ocean: "Океанский Кейс", case_komaru: "Комару Кейс", case_rm: "Rick and Morty Case", case_cs: "Counter Strike Case" },
+        cases: { case_main: "Дино-Кейс", case_ocean: "Океанский Кейс", case_komaru: "Комару Кейс", case_rm: "Rick and Morty Case", case_cs: "Counter Strike Case", case_rivermonsters: "Кейс Речных монстров" },
         mutations: { silver: "Серебро", gold: "Золото", diamond: "Алмаз", rgb: "РГБ", crystal: "Кристалик", emerald: "Эмеральд" },
         cards: {
             c1: "Раптор", c2: "Компі", c3: "Галимим", c4: "Аллозавр", c5: "Карнотавр", c6: "Трицератопс",
@@ -499,12 +509,23 @@ const I18N = {
             cs7: "Amberline", cs8: "Skkaku",
             cs9: "Nightwishh", cs10: "Aphrodite", cs11: "Neon Rider",
             cs12: "Bowie doppler", cs13: "Polygon",
-            cs14: "Butterfly Emerald", cs15: "Dragon Lore", cs16: "Wild Lotus"
+            cs14: "Butterfly Emerald", cs15: "Dragon Lore", cs16: "Wild Lotus",
+            rvm1: "Пиранья", rvm2: "Судак", rvm3: "Окунь",
+            rvm4: "Карп", rvm5: "Карась",
+            rvm6: "Осётр", rvm7: "Жерех",
+            rvm8: "Щука", rvm9: "Сом",
+            rvm10: "Акула Бык", rvm11: "Тигровая Рыба",
+            rvm12: "Мятный Карась"
         },
         rebirth_title: "Перерождение",
         rebirth_desc: "Перерождение стирает монеты, инвентарь и апгрейды кликера, но даёт доступ к особому кейсу.",
         rebirth_btn: "Перерождение — 100000",
         rebirth_unlocked: "Разблокировано", rebirth_locked: "Требуется перерождение",
+        rebirth2_desc: "Второе перерождение тратит 200 эмеральдов, полностью стирает монеты, инвентарь, апгрейды кликера и улучшения кейсов, но открывает доступ к новым кейсам — Кейсу Речных монстров.",
+        rebirth2_btn: "Второе перерождение — 200",
+        rebirth2_unlocked: "Разблокировано", rebirth2_locked: "Требуется второе перерождение",
+        rebirth2_need_first: "Сначала пройдите первое перерождение!",
+        emeralds_word: "эмеральдов",
         secret_upgrade_block: "Секретный предмет нельзя улучшить",
         category_mismatch: "Цель должна быть из той же категории, что и исходный предмет",
         autosell_title: "Автопродажа",
@@ -544,7 +565,13 @@ const I18N = {
         emerald_upgrade_win: "Победа! Получено {amount} эмеральдов",
         emerald_upgrade_lose: "Неудача! Эмеральды сгорели.",
         emerald_amount_invalid: "Введите корректную сумму эмеральдов!",
-        emerald_choose_chance_first: "Сначала выберите шанс!"
+        emerald_choose_chance_first: "Сначала выберите шанс!",
+        reset_progress_title: "Сброс прогресса",
+        reset_progress_desc: "Полностью стирает весь прогресс на сайте. Отменить это будет нельзя.",
+        reset_progress_btn: "Сбросить прогресс",
+        reset_confirm1: "Вы уверены?",
+        reset_confirm2: "Вы прям точно точно уверены?",
+        reset_confirm3: "Вы ну супер точно уверены?"
     },
     en: {
         balance: "Balance", coins: "coins", day: "Day", menu_title: "Menu",
@@ -571,14 +598,14 @@ const I18N = {
         daily_title: "Daily Rewards", daily_sub: "Log in daily and get free coins!", claim: "Claim", claimed: "Claimed",
         promo_title: "Activate Promo Code", promo_btn: "Activate", promo_placeholder: "PROMO CODE",
         settings_title: "Settings", settings_language: "Language", settings_theme: "Interface color",
-        settings_speed: "Roulette speed", speed_normal: "Normal", speed_fast: "Fast", multi_summary: "Total: {coins} coins · muts: {muts}",
+        settings_speed: "Roulette speed", speed_normal: "Normal", speed_fast: "Fast", multi_summary: "Total: {coins} {unit} · muts: {muts}",
         settings_music: "Background music", music_off: "Mute",
         promo_empty: "Enter promo code!", promo_invalid: "Invalid promo code!", promo_used: "Promo code already used!",
         promo_success: "Promo activated! Received: {amount} coins!",
         promo_success_emeralds: "Promo activated! Received: {amount} emeralds!",
         not_enough_coins: "Not enough coins!", dropped: "Dropped:",
         upg_success: "Success! Received", upg_fail: "Failure! Item burned.", burned_item: "Burned item",
-        cases: { case_main: "Dino Case", case_ocean: "Ocean Case", case_komaru: "Komaru Case", case_rm: "Rick and Morty Case", case_cs: "Counter Strike Case" },
+        cases: { case_main: "Dino Case", case_ocean: "Ocean Case", case_komaru: "Komaru Case", case_rm: "Rick and Morty Case", case_cs: "Counter Strike Case", case_rivermonsters: "River Monsters Case" },
         mutations: { silver: "Silver", gold: "Gold", diamond: "Diamond", rgb: "RGB", crystal: "Crystal", emerald: "Emerald" },
         cards: {
             c1: "Raptor", c2: "Compi", c3: "Galimim", c4: "Allosaur", c5: "Carnotaur", c6: "Triceratops",
@@ -604,12 +631,23 @@ const I18N = {
             cs7: "Amberline", cs8: "Skkaku",
             cs9: "Nightwishh", cs10: "Aphrodite", cs11: "Neon Rider",
             cs12: "Bowie doppler", cs13: "Polygon",
-            cs14: "Butterfly Emerald", cs15: "Dragon Lore", cs16: "Wild Lotus"
+            cs14: "Butterfly Emerald", cs15: "Dragon Lore", cs16: "Wild Lotus",
+            rvm1: "Piranha", rvm2: "Pike-perch", rvm3: "Perch",
+            rvm4: "Carp", rvm5: "Crucian Carp",
+            rvm6: "Sturgeon", rvm7: "Asp",
+            rvm8: "Pike", rvm9: "Catfish",
+            rvm10: "Bull Shark", rvm11: "Tigerfish",
+            rvm12: "Mint Crucian Carp"
         },
         rebirth_title: "Rebirth",
         rebirth_desc: "Rebirth erases coins, inventory and clicker upgrades but grants access to a special case.",
         rebirth_btn: "Rebirth — 100000",
         rebirth_unlocked: "Unlocked", rebirth_locked: "Requires rebirth",
+        rebirth2_desc: "Second rebirth costs 200 emeralds, fully erases coins, inventory, clicker upgrades and case upgrades, but unlocks new cases — the River Monsters Case.",
+        rebirth2_btn: "Second Rebirth — 200",
+        rebirth2_unlocked: "Unlocked", rebirth2_locked: "Requires second rebirth",
+        rebirth2_need_first: "Complete the first rebirth first!",
+        emeralds_word: "emeralds",
         secret_upgrade_block: "Secret items cannot be upgraded",
         category_mismatch: "Target must be from the same category as the source item",
         autosell_title: "Auto Sell",
@@ -649,7 +687,13 @@ const I18N = {
         emerald_upgrade_win: "Win! Got {amount} emeralds",
         emerald_upgrade_lose: "Fail! The emeralds burned.",
         emerald_amount_invalid: "Enter a valid emerald amount!",
-        emerald_choose_chance_first: "Choose a chance first!"
+        emerald_choose_chance_first: "Choose a chance first!",
+        reset_progress_title: "Reset Progress",
+        reset_progress_desc: "Completely wipes all progress on the site. This cannot be undone.",
+        reset_progress_btn: "Reset Progress",
+        reset_confirm1: "Are you sure?",
+        reset_confirm2: "Are you really, really sure?",
+        reset_confirm3: "Are you super duper sure?"
     },
     uk: {
         balance: "Баланс", coins: "монет", day: "День", menu_title: "Меню",
@@ -676,14 +720,14 @@ const I18N = {
         daily_title: "Щоденні Нагороди", daily_sub: "Заходьте щодня та отримуйте безкоштовні монети!", claim: "Забрати", claimed: "Отримано",
         promo_title: "Активація Промокоду", promo_btn: "Активувати", promo_placeholder: "ПРОМОКОД",
         settings_title: "Налаштування", settings_language: "Мова", settings_theme: "Колір інтерфейсу",
-        settings_speed: "Швидкість рулетки", speed_normal: "Звичайна", speed_fast: "Швидка", multi_summary: "Всього: {coins} монет · мутацій: {muts}",
+        settings_speed: "Швидкість рулетки", speed_normal: "Звичайна", speed_fast: "Швидка", multi_summary: "Всього: {coins} {unit} · мутацій: {muts}",
         settings_music: "Фонова музика", music_off: "Вимкнути",
         promo_empty: "Введіть промокод!", promo_invalid: "Невірний промокод!", promo_used: "Ви вже активували цей промокод!",
         promo_success: "Промокод активовано! Отримано: {amount} монет!",
         promo_success_emeralds: "Промокод активовано! Отримано: {amount} емеральдів!",
         not_enough_coins: "Недостатньо монет!", dropped: "Випало:",
         upg_success: "Успіх! Отримано", upg_fail: "Не вдалося! Предмет згорів.", burned_item: "Згорілий предмет",
-        cases: { case_main: "Дино-Кейс", case_ocean: "Океанський Кейс", case_komaru: "Комару Кейс", case_rm: "Rick and Morty Case", case_cs: "Counter Strike Case" },
+        cases: { case_main: "Дино-Кейс", case_ocean: "Океанський Кейс", case_komaru: "Комару Кейс", case_rm: "Rick and Morty Case", case_cs: "Counter Strike Case", case_rivermonsters: "Кейс Річкових монстрів" },
         mutations: { silver: "Срібло", gold: "Золото", diamond: "Алмаз", rgb: "RGB", crystal: "Кристал", emerald: "Смарагд" },
         cards: {
             c1: "Раптор", c2: "Компі", c3: "Галімім", c4: "Алозавр", c5: "Карнотавр", c6: "Трицератопс",
@@ -709,12 +753,23 @@ const I18N = {
             cs7: "Amberline", cs8: "Skkaku",
             cs9: "Nightwishh", cs10: "Aphrodite", cs11: "Neon Rider",
             cs12: "Bowie doppler", cs13: "Polygon",
-            cs14: "Butterfly Emerald", cs15: "Dragon Lore", cs16: "Wild Lotus"
+            cs14: "Butterfly Emerald", cs15: "Dragon Lore", cs16: "Wild Lotus",
+            rvm1: "Піранья", rvm2: "Судак", rvm3: "Окунь",
+            rvm4: "Короп", rvm5: "Карась",
+            rvm6: "Осетер", rvm7: "Жерех",
+            rvm8: "Щука", rvm9: "Сом",
+            rvm10: "Акула-Бик", rvm11: "Тигрова Риба",
+            rvm12: "М'ятний Карась"
         },
         rebirth_title: "Переродження",
         rebirth_desc: "Переродження стирає монети, інвентар і апгрейди клікера, але дає доступ до особливого кейсу.",
         rebirth_btn: "Переродження — 100000",
         rebirth_unlocked: "Розблоковано", rebirth_locked: "Потрібне переродження",
+        rebirth2_desc: "Друге переродження коштує 200 емеральдів, повністю стирає монети, інвентар, апгрейди клікера й покращення кейсів, але відкриває доступ до нових кейсів — Кейсу Річкових монстрів.",
+        rebirth2_btn: "Друге переродження — 200",
+        rebirth2_unlocked: "Розблоковано", rebirth2_locked: "Потрібне друге переродження",
+        rebirth2_need_first: "Спочатку пройдіть перше переродження!",
+        emeralds_word: "емеральдів",
         secret_upgrade_block: "Неможливо покращити секретний предмет",
         category_mismatch: "Ціль повинна бути з тієї ж категорії, що і вихідний предмет",
         autosell_title: "Автопродаж",
@@ -754,7 +809,13 @@ const I18N = {
         emerald_upgrade_win: "Перемога! Отримано {amount} емеральдів",
         emerald_upgrade_lose: "Невдача! Емеральди згоріли.",
         emerald_amount_invalid: "Введіть коректну суму емеральдів!",
-        emerald_choose_chance_first: "Спочатку оберіть шанс!"
+        emerald_choose_chance_first: "Спочатку оберіть шанс!",
+        reset_progress_title: "Скидання прогресу",
+        reset_progress_desc: "Повністю стирає весь прогрес на сайті. Скасувати це буде неможливо.",
+        reset_progress_btn: "Скинути прогрес",
+        reset_confirm1: "Ви впевнені?",
+        reset_confirm2: "Ви прямо точно-точно впевнені?",
+        reset_confirm3: "Ви ну супер точно впевнені?"
     },
     pl: {
         balance: "Saldo", coins: "monet", day: "Dzień", menu_title: "Menu",
@@ -781,14 +842,14 @@ const I18N = {
         daily_title: "Codzienne Nagrody", daily_sub: "Zaloguj się codziennie i odbieraj darmowe monety!", claim: "Odbierz", claimed: "Odebrano",
         promo_title: "Aktywacja Kodu Promocyjnego", promo_btn: "Aktywuj", promo_placeholder: "KOD PROMO",
         settings_title: "Ustawienia", settings_language: "Język", settings_theme: "Kolor interfejsu",
-        settings_speed: "Prędkość ruletki", speed_normal: "Normalna", speed_fast: "Szybka", multi_summary: "Razem: {coins} monet · mutacji: {muts}",
+        settings_speed: "Prędkość ruletki", speed_normal: "Normalna", speed_fast: "Szybka", multi_summary: "Razem: {coins} {unit} · mutacji: {muts}",
         settings_music: "Muzyka w tle", music_off: "Wycisz",
         promo_empty: "Wpisz kod promocyjny!", promo_invalid: "Nieprawidłowy kod promocyjny!", promo_used: "Ten kod został już aktywowany!",
         promo_success: "Kod aktywowany! Otrzymano: {amount} monet!",
         promo_success_emeralds: "Kod aktywowany! Otrzymano: {amount} szmaragdów!",
         not_enough_coins: "Za mało monet!", dropped: "Wypadło:",
         upg_success: "Sukces! Otrzymano", upg_fail: "Niepowodzenie! Przedmiot spłonął.", burned_item: "Spalony przedmiot",
-        cases: { case_main: "Skrzynka Dino", case_ocean: "Skrzynka Oceaniczna", case_komaru: "Skrzynka Komaru", case_rm: "Rick and Morty Case", case_cs: "Counter Strike Case" },
+        cases: { case_main: "Skrzynka Dino", case_ocean: "Skrzynka Oceaniczna", case_komaru: "Skrzynka Komaru", case_rm: "Rick and Morty Case", case_cs: "Counter Strike Case", case_rivermonsters: "Skrzynka Rzecznych Potworów" },
         mutations: { silver: "Srebro", gold: "Złoto", diamond: "Diament", rgb: "RGB", crystal: "Kryształ", emerald: "Szmaragd" },
         cards: {
             c1: "Raptor", c2: "Compi", c3: "Galimim", c4: "Allozaur", c5: "Karnotaur", c6: "Trikeratops",
@@ -814,12 +875,23 @@ const I18N = {
             cs7: "Amberline", cs8: "Skkaku",
             cs9: "Nightwishh", cs10: "Aphrodite", cs11: "Neon Rider",
             cs12: "Bowie doppler", cs13: "Polygon",
-            cs14: "Butterfly Emerald", cs15: "Dragon Lore", cs16: "Wild Lotus"
+            cs14: "Butterfly Emerald", cs15: "Dragon Lore", cs16: "Wild Lotus",
+            rvm1: "Pirania", rvm2: "Sandacz", rvm3: "Okoń",
+            rvm4: "Karp", rvm5: "Karaś",
+            rvm6: "Jesiotr", rvm7: "Boleń",
+            rvm8: "Szczupak", rvm9: "Sum",
+            rvm10: "Rekin Byk", rvm11: "Ryba Tygrysia",
+            rvm12: "Miętowy Karaś"
         },
         rebirth_title: "Odrodzenie",
         rebirth_desc: "Odrodzenie kasuje monety, ekwipunek i ulepszenia klikacza, ale daje dostęp do specjalnej skrzynki.",
         rebirth_btn: "Odrodzenie — 100000",
         rebirth_unlocked: "Odblokowano", rebirth_locked: "Wymagane odrodzenie",
+        rebirth2_desc: "Drugie odrodzenie kosztuje 200 szmaragdów, całkowicie kasuje monety, ekwipunek, ulepszenia klikacza i ulepszenia skrzynek, ale odblokowuje nowe skrzynki — Skrzynkę Rzecznych Potworów.",
+        rebirth2_btn: "Drugie odrodzenie — 200",
+        rebirth2_unlocked: "Odblokowano", rebirth2_locked: "Wymagane drugie odrodzenie",
+        rebirth2_need_first: "Najpierw wykonaj pierwsze odrodzenie!",
+        emeralds_word: "szmaragdów",
         secret_upgrade_block: "Sekretnego przedmiotu nie można ulepszyć",
         category_mismatch: "Cel musi być z tej samej kategorii co przedmiot źródłowy",
         autosell_title: "Automatyczna Sprzedaż",
@@ -859,7 +931,13 @@ const I18N = {
         emerald_upgrade_win: "Wygrana! Otrzymano {amount} szmaragdów",
         emerald_upgrade_lose: "Porażka! Szmaragdy spłonęły.",
         emerald_amount_invalid: "Wpisz poprawną ilość szmaragdów!",
-        emerald_choose_chance_first: "Najpierw wybierz szansę!"
+        emerald_choose_chance_first: "Najpierw wybierz szansę!",
+        reset_progress_title: "Reset postępu",
+        reset_progress_desc: "Całkowicie kasuje cały postęp na stronie. Nie można tego cofnąć.",
+        reset_progress_btn: "Zresetuj postęp",
+        reset_confirm1: "Czy jesteś pewien?",
+        reset_confirm2: "Czy na pewno na pewno jesteś pewien?",
+        reset_confirm3: "Czy jesteś super mega pewien?"
     },
     ro: {
         balance: "Sold", coins: "monede", day: "Ziua", menu_title: "Meniu",
@@ -886,14 +964,14 @@ const I18N = {
         daily_title: "Recompense Zilnice", daily_sub: "Conectează-te zilnic și primește monede gratuite!", claim: "Revendică", claimed: "Revendicat",
         promo_title: "Activare Cod Promoțional", promo_btn: "Activează", promo_placeholder: "COD PROMO",
         settings_title: "Setări", settings_language: "Limbă", settings_theme: "Culoare interfață",
-        settings_speed: "Viteză ruletă", speed_normal: "Normală", speed_fast: "Rapidă", multi_summary: "Total: {coins} monede · mutații: {muts}",
+        settings_speed: "Viteză ruletă", speed_normal: "Normală", speed_fast: "Rapidă", multi_summary: "Total: {coins} {unit} · mutații: {muts}",
         settings_music: "Muzică de fundal", music_off: "Dezactivează",
         promo_empty: "Introdu codul promoțional!", promo_invalid: "Cod promoțional invalid!", promo_used: "Acest cod a fost deja folosit!",
         promo_success: "Cod activat! Primit: {amount} monede!",
         promo_success_emeralds: "Cod activat! Primit: {amount} smaralde!",
         not_enough_coins: "Monede insuficiente!", dropped: "A picat:",
         upg_success: "Succes! Ai primit", upg_fail: "Eșec! Obiectul a ars.", burned_item: "Obiect ars",
-        cases: { case_main: "Cutia Dino", case_ocean: "Cutia Oceanică", case_komaru: "Cutia Komaru", case_rm: "Rick and Morty Case", case_cs: "Counter Strike Case" },
+        cases: { case_main: "Cutia Dino", case_ocean: "Cutia Oceanică", case_komaru: "Cutia Komaru", case_rm: "Rick and Morty Case", case_cs: "Counter Strike Case", case_rivermonsters: "Cutia Monștrilor de Râu" },
         mutations: { silver: "Argint", gold: "Aur", diamond: "Diamant", rgb: "RGB", crystal: "Cristal", emerald: "Smarald" },
         cards: {
             c1: "Raptor", c2: "Compi", c3: "Galimim", c4: "Allozaur", c5: "Carnotaur", c6: "Triceratops",
@@ -919,12 +997,23 @@ const I18N = {
             cs7: "Amberline", cs8: "Skkaku",
             cs9: "Nightwishh", cs10: "Aphrodite", cs11: "Neon Rider",
             cs12: "Bowie doppler", cs13: "Polygon",
-            cs14: "Butterfly Emerald", cs15: "Dragon Lore", cs16: "Wild Lotus"
+            cs14: "Butterfly Emerald", cs15: "Dragon Lore", cs16: "Wild Lotus",
+            rvm1: "Piranha", rvm2: "Șalău", rvm3: "Biban",
+            rvm4: "Crap", rvm5: "Caras",
+            rvm6: "Sturion", rvm7: "Avat",
+            rvm8: "Știucă", rvm9: "Somn",
+            rvm10: "Rechin Taur", rvm11: "Pește Tigru",
+            rvm12: "Caras de Mentă"
         },
         rebirth_title: "Renaștere",
         rebirth_desc: "Renașterea șterge monedele, inventarul și îmbunătățirile clickerului, dar oferă acces la o cutie specială.",
         rebirth_btn: "Renaștere — 100000",
         rebirth_unlocked: "Deblocat", rebirth_locked: "Necesită renaștere",
+        rebirth2_desc: "A doua renaștere costă 200 de smaralde, șterge complet monedele, inventarul, îmbunătățirile clickerului și upgrade-urile cutiilor, dar deblochează cutii noi — Cutia Monștrilor de Râu.",
+        rebirth2_btn: "A doua renaștere — 200",
+        rebirth2_unlocked: "Deblocat", rebirth2_locked: "Necesită a doua renaștere",
+        rebirth2_need_first: "Finalizează mai întâi prima renaștere!",
+        emeralds_word: "smaralde",
         secret_upgrade_block: "Obiectele secrete nu pot fi îmbunătățite",
         category_mismatch: "Ținta trebuie să fie din aceeași categorie ca obiectul sursă",
         autosell_title: "Vânzare Automată",
@@ -964,7 +1053,13 @@ const I18N = {
         emerald_upgrade_win: "Victorie! Ai primit {amount} smaralde",
         emerald_upgrade_lose: "Eșec! Smaraldele au ars.",
         emerald_amount_invalid: "Introdu o sumă validă de smaralde!",
-        emerald_choose_chance_first: "Alege mai întâi o șansă!"
+        emerald_choose_chance_first: "Alege mai întâi o șansă!",
+        reset_progress_title: "Resetare progres",
+        reset_progress_desc: "Șterge complet tot progresul de pe site. Nu se poate anula.",
+        reset_progress_btn: "Resetează progresul",
+        reset_confirm1: "Ești sigur?",
+        reset_confirm2: "Ești chiar foarte foarte sigur?",
+        reset_confirm3: "Ești super mega sigur?"
     }
 };
 
@@ -1003,7 +1098,8 @@ const PROMO_CODES = {
     'ADMINDIMASICTEST': 'ultra'
 };
 const EMERALD_PROMO_CODES = {
-    'EMERLDSINDOMNUSTESTADM': 100000
+    'EMERLDSINDOMNUSTESTADM': 100000,
+    'EMERALDUPDT': 1000
 };
 const DAILY_REWARDS = [
     { day: 1, reward: 250 }, { day: 2, reward: 500 }, { day: 3, reward: 1000 },
@@ -1099,7 +1195,20 @@ const ALL_CARDS = [
     { id: 'cs13', category: 'cs', price: 150000, rarity: 'mythic', img: 'images/cs13.jpg' },
     { id: 'cs14', category: 'cs', price: 450000, rarity: 'secret', img: 'images/cs14.jpg' },
     { id: 'cs15', category: 'cs', price: 450000, rarity: 'secret', img: 'images/cs15.jpg' },
-    { id: 'cs16', category: 'cs', price: 450000, rarity: 'secret', img: 'images/cs16.jpg' }
+    { id: 'cs16', category: 'cs', price: 450000, rarity: 'secret', img: 'images/cs16.jpg' },
+
+    { id: 'rvm1', category: 'rivermonsters', currency: 'emerald', price: 20, rarity: 'common', img: 'images/rvm1.jpg' },
+    { id: 'rvm2', category: 'rivermonsters', currency: 'emerald', price: 20, rarity: 'common', img: 'images/rvm2.jpg' },
+    { id: 'rvm3', category: 'rivermonsters', currency: 'emerald', price: 20, rarity: 'common', img: 'images/rvm3.jpg' },
+    { id: 'rvm4', category: 'rivermonsters', currency: 'emerald', price: 50, rarity: 'rare', img: 'images/rvm4.jpg' },
+    { id: 'rvm5', category: 'rivermonsters', currency: 'emerald', price: 50, rarity: 'rare', img: 'images/rvm5.jpg' },
+    { id: 'rvm6', category: 'rivermonsters', currency: 'emerald', price: 120, rarity: 'epic', img: 'images/rvm6.jpg' },
+    { id: 'rvm7', category: 'rivermonsters', currency: 'emerald', price: 120, rarity: 'epic', img: 'images/rvm7.jpg' },
+    { id: 'rvm8', category: 'rivermonsters', currency: 'emerald', price: 250, rarity: 'legendary', img: 'images/rvm8.jpg' },
+    { id: 'rvm9', category: 'rivermonsters', currency: 'emerald', price: 250, rarity: 'legendary', img: 'images/rvm9.jpg' },
+    { id: 'rvm10', category: 'rivermonsters', currency: 'emerald', price: 700, rarity: 'mythic', img: 'images/rvm10.jpg' },
+    { id: 'rvm11', category: 'rivermonsters', currency: 'emerald', price: 700, rarity: 'mythic', img: 'images/rvm11.jpg' },
+    { id: 'rvm12', category: 'rivermonsters', currency: 'emerald', price: 1000, rarity: 'secret', img: 'images/rvm12.jpg' }
 ];
 
 const CASES = [
@@ -1142,12 +1251,22 @@ const CASES = [
         { cardId: 'cs9', weight: 1.66 }, { cardId: 'cs10', weight: 1.67 }, { cardId: 'cs11', weight: 1.67 },
         { cardId: 'cs12', weight: 0.5 }, { cardId: 'cs13', weight: 0.5 },
         { cardId: 'cs14', weight: 0.033 }, { cardId: 'cs15', weight: 0.033 }, { cardId: 'cs16', weight: 0.034 }
+      ] },
+    { id: 'case_rivermonsters', price: 100, currency: 'emerald', img: 'images/rivermonsters_case.jpg', fallbackImg: 'images/rivermonsters_case.png',
+      items: [
+        { cardId: 'rvm1', weight: 16.66 }, { cardId: 'rvm2', weight: 16.67 }, { cardId: 'rvm3', weight: 16.67 },
+        { cardId: 'rvm4', weight: 10 }, { cardId: 'rvm5', weight: 10 },
+        { cardId: 'rvm6', weight: 5 }, { cardId: 'rvm7', weight: 5 },
+        { cardId: 'rvm8', weight: 2.5 }, { cardId: 'rvm9', weight: 2.5 },
+        { cardId: 'rvm10', weight: 0.5 }, { cardId: 'rvm11', weight: 0.5 },
+        { cardId: 'rvm12', weight: 0.1 }
       ] }
 ];
 
 const MUTATION_CHANCE = 0.20;
 const START_BALANCE = 500, START_CLICK_POWER = 10, START_UPGRADE_COST = 100;
 const REBIRTH_COST = 100000;
+const REBIRTH2_COST = 200; // в эмеральдах
 const WHEEL_PRICE = 50;
 // NOTE: listed percentages summed to 101% in the spec; the 1500 jackpot chance
 // wasn't given, so it's set very low (0.1%) as a rare jackpot on top of the rest.
@@ -1236,6 +1355,7 @@ const THEMES = {
 };
 let currentAccent = localStorage.getItem('accent') || 'orange';
 let rebirthUnlocked = localStorage.getItem('rebirthUnlocked') === '1';
+let rebirth2Unlocked = localStorage.getItem('rebirth2Unlocked') === '1';
 
 function setAccent(name) {
     const c = THEMES[name] || THEMES.orange;
@@ -1510,6 +1630,7 @@ function startRouletteSound(duration) {
     scheduleTick();
 }
 const REBIRTH_LOCKED_CASES = ['case_komaru', 'case_rm', 'case_cs'];
+const REBIRTH2_LOCKED_CASES = ['case_rivermonsters'];
 function t() { return I18N[currentLang] || I18N.ru; }
 const ICON_FALLBACK_EXTS = ['png', 'jpg', 'jpeg', 'webp'];
 function tryNextImage(imgEl, base) {
@@ -1537,12 +1658,14 @@ function getItemCategory(cardId) {
     if (cardId.startsWith('kom')) return 'komaru';
     if (cardId.startsWith('rm')) return 'rickmorty';
     if (cardId.startsWith('cs')) return 'cs';
+    if (cardId.startsWith('rvm')) return 'rivermonsters';
     return 'dino';
 }
 function getCardName(id) { return (t().cards && t().cards[id]) || id; }
 function getMutationName(id) { return (t().mutations && t().mutations[id]) || id; }
 function getCaseName(id) { return (t().cases && t().cases[id]) || id; }
 function getRarityName(r) { return (t().rarities && t().rarities[r]) || r; }
+function curWord(currency) { return currency === 'emerald' ? (t().emeralds_word || 'emeralds') : t().coins; }
 
 function getUpgradeChance(fromRarity, toRarity) {
     const chances = {
@@ -1602,6 +1725,7 @@ function saveData() {
     localStorage.setItem('usedPromos', JSON.stringify(usedPromos));
     localStorage.setItem('dailyData', JSON.stringify(dailyData));
     localStorage.setItem('rebirthUnlocked', rebirthUnlocked ? '1' : '0');
+    localStorage.setItem('rebirth2Unlocked', rebirth2Unlocked ? '1' : '0');
     localStorage.setItem('autoSellRarities', JSON.stringify(autoSellRarities));
     localStorage.setItem('emeralds', emeralds);
     localStorage.setItem('questData', JSON.stringify(questData));
@@ -1672,6 +1796,24 @@ function updateRebirthUI() {
         } else {
             if (status) status.innerText = `${t().not_enough_coins || 'Недостаточно монет!'} (${need})`;
             if (btn) { btn.disabled = true; btn.innerText = `${t().rebirth_btn || 'Перерождение'} (${REBIRTH_COST})`; }
+        }
+    }
+    const status2 = document.getElementById('rebirth2-status');
+    const btn2 = document.getElementById('rebirth2-btn');
+    if (rebirth2Unlocked) {
+        if (status2) status2.innerText = t().rebirth2_unlocked || 'Unlocked';
+        if (btn2) { btn2.disabled = true; btn2.innerText = t().rebirth2_unlocked || 'Unlocked'; }
+    } else if (!rebirthUnlocked) {
+        if (status2) status2.innerText = t().rebirth2_need_first || 'Complete the first rebirth first!';
+        if (btn2) { btn2.disabled = true; btn2.innerText = t().rebirth2_btn || `Второе перерождение — ${REBIRTH2_COST}`; }
+    } else {
+        const need2 = Math.max(0, REBIRTH2_COST - (Number.isFinite(emeralds) ? emeralds : 0));
+        if (need2 === 0) {
+            if (status2) status2.innerText = '';
+            if (btn2) { btn2.disabled = false; btn2.innerText = t().rebirth2_btn || `Второе перерождение — ${REBIRTH2_COST}`; }
+        } else {
+            if (status2) status2.innerText = `${t().not_enough_emeralds || 'Недостаточно эмеральдов!'} (${need2})`;
+            if (btn2) { btn2.disabled = true; btn2.innerText = `${t().rebirth2_btn || 'Второе перерождение'} (${REBIRTH2_COST})`; }
         }
     }
 }
@@ -1756,17 +1898,25 @@ function renderCases() {
     CASES.forEach((c, index) => {
         const el = document.createElement('div'); el.className = 'case-card';
         el.setAttribute('data-testid', `case-card-${c.id}`);
-        if (REBIRTH_LOCKED_CASES.includes(c.id) && !rebirthUnlocked) {
+        const locked1 = REBIRTH_LOCKED_CASES.includes(c.id) && !rebirthUnlocked;
+        const locked2 = REBIRTH2_LOCKED_CASES.includes(c.id) && !rebirth2Unlocked;
+        if (locked1) {
             el.innerHTML = `<h3>${getCaseName(c.id)}</h3>
                 <div class="case-img-wrapper"><img src="${c.img}" class="case-img" onerror="this.onerror=null; this.src='${c.fallbackImg || ''}';"></div>
-                <p style="margin:5px 0;color:#2ecc71;"><b>${c.price} ${t().coins}</b></p>
+                <p style="margin:5px 0;color:#2ecc71;"><b>${c.price} ${curWord(c.currency)}</b></p>
                 <div class="lock-overlay"><div class="lock-text">${t().rebirth_locked || 'Locked'}</div></div>
                 <button class="action-btn" onclick="event.stopPropagation(); alert(t().rebirth_desc || 'Rebirth required to unlock this case.')">${t().open_btn}</button>`;
+        } else if (locked2) {
+            el.innerHTML = `<h3>${getCaseName(c.id)}</h3>
+                <div class="case-img-wrapper"><img src="${c.img}" class="case-img" onerror="this.onerror=null; this.src='${c.fallbackImg || ''}';"></div>
+                <p style="margin:5px 0;color:#2ecc71;"><b>${c.price} ${curWord(c.currency)}</b></p>
+                <div class="lock-overlay"><div class="lock-text">${t().rebirth2_locked || 'Locked'}</div></div>
+                <button class="action-btn" onclick="event.stopPropagation(); alert(t().rebirth2_desc || 'Second rebirth required to unlock this case.')">${t().open_btn}</button>`;
         } else {
             el.setAttribute('onclick', `openCaseModal(${index})`);
             el.innerHTML = `<h3>${getCaseName(c.id)}</h3>
                 <div class="case-img-wrapper"><img src="${c.img}" class="case-img" onerror="this.onerror=null; this.src='${c.fallbackImg || ''}';"></div>
-                <p style="margin:5px 0;color:#2ecc71;"><b>${c.price} ${t().coins}</b></p>
+                <p style="margin:5px 0;color:#2ecc71;"><b>${c.price} ${curWord(c.currency)}</b></p>
                 <button class="action-btn" onclick="event.stopPropagation(); openCaseModal(${index})">${t().open_btn}</button>`;
         }
         container.appendChild(el);
@@ -1795,6 +1945,10 @@ function openCaseModal(index) {
         alert(t().rebirth_desc || 'You must perform rebirth to unlock this case.');
         return;
     }
+    if (REBIRTH2_LOCKED_CASES.includes(c.id) && !rebirth2Unlocked) {
+        alert(t().rebirth2_desc || 'You must perform the second rebirth to unlock this case.');
+        return;
+    }
     const totalWeight = c.items.reduce((s, i) => s + i.weight, 0);
     document.getElementById('case-modal-title').innerText = getCaseName(c.id);
     document.getElementById('case-modal-sub').innerText = t().case_contents;
@@ -1820,7 +1974,7 @@ function openCaseModal(index) {
     counts.forEach(n => {
         const b = document.createElement('button'); b.className = 'action-btn';
         b.setAttribute('data-testid', `case-open-${n}`);
-        b.innerText = (n === 1) ? `${t().open_btn} — ${c.price} ${t().coins}` : `${t().open_x.replace('{n}', n)} — ${c.price * n} ${t().coins}`;
+        b.innerText = (n === 1) ? `${t().open_btn} — ${c.price} ${curWord(c.currency)}` : `${t().open_x.replace('{n}', n)} — ${c.price * n} ${curWord(c.currency)}`;
         b.onclick = () => confirmOpenCase(n);
         btns.appendChild(b);
     });
@@ -1833,8 +1987,9 @@ function confirmOpenCase(count) {
     if (modalCaseIndex === null) return;
     const c = CASES[modalCaseIndex];
     const total = c.price * count;
-    if (balance < total) {
-        playSound('fail'); document.getElementById('case-modal-msg').innerText = t().not_enough_coins; return;
+    const isEmeraldCase = c.currency === 'emerald';
+    if (isEmeraldCase ? (emeralds < total) : (balance < total)) {
+        playSound('fail'); document.getElementById('case-modal-msg').innerText = isEmeraldCase ? t().not_enough_emeralds : t().not_enough_coins; return;
     }
     const idx = modalCaseIndex;
     closeCaseModal();
@@ -1861,22 +2016,24 @@ function rollCase(cc) {
 function resultSpan(won, card) {
     let name = getCardName(won.id);
     if (card.mutation) name += ` [${getMutationName(card.mutation)}]`;
-    return `<span class="${won.rarity}" style="padding:4px 10px;border-radius:4px;display:inline-block;margin:3px;">${name} (${card.price} ${t().coins})</span>`;
+    return `<span class="${won.rarity}" style="padding:4px 10px;border-radius:4px;display:inline-block;margin:3px;">${name} (${card.price} ${curWord(won.currency)})</span>`;
 }
 function openCase(caseIndex, count) {
     count = count || 1;
     if (isSpinning) return;
     const currentCase = CASES[caseIndex];
     const totalCost = currentCase.price * count;
-    if (balance < totalCost) { playSound('fail'); alert(t().not_enough_coins); return; }
-    balance -= totalCost; updateUI();
+    const isEmeraldCase = currentCase.currency === 'emerald';
+    if (isEmeraldCase ? (emeralds < totalCost) : (balance < totalCost)) { playSound('fail'); alert(isEmeraldCase ? t().not_enough_emeralds : t().not_enough_coins); return; }
+    if (isEmeraldCase) emeralds -= totalCost; else balance -= totalCost;
+    updateUI();
     recordQuestProgress('open_case', { caseId: currentCase.id, amount: count });
     if (count > 1) { openCaseMulti(currentCase, count); return; }
     const { won, card, mutation } = rollCase(currentCase);
     
     if (autoSellRarities.includes(won.rarity)) {
         playSound('win');
-        balance += card.price;
+        if (isEmeraldCase) emeralds += card.price; else balance += card.price;
         recordQuestProgress('get_rarity', { rarity: won.rarity, amount: 1 });
         updateUI();
         document.getElementById('case-result').innerHTML = `<span style="color:#2ecc71;">🔄 ${t().dropped} ${resultSpan(won, card)} - Автопродано!</span>`;
@@ -1947,13 +2104,14 @@ function openCaseMulti(cc, count) {
     document.getElementById('mutation-wrapper').style.display = 'none';
     container.innerHTML = ''; resDiv.innerText = '';
     const casePossibleCards = cc.items.map(i => ALL_CARDS.find(c => c.id === i.cardId));
+    const isEmeraldCase = cc.currency === 'emerald';
     let rolls = [], cardTracks = [], mutTracks = [];
     rolls = Array.from({ length: count }, () => rollCase(cc));
     
     let autoSoldCount = 0;
     rolls = rolls.filter(r => {
         if (autoSellRarities.includes(r.won.rarity)) {
-            balance += r.card.price;
+            if (isEmeraldCase) emeralds += r.card.price; else balance += r.card.price;
             autoSoldCount++;
             recordQuestProgress('get_rarity', { rarity: r.won.rarity, amount: 1 });
             return false;
@@ -1967,7 +2125,7 @@ function openCaseMulti(cc, count) {
     
     if (rolls.length === 0) {
         playSound('win');
-        resDiv.innerHTML = `<span style="color:#2ecc71;">🔄 Все ${count} открытий автопроданы! Получено: ${autoSoldCount * (cc.price)} монет (примерно)</span>`;
+        resDiv.innerHTML = `<span style="color:#2ecc71;">🔄 Все ${count} открытий автопроданы! Получено: ${autoSoldCount * (cc.price)} ${curWord(cc.currency)} (примерно)</span>`;
         return;
     }
     
@@ -2019,9 +2177,9 @@ function openCaseMulti(cc, count) {
         rolls.forEach(r => { inventory.push(r.card); recordQuestProgress('get_rarity', { rarity: r.won.rarity, amount: 1 }); });
         let totalCoins = rolls.reduce((s, r) => s + r.card.price, 0);
         let mutCount = rolls.filter(r => r.mutation).length;
-        let summaryText = `Итого: ${totalCoins} монет · мутаций: ${mutCount}`;
+        let summaryText = `Итого: ${totalCoins} ${curWord(cc.currency)} · мутаций: ${mutCount}`;
         if (t().multi_summary) {
-            summaryText = t().multi_summary.replace('{coins}', totalCoins).replace('{muts}', mutCount);
+            summaryText = t().multi_summary.replace('{coins}', totalCoins).replace('{unit}', curWord(cc.currency)).replace('{muts}', mutCount);
         }
         let htmlRes = `<b>${t().multi_results || 'Результаты'}:</b><br>` + rolls.map(r => resultSpan(r.won, r.card)).join(' ') + `<br><span style="color:#2ecc71;">${summaryText}</span>`;
         if (autoSoldCount > 0) {
@@ -2052,24 +2210,30 @@ function renderInventory() {
         card.innerHTML = `<div style="display:flex;align-items:center;min-width:0;"><img src="${item.img}" onerror="this.style.display='none'">
             <div style="min-width:0;"><div style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${name}</div>
             <div style="font-size:12px;opacity:0.8;">${getRarityName(item.rarity)}</div></div></div>
-            <div style="display:flex;align-items:center;flex-shrink:0;"><span style="margin-right:8px;font-size:14px;color:#2ecc71;">${item.price}</span>
+            <div style="display:flex;align-items:center;flex-shrink:0;"><span style="margin-right:8px;font-size:14px;color:#2ecc71;">${item.price} ${curWord(item.currency)}</span>
             <button class="sell-btn" data-testid="sell-item-${index}" onclick="sellItem(${index})">${t().sell_btn}</button></div>`;
         inv.appendChild(card);
     });
 }
 function sellItem(index) {
-    playSound('click'); balance += inventory[index].price; inventory.splice(index, 1);
+    playSound('click');
+    const item = inventory[index];
+    if (item.currency === 'emerald') emeralds += item.price; else balance += item.price;
+    inventory.splice(index, 1);
     recordQuestProgress('sell', { amount: 1 });
     updateUI();
 }
 function sellAllCommon() {
-    let earned = 0, soldCount = 0;
+    let earnedCoins = 0, earnedEmeralds = 0, soldCount = 0;
     inventory = inventory.filter(item => {
-        if (item.rarity === 'common' && !item.mutation) { earned += item.price; soldCount++; return false; }
+        if (item.rarity === 'common' && !item.mutation) {
+            if (item.currency === 'emerald') earnedEmeralds += item.price; else earnedCoins += item.price;
+            soldCount++; return false;
+        }
         return true;
     });
-    if (earned > 0) {
-        playSound('win'); balance += earned;
+    if (soldCount > 0) {
+        playSound('win'); balance += earnedCoins; emeralds += earnedEmeralds;
         recordQuestProgress('sell', { amount: soldCount });
         updateUI();
     }
@@ -2082,7 +2246,7 @@ function populateMyItemSelect() {
     inventory.forEach((item, index) => {
         if (item.rarity === 'ultrasecret') return;
         let name = getCardName(item.id); if (item.mutation) name += ` [${getMutationName(item.mutation)}]`;
-        const opt = document.createElement('option'); opt.value = index; opt.innerText = `${name} (${item.price} ${t().coins})`;
+        const opt = document.createElement('option'); opt.value = index; opt.innerText = `${name} (${item.price} ${curWord(item.currency)})`;
         sel.appendChild(opt);
     });
     sel.value = prev;
@@ -2107,7 +2271,7 @@ function populateTargetSelect() {
         return toOrder > srcOrder;
     });
     validTargets.forEach(c => {
-        const opt = document.createElement('option'); opt.value = c.id; opt.innerText = `${getCardName(c.id)} (${getRarityName(c.rarity)}) — ${c.price} ${t().coins}`;
+        const opt = document.createElement('option'); opt.value = c.id; opt.innerText = `${getCardName(c.id)} (${getRarityName(c.rarity)}) — ${c.price} ${curWord(c.currency)}`;
         sel.appendChild(opt);
     });
     sel.value = prev;
@@ -2126,13 +2290,13 @@ function updateUpgrader() {
     }
     const src = inventory[selectedInvIndex];
     let srcName = getCardName(src.id); if (src.mutation) srcName += ` [${getMutationName(src.mutation)}]`;
-    slotFrom.innerHTML = `<img src="${src.img}" onerror="this.style.display='none'"><span>${srcName}<br><b>${src.price} ${t().coins}</b></span>`;
+    slotFrom.innerHTML = `<img src="${src.img}" onerror="this.style.display='none'"><span>${srcName}<br><b>${src.price} ${curWord(src.currency)}</b></span>`;
     if (!selectedTargetId) {
         slotTo.innerHTML = t().slot_to_empty; chanceSpan.innerText = '0'; btn.disabled = true; return;
     }
     const target = ALL_CARDS.find(c => c.id === selectedTargetId);
     if (!target) { slotTo.innerHTML = t().slot_to_empty; chanceSpan.innerText = '0'; btn.disabled = true; return; }
-    slotTo.innerHTML = `<img src="${target.img}" onerror="this.style.display='none'"><span>${getCardName(target.id)}<br><b>${target.price} ${t().coins}</b></span>`;
+    slotTo.innerHTML = `<img src="${target.img}" onerror="this.style.display='none'"><span>${getCardName(target.id)}<br><b>${target.price} ${curWord(target.currency)}</b></span>`;
     const chance = getUpgradeChance(src.rarity, target.rarity);
     chanceSpan.innerText = chance; btn.disabled = false;
 }
@@ -2441,6 +2605,26 @@ function doRebirth() {
     rebirthUnlocked = true;
     saveData(); updateUI();
     alert(t().rebirth_unlocked || 'Rebirth successful! New cases unlocked.');
+}
+
+function doRebirth2() {
+    if (rebirth2Unlocked || !rebirthUnlocked || emeralds < REBIRTH2_COST) return;
+    playSound('win');
+    emeralds -= REBIRTH2_COST;
+    balance = 0; clickPower = START_CLICK_POWER; upgradeLevels = {}; inventory = [];
+    caseUpgrades = { multi5: false, multi10: false, multi20: false };
+    autoSellRarities = [];
+    rebirth2Unlocked = true;
+    saveData(); updateUI();
+    alert(t().rebirth2_unlocked || 'Second rebirth successful! New case unlocked.');
+}
+
+function resetProgress() {
+    if (!confirm(t().reset_confirm1 || 'Вы уверены?')) return;
+    if (!confirm(t().reset_confirm2 || 'Вы прям точно точно уверены?')) return;
+    if (!confirm(t().reset_confirm3 || 'Вы ну супер точно уверены?')) return;
+    localStorage.clear();
+    location.reload();
 }
 </script>
 </body>
