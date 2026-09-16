@@ -228,6 +228,7 @@ select.upgrader-select { width: 100%; padding: 12px; background: #2c3e50; color:
     <button class="tab-btn" data-target="inventory" onclick="switchTab('inventory', event)" data-i18n="tab_inventory">Инвентарь</button>
     <button class="tab-btn" data-target="upgrader" onclick="switchTab('upgrader', event)" data-i18n="tab_upgrader">Апгрейдер</button>
     <button class="tab-btn" data-target="emerald-multiplier" onclick="switchTab('emerald-multiplier', event)" data-i18n="tab_emerald_multiplier">Умножитель Эмеральдов</button>
+    <button class="tab-btn" data-target="exchange" onclick="switchTab('exchange', event)" data-i18n="tab_exchange">Обменник Эмеральдов</button>
     <button class="tab-btn" data-target="rebirth" onclick="switchTab('rebirth', event)" data-i18n="tab_rebirth">Перерождение</button>
     <button class="tab-btn" data-target="quests" onclick="switchTab('quests', event)" data-i18n="tab_quests">Квесты</button>
     <button class="tab-btn" data-target="daily" onclick="switchTab('daily', event)" data-i18n="tab_daily">Ежедневные</button>
@@ -324,6 +325,20 @@ select.upgrader-select { width: 100%; padding: 12px; background: #2c3e50; color:
             <div id="emerald-upgrade-roulette-track" class="roulette-track"></div>
         </div>
         <div id="emerald-upgrade-result" style="margin-top: 15px; font-size: 18px; font-weight: bold;"></div>
+    </div>
+</div>
+<div id="tab-exchange" class="tab-content">
+    <h2 data-i18n="tab_exchange">Обменник Эмеральдов</h2>
+    <p style="font-size: 14px; color: #aaa; margin-bottom: 15px;" data-i18n="exchange_sub">Курс: 100 000 монет = 100 эмеральдов</p>
+    <div class="emerald-section-box">
+        <label style="display:block;text-align:left;margin-bottom:6px;font-weight:bold;font-size:14px;" data-i18n="exchange_amount_label">Сколько монет обменять:</label>
+        <input type="number" id="exchange-coins-amount" class="emerald-amount-input" min="1000" step="1000" placeholder="0" oninput="updateExchangeUI()">
+        <p style="font-size: 14px; margin: 10px 0;">
+            <span data-i18n="exchange_you_get">Вы получите:</span> <b id="exchange-emeralds-preview">0</b>
+            <img src="images/emerald.png" class="coin-icon small" alt="emerald" onerror="tryNextImage(this,'images/emerald')">
+        </p>
+        <button id="exchange-btn" class="action-btn" onclick="doExchange()" data-i18n="exchange_btn">Обменять</button>
+        <div id="exchange-status" style="margin-top: 15px; font-size: 16px; font-weight: bold;"></div>
     </div>
 </div>
 <div id="tab-rebirth" class="tab-content">
@@ -580,7 +595,7 @@ const I18N = {
         welcome_menu_title: "Куда пойти?",
         welcome_start_btn: "Поехали!", roulette_none: "НЕТ",
         tab_rebirth: "Перерождение",
-        tab_emerald_multiplier: "Умножитель Эмеральдов",
+        tab_emerald_multiplier: "Умножитель Эмеральдов", tab_exchange: "Обменник Эмеральдов", exchange_sub: "Курс: 100 000 монет = 100 эмеральдов", exchange_amount_label: "Сколько монет обменять:", exchange_you_get: "Вы получите:", exchange_btn: "Обменять", exchange_min_error: "Минимальная сумма для обмена: {amount} монет", exchange_success: "Обменяно! Получено: {amount} эмеральдов",
         emerald_multiplier_sub: "Выберите режим",
         emerald_wheel_btn: "Колесо Фортуны",
         emerald_upgrader_btn: "Эмеральд Апгрейдер",
@@ -840,7 +855,7 @@ const I18N = {
         welcome_menu_title: "Куди піти?",
         welcome_start_btn: "Поїхали!", roulette_none: "НІ",
         tab_rebirth: "Переродження",
-        tab_emerald_multiplier: "Множник Емеральдів",
+        tab_emerald_multiplier: "Множник Емеральдів", tab_exchange: "Обмінник Емеральдів", exchange_sub: "Курс: 100 000 монет = 100 емеральдів", exchange_amount_label: "Скільки монет обміняти:", exchange_you_get: "Ви отримаєте:", exchange_btn: "Обміняти", exchange_min_error: "Мінімальна сума для обміну: {amount} монет", exchange_success: "Обміняно! Отримано: {amount} емеральдів",
         emerald_multiplier_sub: "Оберіть режим",
         emerald_wheel_btn: "Колесо Фортуни",
         emerald_upgrader_btn: "Емеральд Апгрейдер",
@@ -970,7 +985,7 @@ const I18N = {
         welcome_menu_title: "Dokąd pójść?",
         welcome_start_btn: "Zaczynajmy!", roulette_none: "NIE",
         tab_rebirth: "Odrodzenie",
-        tab_emerald_multiplier: "Mnożnik Szmaragdów",
+        tab_emerald_multiplier: "Mnożnik Szmaragdów", tab_exchange: "Kantor Szmaragdów", exchange_sub: "Kurs: 100 000 monet = 100 szmaragdów", exchange_amount_label: "Ile monet wymienić:", exchange_you_get: "Otrzymasz:", exchange_btn: "Wymień", exchange_min_error: "Minimalna kwota wymiany: {amount} monet", exchange_success: "Wymieniono! Otrzymano: {amount} szmaragdów",
         emerald_multiplier_sub: "Wybierz tryb",
         emerald_wheel_btn: "Koło Fortuny",
         emerald_upgrader_btn: "Ulepszacz Szmaragdów",
@@ -1100,7 +1115,7 @@ const I18N = {
         welcome_menu_title: "Unde mergem?",
         welcome_start_btn: "Să începem!", roulette_none: "NU",
         tab_rebirth: "Renaștere",
-        tab_emerald_multiplier: "Multiplicator de Smaralde",
+        tab_emerald_multiplier: "Multiplicator de Smaralde", tab_exchange: "Schimb Smaralde", exchange_sub: "Curs: 100 000 monede = 100 smaralde", exchange_amount_label: "Câte monede să schimbi:", exchange_you_get: "Vei primi:", exchange_btn: "Schimbă", exchange_min_error: "Suma minimă de schimb: {amount} monede", exchange_success: "Schimbat! Primit: {amount} smaralde",
         emerald_multiplier_sub: "Alege un mod",
         emerald_wheel_btn: "Roata Norocului",
         emerald_upgrader_btn: "Îmbunătățitor de Smaralde",
@@ -2718,6 +2733,40 @@ function selectEmeraldUpgradeChance(chance) {
 }
 function getSelectedEmeraldOption() {
     return EMERALD_UPGRADE_OPTIONS.find(o => o.chance === selectedEmeraldChance) || null;
+}
+const EXCHANGE_RATE = 1000; // монет за 1 эмеральд (100000 монет = 100 эмеральдов)
+function updateExchangeUI() {
+    const input = document.getElementById('exchange-coins-amount');
+    const preview = document.getElementById('exchange-emeralds-preview');
+    if (!input || !preview) return;
+    let amount = parseInt(input.value) || 0;
+    if (amount < 0) amount = 0;
+    preview.innerText = Math.floor(amount / EXCHANGE_RATE);
+}
+function doExchange() {
+    const input = document.getElementById('exchange-coins-amount');
+    const status = document.getElementById('exchange-status');
+    if (!input || !status) return;
+    const amount = parseInt(input.value) || 0;
+    if (amount < EXCHANGE_RATE) {
+        status.style.color = '#e74c3c';
+        status.innerText = (t().exchange_min_error || `Минимальная сумма для обмена: ${EXCHANGE_RATE} монет`).replace('{amount}', EXCHANGE_RATE);
+        return;
+    }
+    if (amount > balance) {
+        status.style.color = '#e74c3c';
+        status.innerText = t().not_enough_coins || 'Недостаточно монет!';
+        return;
+    }
+    const emeraldsGained = Math.floor(amount / EXCHANGE_RATE);
+    const coinsSpent = emeraldsGained * EXCHANGE_RATE;
+    balance -= coinsSpent;
+    emeralds += emeraldsGained;
+    status.style.color = '#2ecc71';
+    status.innerText = (t().exchange_success || 'Обменяно! Получено: {amount} эмеральдов').replace('{amount}', emeraldsGained);
+    input.value = '';
+    updateExchangeUI();
+    updateUI();
 }
 function updateEmeraldUpgraderUI() {
     const input = document.getElementById('emerald-upgrade-amount');
