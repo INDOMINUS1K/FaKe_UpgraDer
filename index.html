@@ -361,8 +361,13 @@ select.upgrader-select { width: 100%; padding: 12px; background: #2c3e50; color:
 </div>
 <div id="tab-index" class="tab-content">
     <h2 data-i18n="index_title">Индекс Предметов</h2>
-    <p style="font-size: 14px; color: #aaa; margin-bottom: 15px;" data-i18n="index_sub">Все карточки и кейсы, из которых их можно получить</p>
-    <div id="index-list" class="case-items-list" style="max-height:600px;"></div>
+    <p style="font-size: 14px; color: #aaa; margin-bottom: 15px;" data-i18n="index_sub">Выберите кейс, чтобы посмотреть его карточки</p>
+    <div id="index-cases-grid" class="cases-grid"></div>
+    <div id="index-case-view" style="display:none;">
+        <button class="back-btn" onclick="closeIndexCase()" data-i18n="back_btn">&larr; Назад</button>
+        <h3 id="index-case-title" style="margin:0 0 12px 0;"></h3>
+        <div id="index-list" class="case-items-list" style="max-height:600px;"></div>
+    </div>
 </div>
 <div id="settings-overlay" class="modal-overlay" onclick="settingsBgClose(event)">
     <div class="modal">
@@ -474,7 +479,7 @@ const I18N = {
         tab_cases: "Кейсы", tab_clicker: "Кликер", tab_inventory: "Инвентарь", tab_upgrader: "Апгрейдер", tab_daily: "Ежедневные", tab_promo: "Промокоды",
         cases_title: "Магазин Кейсов", open_btn: "Открыть",
         case_contents: "Возможные предметы", detail_rarity: "Редкость", detail_price: "Цена", detail_case: "Кейс",
-        tab_index: "Индекс", index_title: "Индекс Предметов", index_sub: "Все карточки и кейсы, из которых их можно получить",
+        tab_index: "Индекс", index_title: "Индекс Предметов", index_sub: "Выберите кейс, чтобы посмотреть его карточки",
         rarities: { common: "Обычный", rare: "Редкий", epic: "Эпический", legendary: "Легендарный", mythic: "Мифик", secret: "Секрет", ultrasecret: "Ультра Секрет" },
         clicker_title: "Добыча Монет", click_btn: "КЛИК", income_text: "Текущий доход за клик",
         upgrade_btn: "Улучшить", upg_bonus: "+{n} монет к клику",
@@ -604,7 +609,7 @@ const I18N = {
         tab_cases: "Cases", tab_clicker: "Clicker", tab_inventory: "Inventory", tab_upgrader: "Upgrader", tab_daily: "Daily", tab_promo: "Promo",
         cases_title: "Cases Shop", open_btn: "Open",
         case_contents: "Possible items", detail_rarity: "Rarity", detail_price: "Price", detail_case: "Case",
-        tab_index: "Index", index_title: "Item Index", index_sub: "All cards and the cases they can drop from",
+        tab_index: "Index", index_title: "Item Index", index_sub: "Pick a case to see its cards",
         rarities: { common: "Common", rare: "Rare", epic: "Epic", legendary: "Legendary", mythic: "Mythic", secret: "Secret", ultrasecret: "Ultra Secret" },
         clicker_title: "Coin Mining", click_btn: "CLICK", income_text: "Current income per click",
         upgrade_btn: "Upgrade", upg_bonus: "+{n} coins per click",
@@ -734,7 +739,7 @@ const I18N = {
         tab_cases: "Кейси", tab_clicker: "Клікер", tab_inventory: "Інвентар", tab_upgrader: "Апгрейдер", tab_daily: "Щоденні", tab_promo: "Промокоди",
         cases_title: "Магазин Кейсів", open_btn: "Відкрити",
         case_contents: "Можливі предмети", detail_rarity: "Рідкість", detail_price: "Ціна", detail_case: "Кейс",
-        tab_index: "Індекс", index_title: "Індекс Предметів", index_sub: "Усі картки та кейси, з яких їх можна отримати",
+        tab_index: "Індекс", index_title: "Індекс Предметів", index_sub: "Оберіть кейс, щоб побачити його картки",
         rarities: { common: "Звичайний", rare: "Рідкісний", epic: "Епічний", legendary: "Легендарний", mythic: "Міфічний", secret: "Секрет", ultrasecret: "Ультра Секрет" },
         clicker_title: "Добування Монет", click_btn: "КЛІК", income_text: "Поточний дохід за клік",
         upgrade_btn: "Покращити", upg_bonus: "+{n} монет за клік",
@@ -864,7 +869,7 @@ const I18N = {
         tab_cases: "Skrzynki", tab_clicker: "Klikacz", tab_inventory: "Ekwipunek", tab_upgrader: "Ulepszacz", tab_daily: "Codzienne", tab_promo: "Kody Promo",
         cases_title: "Sklep ze Skrzynkami", open_btn: "Otwórz",
         case_contents: "Możliwe przedmioty", detail_rarity: "Rzadkość", detail_price: "Cena", detail_case: "Skrzynka",
-        tab_index: "Indeks", index_title: "Indeks Przedmiotów", index_sub: "Wszystkie karty i skrzynki, z których można je zdobyć",
+        tab_index: "Indeks", index_title: "Indeks Przedmiotów", index_sub: "Wybierz skrzynkę, aby zobaczyć jej karty",
         rarities: { common: "Zwykły", rare: "Rzadki", epic: "Epicki", legendary: "Legendarny", mythic: "Mityczny", secret: "Sekretny", ultrasecret: "Ultra Sekretny" },
         clicker_title: "Wydobywanie Monet", click_btn: "KLIK", income_text: "Aktualny dochód za klik",
         upgrade_btn: "Ulepsz", upg_bonus: "+{n} monet za klik",
@@ -994,7 +999,7 @@ const I18N = {
         tab_cases: "Cutii", tab_clicker: "Clicker", tab_inventory: "Inventar", tab_upgrader: "Îmbunătățire", tab_daily: "Zilnic", tab_promo: "Cod Promo",
         cases_title: "Magazin de Cutii", open_btn: "Deschide",
         case_contents: "Obiecte posibile", detail_rarity: "Raritate", detail_price: "Preț", detail_case: "Cutie",
-        tab_index: "Index", index_title: "Index de Obiecte", index_sub: "Toate cărțile și cutiile din care pot fi obținute",
+        tab_index: "Index", index_title: "Index de Obiecte", index_sub: "Alege o cutie pentru a-i vedea cărțile",
         rarities: { common: "Comun", rare: "Rar", epic: "Epic", legendary: "Legendar", mythic: "Mitic", secret: "Secret", ultrasecret: "Ultra Secret" },
         clicker_title: "Minerit de Monede", click_btn: "CLICK", income_text: "Venit curent per click",
         upgrade_btn: "Îmbunătățește", upg_bonus: "+{n} monede pe click",
@@ -1264,9 +1269,9 @@ const ALL_CARDS = [
     { id: 'cs2_16', category: 'cs2', price: 3500, rarity: 'rare', img: 'images/cs2_16.jpg' },
     { id: 'cs2_6', category: 'cs2', price: 5000, rarity: 'epic', img: 'images/cs2_6.jpg' },
     { id: 'cs2_7', category: 'cs2', price: 5000, rarity: 'epic', img: 'images/cs2_7.jpg' },
-    { id: 'cs2_8', category: 'cs2', price: 12000, rarity: 'legendary', img: 'images/cs2_8.jpg' },
-    { id: 'cs2_9', category: 'cs2', price: 12000, rarity: 'legendary', img: 'images/cs2_9.jpg' },
-    { id: 'cs2_15', category: 'cs2', price: 12000, rarity: 'legendary', img: 'images/cs2_15.jpg' },
+    { id: 'cs2_8', category: 'cs2', price: 75000, rarity: 'legendary', img: 'images/cs2_8.jpg' },
+    { id: 'cs2_9', category: 'cs2', price: 75000, rarity: 'legendary', img: 'images/cs2_9.jpg' },
+    { id: 'cs2_15', category: 'cs2', price: 75000, rarity: 'legendary', img: 'images/cs2_15.jpg' },
     { id: 'cs2_10', category: 'cs2', price: 150000, rarity: 'mythic', img: 'images/cs2_10.jpg' },
     { id: 'cs2_11', category: 'cs2', price: 150000, rarity: 'mythic', img: 'images/cs2_11.jpg' },
     { id: 'cs2_12', category: 'cs2', price: 550000, rarity: 'secret', img: 'images/cs2_12.jpg' },
@@ -2010,11 +2015,42 @@ function renderCases() {
         container.appendChild(el);
     });
 }
+let currentIndexCaseId = null;
 function renderIndex() {
-    const container = document.getElementById('index-list'); if (!container) return;
+    const grid = document.getElementById('index-cases-grid'); if (!grid) return;
+    grid.innerHTML = '';
+    CASES.forEach(c => {
+        const card = document.createElement('div');
+        card.className = 'case-card';
+        card.setAttribute('data-testid', `index-case-${c.id}`);
+        card.onclick = () => openIndexCase(c.id);
+        card.innerHTML = `<h3>${getCaseName(c.id)}</h3>
+            <div class="case-img-wrapper"><img src="${c.img}" class="case-img" onerror="this.onerror=null; this.src='${c.fallbackImg || ''}';"></div>`;
+        grid.appendChild(card);
+    });
+    if (currentIndexCaseId) renderIndexCaseItems(currentIndexCaseId);
+}
+function openIndexCase(caseId) {
+    currentIndexCaseId = caseId;
+    document.getElementById('index-cases-grid').style.display = 'none';
+    document.getElementById('index-case-view').style.display = '';
+    renderIndexCaseItems(caseId);
+}
+function closeIndexCase() {
+    currentIndexCaseId = null;
+    document.getElementById('index-case-view').style.display = 'none';
+    document.getElementById('index-cases-grid').style.display = '';
+}
+function renderIndexCaseItems(caseId) {
+    const c = CASES.find(cs => cs.id === caseId);
+    const container = document.getElementById('index-list');
+    const titleEl = document.getElementById('index-case-title');
+    if (!c || !container) return;
+    if (titleEl) titleEl.innerText = getCaseName(c.id);
     container.innerHTML = '';
-    ALL_CARDS.forEach(card => {
-        const caseNames = CASES.filter(cs => cs.items.some(it => it.cardId === card.id)).map(cs => getCaseName(cs.id));
+    c.items.forEach(it => {
+        const card = ALL_CARDS.find(cd => cd.id === it.cardId);
+        if (!card) return;
         const row = document.createElement('div');
         row.className = `case-item-row ${card.rarity}`;
         row.setAttribute('data-testid', `index-item-${card.id}`);
@@ -2023,7 +2059,7 @@ function renderIndex() {
         row.innerHTML = `<img src="${card.img}" onerror="this.style.display='none'">
             <div class="case-item-info"><span class="case-item-name">${getCardName(card.id)}</span>
             <span class="case-item-rarity">${getRarityName(card.rarity)}</span></div>
-            <span class="case-item-chance" style="font-size:12px; opacity:0.85; text-align:right; max-width:150px;">${caseNames.join(', ') || '-'}</span>`;
+            <span class="case-item-chance" style="font-size:12px; opacity:0.85; text-align:right;">${card.price} ${curWord(card.currency)}</span>`;
         container.appendChild(row);
     });
 }
