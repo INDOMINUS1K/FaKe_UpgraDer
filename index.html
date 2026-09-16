@@ -1267,8 +1267,8 @@ const ALL_CARDS = [
     { id: 'cs2_4', category: 'cs2', price: 3500, rarity: 'rare', img: 'images/cs2_4.jpg' },
     { id: 'cs2_5', category: 'cs2', price: 3500, rarity: 'rare', img: 'images/cs2_5.jpg' },
     { id: 'cs2_16', category: 'cs2', price: 3500, rarity: 'rare', img: 'images/cs2_16.jpg' },
-    { id: 'cs2_6', category: 'cs2', price: 5000, rarity: 'epic', img: 'images/cs2_6.jpg' },
-    { id: 'cs2_7', category: 'cs2', price: 5000, rarity: 'epic', img: 'images/cs2_7.jpg' },
+    { id: 'cs2_6', category: 'cs2', price: 20000, rarity: 'epic', img: 'images/cs2_6.jpg' },
+    { id: 'cs2_7', category: 'cs2', price: 20000, rarity: 'epic', img: 'images/cs2_7.jpg' },
     { id: 'cs2_8', category: 'cs2', price: 75000, rarity: 'legendary', img: 'images/cs2_8.jpg' },
     { id: 'cs2_9', category: 'cs2', price: 75000, rarity: 'legendary', img: 'images/cs2_9.jpg' },
     { id: 'cs2_15', category: 'cs2', price: 75000, rarity: 'legendary', img: 'images/cs2_15.jpg' },
@@ -2284,10 +2284,12 @@ function openCaseMulti(cc, count) {
     rolls = Array.from({ length: count }, () => rollCase(cc));
     
     let autoSoldCount = 0;
+    let autoSoldTotal = 0;
     rolls = rolls.filter(r => {
         if (autoSellRarities.includes(r.won.rarity)) {
             if (isEmeraldCase) emeralds += r.card.price; else balance += r.card.price;
             autoSoldCount++;
+            autoSoldTotal += r.card.price;
             recordQuestProgress('get_rarity', { rarity: r.won.rarity, amount: 1 });
             return false;
         }
@@ -2300,7 +2302,7 @@ function openCaseMulti(cc, count) {
     
     if (rolls.length === 0) {
         playSound('win');
-        resDiv.innerHTML = `<span style="color:#2ecc71;">🔄 Все ${count} открытий автопроданы! Получено: ${autoSoldCount * (cc.price)} ${curWord(cc.currency)} (примерно)</span>`;
+        resDiv.innerHTML = `<span style="color:#2ecc71;">🔄 Все ${count} открытий автопроданы! Получено: ${autoSoldTotal} ${curWord(cc.currency)}</span>`;
         document.getElementById('case-open-more-btn').style.display = 'block';
         return;
     }
@@ -2359,7 +2361,7 @@ function openCaseMulti(cc, count) {
         }
         let htmlRes = `<b>${t().multi_results || 'Результаты'}:</b><br>` + rolls.map(r => resultSpan(r.won, r.card)).join(' ') + `<br><span style="color:#2ecc71;">${summaryText}</span>`;
         if (autoSoldCount > 0) {
-            htmlRes += `<br><span style="color:#e67e22;">(Автопродано ${autoSoldCount} предметов)</span>`;
+            htmlRes += `<br><span style="color:#e67e22;">(Автопродано ${autoSoldCount} предметов на ${autoSoldTotal} ${curWord(cc.currency)})</span>`;
         }
         resDiv.innerHTML = htmlRes;
         playSound('win'); updateUI();
