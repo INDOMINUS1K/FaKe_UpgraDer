@@ -329,7 +329,7 @@ select.upgrader-select { width: 100%; padding: 12px; background: #2c3e50; color:
 </div>
 <div id="tab-exchange" class="tab-content">
     <h2 data-i18n="tab_exchange">Обменник Эмеральдов</h2>
-    <p style="font-size: 14px; color: #aaa; margin-bottom: 15px;" data-i18n="exchange_sub">Курс: 100 000 монет = 100 эмеральдов</p>
+    <p style="font-size: 14px; color: #aaa; margin-bottom: 15px;" data-i18n="exchange_sub">Курс: 1 000 000 монет = 100 эмеральдов</p>
     <div class="emerald-section-box">
         <label style="display:block;text-align:left;margin-bottom:6px;font-weight:bold;font-size:14px;" data-i18n="exchange_amount_label">Сколько монет обменять:</label>
         <input type="number" id="exchange-coins-amount" class="emerald-amount-input" min="1000" step="1000" placeholder="0" oninput="updateExchangeUI()">
@@ -521,7 +521,7 @@ const I18N = {
         promo_success_emeralds: "Промокод активирован! Получено: {amount} эмеральдов!",
         not_enough_coins: "Недостаточно монет!", dropped: "Выпало:",
         upg_success: "Успех! Получен", upg_fail: "Неудача! Предмет сгорел.", burned_item: "Сгоревший предмет",
-        cases: { case_main: "Дино-Кейс", case_ocean: "Океанский Кейс", case_komaru: "Комару Кейс", case_rm: "Rick and Morty Case", case_cs: "Counter Strike Case", case_cs2: "Counter Strike (part2)", case_rivermonsters: "Кейс Речных монстров" },
+        cases: { case_main: "Дино-Кейс", case_ocean: "Океанский Кейс", case_komaru: "Комару Кейс", case_rm: "Rick and Morty Case", case_cs: "Counter Strike Case", case_cs2: "Counter Strike (part2)", case_rivermonsters: "Кейс Речных монстров", case_jjk: "Jujutsu Kaisen Case" },
         mutations: { silver: "Серебро", gold: "Золото", diamond: "Алмаз", rgb: "РГБ", crystal: "Кристалик", emerald: "Эмеральд" },
         cards: {
             c1: "Раптор", c2: "Компі", c3: "Галимим", c4: "Аллозавр", c5: "Карнотавр", c6: "Трицератопс",
@@ -561,7 +561,13 @@ const I18N = {
             rvm8: "Щука", rvm9: "Сом",
             rvm10: "Акула Бык", rvm11: "Тигровая Рыба",
             rvm12: "Мятный Карась",
-            rvm13: "Аропаима"
+            rvm13: "Аропаима",
+            jjk1: "Mass Sorcerer", jjk2: "Frames Sorcerer", jjk3: "Panda",
+                        jjk4: "Ice Munipulator", jjk5: "Ocean Curse", jjk6: "Valcona curse",
+                        jjk7: "Soul Curse", jjk8: "Overtime Sorcerer", jjk9: "Lightning Sorcerer",
+                        jjk10: "Justice Sorcerer", jjk11: "Hammer Sorcerer", jjk12: "Sorcerer Killer",
+                        jjk13: "King Of Curses", jjk14: "Red Scarf Sorcerer", jjk15: "Blood Manipulator",
+                        jjk16: "Projection Sorcerer"
         },
         rebirth_title: "Перерождение",
         rebirth_desc: "Перерождение стирает монеты, инвентарь и апгрейды кликера, сбрасывает использованные промокоды (их можно ввести заново), но даёт доступ к особому кейсу.",
@@ -595,7 +601,7 @@ const I18N = {
         welcome_menu_title: "Куда пойти?",
         welcome_start_btn: "Поехали!", roulette_none: "НЕТ",
         tab_rebirth: "Перерождение",
-        tab_emerald_multiplier: "Умножитель Эмеральдов", tab_exchange: "Обменник Эмеральдов", exchange_sub: "Курс: 100 000 монет = 100 эмеральдов", exchange_amount_label: "Сколько монет обменять:", exchange_you_get: "Вы получите:", exchange_btn: "Обменять", exchange_min_error: "Минимальная сумма для обмена: {amount} монет", exchange_success: "Обменяно! Получено: {amount} эмеральдов",
+        tab_emerald_multiplier: "Умножитель Эмеральдов", tab_exchange: "Обменник Эмеральдов", exchange_sub: "Курс: 1 000 000 монет = 100 эмеральдов", exchange_amount_label: "Сколько монет обменять:", exchange_you_get: "Вы получите:", exchange_btn: "Обменять", exchange_min_error: "Минимальная сумма для обмена: {amount} монет", exchange_success: "Обменяно! Получено: {amount} эмеральдов",
         emerald_multiplier_sub: "Выберите режим",
         emerald_wheel_btn: "Колесо Фортуны",
         emerald_upgrader_btn: "Эмеральд Апгрейдер",
@@ -651,7 +657,7 @@ const I18N = {
         promo_success_emeralds: "Promo activated! Received: {amount} emeralds!",
         not_enough_coins: "Not enough coins!", dropped: "Dropped:",
         upg_success: "Success! Received", upg_fail: "Failure! Item burned.", burned_item: "Burned item",
-        cases: { case_main: "Dino Case", case_ocean: "Ocean Case", case_komaru: "Komaru Case", case_rm: "Rick and Morty Case", case_cs: "Counter Strike Case", case_cs2: "Counter Strike (part2)", case_rivermonsters: "River Monsters Case" },
+        cases: { case_main: "Dino Case", case_ocean: "Ocean Case", case_komaru: "Komaru Case", case_rm: "Rick and Morty Case", case_cs: "Counter Strike Case", case_cs2: "Counter Strike (part2)", case_rivermonsters: "River Monsters Case", case_jjk: "Jujutsu Kaisen Case" },
         mutations: { silver: "Silver", gold: "Gold", diamond: "Diamond", rgb: "RGB", crystal: "Crystal", emerald: "Emerald" },
         cards: {
             c1: "Raptor", c2: "Compi", c3: "Galimim", c4: "Allosaur", c5: "Carnotaur", c6: "Triceratops",
@@ -691,7 +697,13 @@ const I18N = {
             rvm8: "Pike", rvm9: "Catfish",
             rvm10: "Bull Shark", rvm11: "Tigerfish",
             rvm12: "Mint Crucian Carp",
-            rvm13: "Arapaima"
+            rvm13: "Arapaima",
+            jjk1: "Mass Sorcerer", jjk2: "Frames Sorcerer", jjk3: "Panda",
+                        jjk4: "Ice Munipulator", jjk5: "Ocean Curse", jjk6: "Valcona curse",
+                        jjk7: "Soul Curse", jjk8: "Overtime Sorcerer", jjk9: "Lightning Sorcerer",
+                        jjk10: "Justice Sorcerer", jjk11: "Hammer Sorcerer", jjk12: "Sorcerer Killer",
+                        jjk13: "King Of Curses", jjk14: "Red Scarf Sorcerer", jjk15: "Blood Manipulator",
+                        jjk16: "Projection Sorcerer"
         },
         rebirth_title: "Rebirth",
         rebirth_desc: "Rebirth erases coins, inventory and clicker upgrades, resets used promo codes (you can enter them again), but grants access to a special case.",
@@ -725,7 +737,7 @@ const I18N = {
         welcome_menu_title: "Where to go?",
         welcome_start_btn: "Let's go!", roulette_none: "NONE",
         tab_rebirth: "Rebirth",
-        tab_emerald_multiplier: "Emerald Multiplier",
+        tab_emerald_multiplier: "Emerald Multiplier", tab_exchange: "Emerald Exchange", exchange_sub: "Rate: 1,000,000 coins = 100 emeralds", exchange_amount_label: "How many coins to exchange:", exchange_you_get: "You will receive:", exchange_btn: "Exchange", exchange_min_error: "Minimum exchange amount: {amount} coins", exchange_success: "Exchanged! Received: {amount} emeralds",
         emerald_multiplier_sub: "Choose a mode",
         emerald_wheel_btn: "Fortune Wheel",
         emerald_upgrader_btn: "Emerald Upgrader",
@@ -781,7 +793,7 @@ const I18N = {
         promo_success_emeralds: "Промокод активовано! Отримано: {amount} емеральдів!",
         not_enough_coins: "Недостатньо монет!", dropped: "Випало:",
         upg_success: "Успіх! Отримано", upg_fail: "Не вдалося! Предмет згорів.", burned_item: "Згорілий предмет",
-        cases: { case_main: "Дино-Кейс", case_ocean: "Океанський Кейс", case_komaru: "Комару Кейс", case_rm: "Rick and Morty Case", case_cs: "Counter Strike Case", case_cs2: "Counter Strike (part2)", case_rivermonsters: "Кейс Річкових монстрів" },
+        cases: { case_main: "Дино-Кейс", case_ocean: "Океанський Кейс", case_komaru: "Комару Кейс", case_rm: "Rick and Morty Case", case_cs: "Counter Strike Case", case_cs2: "Counter Strike (part2)", case_rivermonsters: "Кейс Річкових монстрів", case_jjk: "Jujutsu Kaisen Case" },
         mutations: { silver: "Срібло", gold: "Золото", diamond: "Алмаз", rgb: "RGB", crystal: "Кристал", emerald: "Смарагд" },
         cards: {
             c1: "Раптор", c2: "Компі", c3: "Галімім", c4: "Алозавр", c5: "Карнотавр", c6: "Трицератопс",
@@ -821,7 +833,13 @@ const I18N = {
             rvm8: "Щука", rvm9: "Сом",
             rvm10: "Акула-Бик", rvm11: "Тигрова Риба",
             rvm12: "М'ятний Карась",
-            rvm13: "Аропаїма"
+            rvm13: "Аропаїма",
+            jjk1: "Mass Sorcerer", jjk2: "Frames Sorcerer", jjk3: "Panda",
+                        jjk4: "Ice Munipulator", jjk5: "Ocean Curse", jjk6: "Valcona curse",
+                        jjk7: "Soul Curse", jjk8: "Overtime Sorcerer", jjk9: "Lightning Sorcerer",
+                        jjk10: "Justice Sorcerer", jjk11: "Hammer Sorcerer", jjk12: "Sorcerer Killer",
+                        jjk13: "King Of Curses", jjk14: "Red Scarf Sorcerer", jjk15: "Blood Manipulator",
+                        jjk16: "Projection Sorcerer"
         },
         rebirth_title: "Переродження",
         rebirth_desc: "Переродження стирає монети, інвентар і апгрейди клікера, скидає використані промокоди (їх можна ввести знову), але дає доступ до особливого кейсу.",
@@ -855,7 +873,7 @@ const I18N = {
         welcome_menu_title: "Куди піти?",
         welcome_start_btn: "Поїхали!", roulette_none: "НІ",
         tab_rebirth: "Переродження",
-        tab_emerald_multiplier: "Множник Емеральдів", tab_exchange: "Обмінник Емеральдів", exchange_sub: "Курс: 100 000 монет = 100 емеральдів", exchange_amount_label: "Скільки монет обміняти:", exchange_you_get: "Ви отримаєте:", exchange_btn: "Обміняти", exchange_min_error: "Мінімальна сума для обміну: {amount} монет", exchange_success: "Обміняно! Отримано: {amount} емеральдів",
+        tab_emerald_multiplier: "Множник Емеральдів", tab_exchange: "Обмінник Емеральдів", exchange_sub: "Курс: 1 000 000 монет = 100 емеральдів", exchange_amount_label: "Скільки монет обміняти:", exchange_you_get: "Ви отримаєте:", exchange_btn: "Обміняти", exchange_min_error: "Мінімальна сума для обміну: {amount} монет", exchange_success: "Обміняно! Отримано: {amount} емеральдів",
         emerald_multiplier_sub: "Оберіть режим",
         emerald_wheel_btn: "Колесо Фортуни",
         emerald_upgrader_btn: "Емеральд Апгрейдер",
@@ -911,7 +929,7 @@ const I18N = {
         promo_success_emeralds: "Kod aktywowany! Otrzymano: {amount} szmaragdów!",
         not_enough_coins: "Za mało monet!", dropped: "Wypadło:",
         upg_success: "Sukces! Otrzymano", upg_fail: "Niepowodzenie! Przedmiot spłonął.", burned_item: "Spalony przedmiot",
-        cases: { case_main: "Skrzynka Dino", case_ocean: "Skrzynka Oceaniczna", case_komaru: "Skrzynka Komaru", case_rm: "Rick and Morty Case", case_cs: "Counter Strike Case", case_cs2: "Counter Strike (part2)", case_rivermonsters: "Skrzynka Rzecznych Potworów" },
+        cases: { case_main: "Skrzynka Dino", case_ocean: "Skrzynka Oceaniczna", case_komaru: "Skrzynka Komaru", case_rm: "Rick and Morty Case", case_cs: "Counter Strike Case", case_cs2: "Counter Strike (part2)", case_rivermonsters: "Skrzynka Rzecznych Potworów", case_jjk: "Jujutsu Kaisen Case" },
         mutations: { silver: "Srebro", gold: "Złoto", diamond: "Diament", rgb: "RGB", crystal: "Kryształ", emerald: "Szmaragd" },
         cards: {
             c1: "Raptor", c2: "Compi", c3: "Galimim", c4: "Allozaur", c5: "Karnotaur", c6: "Trikeratops",
@@ -951,7 +969,13 @@ const I18N = {
             rvm8: "Szczupak", rvm9: "Sum",
             rvm10: "Rekin Byk", rvm11: "Ryba Tygrysia",
             rvm12: "Miętowy Karaś",
-            rvm13: "Arapaima"
+            rvm13: "Arapaima",
+            jjk1: "Mass Sorcerer", jjk2: "Frames Sorcerer", jjk3: "Panda",
+                        jjk4: "Ice Munipulator", jjk5: "Ocean Curse", jjk6: "Valcona curse",
+                        jjk7: "Soul Curse", jjk8: "Overtime Sorcerer", jjk9: "Lightning Sorcerer",
+                        jjk10: "Justice Sorcerer", jjk11: "Hammer Sorcerer", jjk12: "Sorcerer Killer",
+                        jjk13: "King Of Curses", jjk14: "Red Scarf Sorcerer", jjk15: "Blood Manipulator",
+                        jjk16: "Projection Sorcerer"
         },
         rebirth_title: "Odrodzenie",
         rebirth_desc: "Odrodzenie kasuje monety, ekwipunek i ulepszenia klikacza, resetuje wykorzystane kody promocyjne (można je wpisać ponownie), ale daje dostęp do specjalnej skrzynki.",
@@ -985,7 +1009,7 @@ const I18N = {
         welcome_menu_title: "Dokąd pójść?",
         welcome_start_btn: "Zaczynajmy!", roulette_none: "NIE",
         tab_rebirth: "Odrodzenie",
-        tab_emerald_multiplier: "Mnożnik Szmaragdów", tab_exchange: "Kantor Szmaragdów", exchange_sub: "Kurs: 100 000 monet = 100 szmaragdów", exchange_amount_label: "Ile monet wymienić:", exchange_you_get: "Otrzymasz:", exchange_btn: "Wymień", exchange_min_error: "Minimalna kwota wymiany: {amount} monet", exchange_success: "Wymieniono! Otrzymano: {amount} szmaragdów",
+        tab_emerald_multiplier: "Mnożnik Szmaragdów", tab_exchange: "Kantor Szmaragdów", exchange_sub: "Kurs: 1 000 000 monet = 100 szmaragdów", exchange_amount_label: "Ile monet wymienić:", exchange_you_get: "Otrzymasz:", exchange_btn: "Wymień", exchange_min_error: "Minimalna kwota wymiany: {amount} monet", exchange_success: "Wymieniono! Otrzymano: {amount} szmaragdów",
         emerald_multiplier_sub: "Wybierz tryb",
         emerald_wheel_btn: "Koło Fortuny",
         emerald_upgrader_btn: "Ulepszacz Szmaragdów",
@@ -1041,7 +1065,7 @@ const I18N = {
         promo_success_emeralds: "Cod activat! Primit: {amount} smaralde!",
         not_enough_coins: "Monede insuficiente!", dropped: "A picat:",
         upg_success: "Succes! Ai primit", upg_fail: "Eșec! Obiectul a ars.", burned_item: "Obiect ars",
-        cases: { case_main: "Cutia Dino", case_ocean: "Cutia Oceanică", case_komaru: "Cutia Komaru", case_rm: "Rick and Morty Case", case_cs: "Counter Strike Case", case_cs2: "Counter Strike (part2)", case_rivermonsters: "Cutia Monștrilor de Râu" },
+        cases: { case_main: "Cutia Dino", case_ocean: "Cutia Oceanică", case_komaru: "Cutia Komaru", case_rm: "Rick and Morty Case", case_cs: "Counter Strike Case", case_cs2: "Counter Strike (part2)", case_rivermonsters: "Cutia Monștrilor de Râu", case_jjk: "Jujutsu Kaisen Case" },
         mutations: { silver: "Argint", gold: "Aur", diamond: "Diamant", rgb: "RGB", crystal: "Cristal", emerald: "Smarald" },
         cards: {
             c1: "Raptor", c2: "Compi", c3: "Galimim", c4: "Allozaur", c5: "Carnotaur", c6: "Triceratops",
@@ -1081,7 +1105,13 @@ const I18N = {
             rvm8: "Știucă", rvm9: "Somn",
             rvm10: "Rechin Taur", rvm11: "Pește Tigru",
             rvm12: "Caras de Mentă",
-            rvm13: "Arapaima"
+            rvm13: "Arapaima",
+            jjk1: "Mass Sorcerer", jjk2: "Frames Sorcerer", jjk3: "Panda",
+                        jjk4: "Ice Munipulator", jjk5: "Ocean Curse", jjk6: "Valcona curse",
+                        jjk7: "Soul Curse", jjk8: "Overtime Sorcerer", jjk9: "Lightning Sorcerer",
+                        jjk10: "Justice Sorcerer", jjk11: "Hammer Sorcerer", jjk12: "Sorcerer Killer",
+                        jjk13: "King Of Curses", jjk14: "Red Scarf Sorcerer", jjk15: "Blood Manipulator",
+                        jjk16: "Projection Sorcerer"
         },
         rebirth_title: "Renaștere",
         rebirth_desc: "Renașterea șterge monedele, inventarul și îmbunătățirile clickerului, resetează codurile promoționale folosite (pot fi introduse din nou), dar oferă acces la o cutie specială.",
@@ -1115,7 +1145,7 @@ const I18N = {
         welcome_menu_title: "Unde mergem?",
         welcome_start_btn: "Să începem!", roulette_none: "NU",
         tab_rebirth: "Renaștere",
-        tab_emerald_multiplier: "Multiplicator de Smaralde", tab_exchange: "Schimb Smaralde", exchange_sub: "Curs: 100 000 monede = 100 smaralde", exchange_amount_label: "Câte monede să schimbi:", exchange_you_get: "Vei primi:", exchange_btn: "Schimbă", exchange_min_error: "Suma minimă de schimb: {amount} monede", exchange_success: "Schimbat! Primit: {amount} smaralde",
+        tab_emerald_multiplier: "Multiplicator de Smaralde", tab_exchange: "Schimb Smaralde", exchange_sub: "Curs: 1 000 000 monede = 100 smaralde", exchange_amount_label: "Câte monede să schimbi:", exchange_you_get: "Vei primi:", exchange_btn: "Schimbă", exchange_min_error: "Suma minimă de schimb: {amount} monede", exchange_success: "Schimbat! Primit: {amount} smaralde",
         emerald_multiplier_sub: "Alege un mod",
         emerald_wheel_btn: "Roata Norocului",
         emerald_upgrader_btn: "Îmbunătățitor de Smaralde",
@@ -1305,7 +1335,24 @@ const ALL_CARDS = [
     { id: 'rvm10', category: 'rivermonsters', currency: 'emerald', price: 700, rarity: 'mythic', img: 'images/rvm10.jpg' },
     { id: 'rvm11', category: 'rivermonsters', currency: 'emerald', price: 700, rarity: 'mythic', img: 'images/rvm11.jpg' },
     { id: 'rvm12', category: 'rivermonsters', currency: 'emerald', price: 1000, rarity: 'secret', img: 'images/rvm12.jpg' },
-    { id: 'rvm13', category: 'rivermonsters', currency: 'emerald', price: 3000, rarity: 'secret', img: 'images/rvm13.jpg' }
+    { id: 'rvm13', category: 'rivermonsters', currency: 'emerald', price: 3000, rarity: 'secret', img: 'images/rvm13.jpg' },
+
+    { id: 'jjk1', category: 'jjk', price: 3000, rarity: 'common', img: 'images/jjk1.jpg' },
+    { id: 'jjk2', category: 'jjk', price: 3000, rarity: 'common', img: 'images/jjk2.jpg' },
+    { id: 'jjk3', category: 'jjk', price: 3000, rarity: 'common', img: 'images/jjk3.jpg' },
+    { id: 'jjk4', category: 'jjk', price: 5000, rarity: 'rare', img: 'images/jjk4.jpg' },
+    { id: 'jjk5', category: 'jjk', price: 5000, rarity: 'rare', img: 'images/jjk5.jpg' },
+    { id: 'jjk6', category: 'jjk', price: 5000, rarity: 'rare', img: 'images/jjk6.jpg' },
+    { id: 'jjk7', category: 'jjk', price: 30000, rarity: 'epic', img: 'images/jjk7.jpg' },
+    { id: 'jjk8', category: 'jjk', price: 30000, rarity: 'epic', img: 'images/jjk8.jpg' },
+    { id: 'jjk9', category: 'jjk', price: 30000, rarity: 'epic', img: 'images/jjk9.jpg' },
+    { id: 'jjk10', category: 'jjk', price: 85000, rarity: 'legendary', img: 'images/jjk10.jpg' },
+    { id: 'jjk11', category: 'jjk', price: 85000, rarity: 'legendary', img: 'images/jjk11.jpg' },
+    { id: 'jjk12', category: 'jjk', price: 85000, rarity: 'legendary', img: 'images/jjk12.jpg' },
+    { id: 'jjk13', category: 'jjk', price: 175000, rarity: 'mythic', img: 'images/jjk13.jpg' },
+    { id: 'jjk14', category: 'jjk', price: 175000, rarity: 'mythic', img: 'images/jjk14.jpg' },
+    { id: 'jjk15', category: 'jjk', price: 175000, rarity: 'mythic', img: 'images/jjk15.jpg' },
+    { id: 'jjk16', category: 'jjk', price: 500000, rarity: 'secret', img: 'images/jjk16.jpg' }
 ];
 
 const CASES = [
@@ -1366,6 +1413,15 @@ const CASES = [
         { cardId: 'rvm8', weight: 2.5 }, { cardId: 'rvm9', weight: 2.5 },
         { cardId: 'rvm10', weight: 0.5 }, { cardId: 'rvm11', weight: 0.5 },
         { cardId: 'rvm12', weight: 0.1 }, { cardId: 'rvm13', weight: 0.03 }
+      ] },
+    { id: 'case_jjk', price: 15000, img: 'images/jjk_case.jpg', fallbackImg: 'images/jjk_case.png',
+      items: [
+        { cardId: 'jjk1', weight: 16.66 }, { cardId: 'jjk2', weight: 16.67 }, { cardId: 'jjk3', weight: 16.67 },
+        { cardId: 'jjk4', weight: 6.66 }, { cardId: 'jjk5', weight: 6.67 }, { cardId: 'jjk6', weight: 6.67 },
+        { cardId: 'jjk7', weight: 3.33 }, { cardId: 'jjk8', weight: 3.33 }, { cardId: 'jjk9', weight: 3.34 },
+        { cardId: 'jjk10', weight: 1.66 }, { cardId: 'jjk11', weight: 1.67 }, { cardId: 'jjk12', weight: 1.67 },
+        { cardId: 'jjk13', weight: 0.33 }, { cardId: 'jjk14', weight: 0.33 }, { cardId: 'jjk15', weight: 0.34 },
+        { cardId: 'jjk16', weight: 0.1 }
       ] }
 ];
 
@@ -1737,7 +1793,7 @@ function startRouletteSound(duration) {
     scheduleTick();
 }
 const REBIRTH_LOCKED_CASES = ['case_komaru', 'case_rm', 'case_cs'];
-const REBIRTH2_LOCKED_CASES = ['case_rivermonsters', 'case_cs2'];
+const REBIRTH2_LOCKED_CASES = ['case_rivermonsters', 'case_cs2', 'case_jjk'];
 function t() { return I18N[currentLang] || I18N.ru; }
 const ICON_FALLBACK_EXTS = ['png', 'jpg', 'jpeg', 'webp'];
 function tryNextImage(imgEl, base) {
@@ -1767,6 +1823,7 @@ function getItemCategory(cardId) {
     if (cardId.startsWith('cs2')) return 'cs2';
     if (cardId.startsWith('cs')) return 'cs';
     if (cardId.startsWith('rvm')) return 'rivermonsters';
+    if (cardId.startsWith('jjk')) return 'jjk';
     return 'dino';
 }
 function getCardName(id) { return (t().cards && t().cards[id]) || id; }
@@ -2734,7 +2791,7 @@ function selectEmeraldUpgradeChance(chance) {
 function getSelectedEmeraldOption() {
     return EMERALD_UPGRADE_OPTIONS.find(o => o.chance === selectedEmeraldChance) || null;
 }
-const EXCHANGE_RATE = 1000; // монет за 1 эмеральд (100000 монет = 100 эмеральдов)
+const EXCHANGE_RATE = 10000; // монет за 1 эмеральд (1000000 монет = 100 эмеральдов)
 function updateExchangeUI() {
     const input = document.getElementById('exchange-coins-amount');
     const preview = document.getElementById('exchange-emeralds-preview');
