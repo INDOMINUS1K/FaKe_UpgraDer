@@ -1870,8 +1870,13 @@ function getUpgradeChance(fromRarity, toRarity) {
         'legendary-secret': 10,
         'mythic-secret': 25,
         'epic-secret': 5,
-        'rare-secret': 1,
-        'common-secret': 0.1
+        // common / rare → high tiers (requested rates)
+        'common-legendary': 1,
+        'common-mythic': 0.5,
+        'common-secret': 0.1,
+        'rare-legendary': 1,
+        'rare-mythic': 0.5,
+        'rare-secret': 0.1
     };
     const key = fromRarity + '-' + toRarity;
     if (chances[key] !== undefined) return chances[key];
