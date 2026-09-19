@@ -101,6 +101,7 @@ button.sell-btn:hover { background: #c0392b; }
 .mythic { background: #8b008b; border-color: #ff1493; color: #ff1493; box-shadow: 0 0 15px #ff1493; }
 .secret { background: #1a1a2e; border-color: #16c784; color: #16c784; box-shadow: 0 0 15px #16c784; }
 .ultrasecret { background: #0f0f1e; border-color: #ffd700; color: #ffd700; box-shadow: 0 0 20px #ffd700; }
+.limited { background: linear-gradient(135deg, #1a0033, #3d0066); border-color: #ff2fd6; color: #ff7ef0; box-shadow: 0 0 22px #ff2fd6; }
 .fail-item { background: #7f8c8d; border-color: #e74c3c; color: #e74c3c; }
 .card img { max-width: 50px; max-height: 50px; margin-right: 10px; border-radius: 4px; object-fit: cover; background: #fff; }
 .inventory-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 12px; max-height: 450px; overflow-y: auto; text-align: left; }
@@ -227,6 +228,7 @@ select.upgrader-select { width: 100%; padding: 12px; background: #2c3e50; color:
     <button class="tab-btn" data-target="shop" onclick="switchTab('shop', event)" data-i18n="tab_shop">Магазин</button>
     <button class="tab-btn" data-target="inventory" onclick="switchTab('inventory', event)" data-i18n="tab_inventory">Инвентарь</button>
     <button class="tab-btn" data-target="upgrader" onclick="switchTab('upgrader', event)" data-i18n="tab_upgrader">Апгрейдер</button>
+    <button class="tab-btn" data-target="crafts" onclick="switchTab('crafts', event)" data-i18n="tab_crafts">Крафты</button>
     <button class="tab-btn" data-target="emerald-multiplier" onclick="switchTab('emerald-multiplier', event)" data-i18n="tab_emerald_multiplier">Умножитель Эмеральдов</button>
     <button class="tab-btn" data-target="exchange" onclick="switchTab('exchange', event)" data-i18n="tab_exchange">Обменник Эмеральдов</button>
     <button class="tab-btn" data-target="rebirth" onclick="switchTab('rebirth', event)" data-i18n="tab_rebirth">Перерождение</button>
@@ -286,6 +288,11 @@ select.upgrader-select { width: 100%; padding: 12px; background: #2c3e50; color:
         <div id="upgrade-roulette-track" class="roulette-track"></div>
     </div>
     <div id="upgrade-result" style="margin-top: 15px; font-size: 18px; font-weight: bold;"></div>
+</div>
+<div id="tab-crafts" class="tab-content">
+    <h2 data-i18n="tab_crafts">Крафты</h2>
+    <p style="font-size: 14px; color: #aaa; margin-bottom: 15px;" data-i18n="crafts_sub">Собери нужные предметы, чтобы создать уникальный крафт</p>
+    <div id="crafts-grid" class="cases-grid"></div>
 </div>
 <div id="tab-emerald-multiplier" class="tab-content">
     <h2 data-i18n="tab_emerald_multiplier">Умножитель Эмеральдов</h2>
@@ -443,6 +450,7 @@ select.upgrader-select { width: 100%; padding: 12px; background: #2c3e50; color:
             <button class="tab-btn" onclick="welcomeGoTo('shop')" data-i18n="tab_shop">Магазин</button>
             <button class="tab-btn" onclick="welcomeGoTo('inventory')" data-i18n="tab_inventory">Инвентарь</button>
             <button class="tab-btn" onclick="welcomeGoTo('upgrader')" data-i18n="tab_upgrader">Апгрейдер</button>
+            <button class="tab-btn" onclick="welcomeGoTo('crafts')" data-i18n="tab_crafts">Крафты</button>
             <button class="tab-btn" onclick="welcomeGoTo('emerald-multiplier')" data-i18n="tab_emerald_multiplier">Умножитель Эмеральдов</button>
             <button class="tab-btn" onclick="welcomeGoTo('rebirth')" data-i18n="tab_rebirth">Перерождение</button>
             <button class="tab-btn" onclick="welcomeGoTo('quests')" data-i18n="tab_quests">Квесты</button>
@@ -495,7 +503,7 @@ const I18N = {
         cases_title: "Магазин Кейсов", open_btn: "Открыть",
         case_contents: "Возможные предметы", detail_rarity: "Редкость", detail_price: "Цена", detail_case: "Кейс",
         tab_index: "Индекс", index_title: "Индекс Предметов", index_sub: "Выберите кейс, чтобы посмотреть его карточки",
-        rarities: { common: "Обычный", rare: "Редкий", epic: "Эпический", legendary: "Легендарный", mythic: "Мифик", secret: "Секрет", ultrasecret: "Ультра Секрет" },
+        rarities: { common: "Обычный", rare: "Редкий", epic: "Эпический", legendary: "Легендарный", mythic: "Мифик", secret: "Секрет", ultrasecret: "Ультра Секрет", limited: "Лимитед" },
         clicker_title: "Добыча Монет", click_btn: "КЛИК", income_text: "Текущий доход за клик",
         upgrade_btn: "Улучшить", upg_bonus: "+{n} монет к клику",
         upgrades: { base: "Прокачка клика", plus5: "Буст клика", plus10: "Мега клик", plus15: "Супер клик", plus25: "Ультра клик", plus100: "ИНДОМИНУС КЛИК" },
@@ -567,7 +575,8 @@ const I18N = {
                         jjk7: "Soul Curse", jjk8: "Overtime Sorcerer", jjk9: "Lightning Sorcerer",
                         jjk10: "Justice Sorcerer", jjk11: "Hammer Sorcerer", jjk12: "Sorcerer Killer",
                         jjk13: "King Of Curses", jjk14: "Red Scarf Sorcerer", jjk15: "Blood Manipulator",
-                        jjk16: "Projection Sorcerer"
+                        jjk16: "Projection Sorcerer",
+            rickprime: "Rick Prime", emeraldindominus: "Emerald Indominus", crocodile: "Крокодил", ultrasheep: "Ультра Овца"
         },
         rebirth_title: "Перерождение",
         rebirth_desc: "Перерождение стирает монеты, инвентарь и апгрейды кликера, сбрасывает использованные промокоды (их можно ввести заново), но даёт доступ к особому кейсу.",
@@ -601,7 +610,7 @@ const I18N = {
         welcome_menu_title: "Куда пойти?",
         welcome_start_btn: "Поехали!", roulette_none: "НЕТ",
         tab_rebirth: "Перерождение",
-        tab_emerald_multiplier: "Умножитель Эмеральдов", tab_exchange: "Обменник Эмеральдов", exchange_sub: "Курс: 1 000 000 монет = 100 эмеральдов", exchange_amount_label: "Сколько монет обменять:", exchange_you_get: "Вы получите:", exchange_btn: "Обменять", exchange_min_error: "Минимальная сумма для обмена: {amount} монет", exchange_success: "Обменяно! Получено: {amount} эмеральдов",
+        tab_emerald_multiplier: "Умножитель Эмеральдов", tab_exchange: "Обменник Эмеральдов", exchange_sub: "Курс: 1 000 000 монет = 100 эмеральдов", exchange_amount_label: "Сколько монет обменять:", exchange_you_get: "Вы получите:", exchange_btn: "Обменять", exchange_min_error: "Минимальная сумма для обмена: {amount} монет", exchange_success: "Обменяно! Получено: {amount} эмеральдов", tab_crafts: "Крафты", crafts_sub: "Собери нужные предметы, чтобы создать уникальный крафт", craft_need: "Требуется:", craft_btn: "Создать", craft_missing_alert: "Недостаточно предметов для этого крафта!", craft_success: "Скрафчено: {name}!", craft_no_mutation: "Без мутации", craft_mutation_note: "Шанс переноса мутации: {n}% с каждой карты",
         emerald_multiplier_sub: "Выберите режим",
         emerald_wheel_btn: "Колесо Фортуны",
         emerald_upgrader_btn: "Эмеральд Апгрейдер",
@@ -631,7 +640,7 @@ const I18N = {
         cases_title: "Cases Shop", open_btn: "Open",
         case_contents: "Possible items", detail_rarity: "Rarity", detail_price: "Price", detail_case: "Case",
         tab_index: "Index", index_title: "Item Index", index_sub: "Pick a case to see its cards",
-        rarities: { common: "Common", rare: "Rare", epic: "Epic", legendary: "Legendary", mythic: "Mythic", secret: "Secret", ultrasecret: "Ultra Secret" },
+        rarities: { common: "Common", rare: "Rare", epic: "Epic", legendary: "Legendary", mythic: "Mythic", secret: "Secret", ultrasecret: "Ultra Secret", limited: "Limited" },
         clicker_title: "Coin Mining", click_btn: "CLICK", income_text: "Current income per click",
         upgrade_btn: "Upgrade", upg_bonus: "+{n} coins per click",
         upgrades: { base: "Click upgrade", plus5: "Click Boost", plus10: "Mega Click", plus15: "Super Click", plus25: "Ultra Click", plus100: "INDOMINUS CLICK" },
@@ -703,7 +712,8 @@ const I18N = {
                         jjk7: "Soul Curse", jjk8: "Overtime Sorcerer", jjk9: "Lightning Sorcerer",
                         jjk10: "Justice Sorcerer", jjk11: "Hammer Sorcerer", jjk12: "Sorcerer Killer",
                         jjk13: "King Of Curses", jjk14: "Red Scarf Sorcerer", jjk15: "Blood Manipulator",
-                        jjk16: "Projection Sorcerer"
+                        jjk16: "Projection Sorcerer",
+            rickprime: "Rick Prime", emeraldindominus: "Emerald Indominus", crocodile: "Crocodile", ultrasheep: "Ultra Sheep"
         },
         rebirth_title: "Rebirth",
         rebirth_desc: "Rebirth erases coins, inventory and clicker upgrades, resets used promo codes (you can enter them again), but grants access to a special case.",
@@ -737,7 +747,7 @@ const I18N = {
         welcome_menu_title: "Where to go?",
         welcome_start_btn: "Let's go!", roulette_none: "NONE",
         tab_rebirth: "Rebirth",
-        tab_emerald_multiplier: "Emerald Multiplier", tab_exchange: "Emerald Exchange", exchange_sub: "Rate: 1,000,000 coins = 100 emeralds", exchange_amount_label: "How many coins to exchange:", exchange_you_get: "You will receive:", exchange_btn: "Exchange", exchange_min_error: "Minimum exchange amount: {amount} coins", exchange_success: "Exchanged! Received: {amount} emeralds",
+        tab_emerald_multiplier: "Emerald Multiplier", tab_exchange: "Emerald Exchange", exchange_sub: "Rate: 1,000,000 coins = 100 emeralds", exchange_amount_label: "How many coins to exchange:", exchange_you_get: "You will receive:", exchange_btn: "Exchange", exchange_min_error: "Minimum exchange amount: {amount} coins", exchange_success: "Exchanged! Received: {amount} emeralds", tab_crafts: "Crafts", crafts_sub: "Collect the required items to create a unique craft", craft_need: "Required:", craft_btn: "Craft", craft_missing_alert: "Not enough items for this craft!", craft_success: "Crafted: {name}!", craft_no_mutation: "No mutation", craft_mutation_note: "Mutation transfer chance: {n}% per card",
         emerald_multiplier_sub: "Choose a mode",
         emerald_wheel_btn: "Fortune Wheel",
         emerald_upgrader_btn: "Emerald Upgrader",
@@ -767,7 +777,7 @@ const I18N = {
         cases_title: "Магазин Кейсів", open_btn: "Відкрити",
         case_contents: "Можливі предмети", detail_rarity: "Рідкість", detail_price: "Ціна", detail_case: "Кейс",
         tab_index: "Індекс", index_title: "Індекс Предметів", index_sub: "Оберіть кейс, щоб побачити його картки",
-        rarities: { common: "Звичайний", rare: "Рідкісний", epic: "Епічний", legendary: "Легендарний", mythic: "Міфічний", secret: "Секрет", ultrasecret: "Ультра Секрет" },
+        rarities: { common: "Звичайний", rare: "Рідкісний", epic: "Епічний", legendary: "Легендарний", mythic: "Міфічний", secret: "Секрет", ultrasecret: "Ультра Секрет", limited: "Лімітед" },
         clicker_title: "Добування Монет", click_btn: "КЛІК", income_text: "Поточний дохід за клік",
         upgrade_btn: "Покращити", upg_bonus: "+{n} монет за клік",
         upgrades: { base: "Прокачка кліка", plus5: "Буст кліка", plus10: "Мега клік", plus15: "Супер клік", plus25: "Ультра клік", plus100: "ІНДОМІНУС КЛІК" },
@@ -839,7 +849,8 @@ const I18N = {
                         jjk7: "Soul Curse", jjk8: "Overtime Sorcerer", jjk9: "Lightning Sorcerer",
                         jjk10: "Justice Sorcerer", jjk11: "Hammer Sorcerer", jjk12: "Sorcerer Killer",
                         jjk13: "King Of Curses", jjk14: "Red Scarf Sorcerer", jjk15: "Blood Manipulator",
-                        jjk16: "Projection Sorcerer"
+                        jjk16: "Projection Sorcerer",
+            rickprime: "Rick Prime", emeraldindominus: "Emerald Indominus", crocodile: "Крокодил", ultrasheep: "Ультра Вівця"
         },
         rebirth_title: "Переродження",
         rebirth_desc: "Переродження стирає монети, інвентар і апгрейди клікера, скидає використані промокоди (їх можна ввести знову), але дає доступ до особливого кейсу.",
@@ -873,7 +884,7 @@ const I18N = {
         welcome_menu_title: "Куди піти?",
         welcome_start_btn: "Поїхали!", roulette_none: "НІ",
         tab_rebirth: "Переродження",
-        tab_emerald_multiplier: "Множник Емеральдів", tab_exchange: "Обмінник Емеральдів", exchange_sub: "Курс: 1 000 000 монет = 100 емеральдів", exchange_amount_label: "Скільки монет обміняти:", exchange_you_get: "Ви отримаєте:", exchange_btn: "Обміняти", exchange_min_error: "Мінімальна сума для обміну: {amount} монет", exchange_success: "Обміняно! Отримано: {amount} емеральдів",
+        tab_emerald_multiplier: "Множник Емеральдів", tab_exchange: "Обмінник Емеральдів", exchange_sub: "Курс: 1 000 000 монет = 100 емеральдів", exchange_amount_label: "Скільки монет обміняти:", exchange_you_get: "Ви отримаєте:", exchange_btn: "Обміняти", exchange_min_error: "Мінімальна сума для обміну: {amount} монет", exchange_success: "Обміняно! Отримано: {amount} емеральдів", tab_crafts: "Крафти", crafts_sub: "Збери потрібні предмети, щоб створити унікальний крафт", craft_need: "Потрібно:", craft_btn: "Створити", craft_missing_alert: "Недостатньо предметів для цього крафту!", craft_success: "Скрафчено: {name}!", craft_no_mutation: "Без мутації", craft_mutation_note: "Шанс переносу мутації: {n}% з кожної карти",
         emerald_multiplier_sub: "Оберіть режим",
         emerald_wheel_btn: "Колесо Фортуни",
         emerald_upgrader_btn: "Емеральд Апгрейдер",
@@ -903,7 +914,7 @@ const I18N = {
         cases_title: "Sklep ze Skrzynkami", open_btn: "Otwórz",
         case_contents: "Możliwe przedmioty", detail_rarity: "Rzadkość", detail_price: "Cena", detail_case: "Skrzynka",
         tab_index: "Indeks", index_title: "Indeks Przedmiotów", index_sub: "Wybierz skrzynkę, aby zobaczyć jej karty",
-        rarities: { common: "Zwykły", rare: "Rzadki", epic: "Epicki", legendary: "Legendarny", mythic: "Mityczny", secret: "Sekretny", ultrasecret: "Ultra Sekretny" },
+        rarities: { common: "Zwykły", rare: "Rzadki", epic: "Epicki", legendary: "Legendarny", mythic: "Mityczny", secret: "Sekretny", ultrasecret: "Ultra Sekretny", limited: "Limitowany" },
         clicker_title: "Wydobywanie Monet", click_btn: "KLIK", income_text: "Aktualny dochód za klik",
         upgrade_btn: "Ulepsz", upg_bonus: "+{n} monet za klik",
         upgrades: { base: "Ulepszenie klika", plus5: "Wzmocnienie klika", plus10: "Mega Klik", plus15: "Super Klik", plus25: "Ultra Klik", plus100: "KLIK INDOMINUS" },
@@ -975,7 +986,8 @@ const I18N = {
                         jjk7: "Soul Curse", jjk8: "Overtime Sorcerer", jjk9: "Lightning Sorcerer",
                         jjk10: "Justice Sorcerer", jjk11: "Hammer Sorcerer", jjk12: "Sorcerer Killer",
                         jjk13: "King Of Curses", jjk14: "Red Scarf Sorcerer", jjk15: "Blood Manipulator",
-                        jjk16: "Projection Sorcerer"
+                        jjk16: "Projection Sorcerer",
+            rickprime: "Rick Prime", emeraldindominus: "Emerald Indominus", crocodile: "Krokodyl", ultrasheep: "Ultra Owca"
         },
         rebirth_title: "Odrodzenie",
         rebirth_desc: "Odrodzenie kasuje monety, ekwipunek i ulepszenia klikacza, resetuje wykorzystane kody promocyjne (można je wpisać ponownie), ale daje dostęp do specjalnej skrzynki.",
@@ -1009,7 +1021,7 @@ const I18N = {
         welcome_menu_title: "Dokąd pójść?",
         welcome_start_btn: "Zaczynajmy!", roulette_none: "NIE",
         tab_rebirth: "Odrodzenie",
-        tab_emerald_multiplier: "Mnożnik Szmaragdów", tab_exchange: "Kantor Szmaragdów", exchange_sub: "Kurs: 1 000 000 monet = 100 szmaragdów", exchange_amount_label: "Ile monet wymienić:", exchange_you_get: "Otrzymasz:", exchange_btn: "Wymień", exchange_min_error: "Minimalna kwota wymiany: {amount} monet", exchange_success: "Wymieniono! Otrzymano: {amount} szmaragdów",
+        tab_emerald_multiplier: "Mnożnik Szmaragdów", tab_exchange: "Kantor Szmaragdów", exchange_sub: "Kurs: 1 000 000 monet = 100 szmaragdów", exchange_amount_label: "Ile monet wymienić:", exchange_you_get: "Otrzymasz:", exchange_btn: "Wymień", exchange_min_error: "Minimalna kwota wymiany: {amount} monet", exchange_success: "Wymieniono! Otrzymano: {amount} szmaragdów", tab_crafts: "Craftowanie", crafts_sub: "Zbierz potrzebne przedmioty, aby stworzyć unikalny craft", craft_need: "Wymagane:", craft_btn: "Stwórz", craft_missing_alert: "Za mało przedmiotów do tego craftu!", craft_success: "Stworzono: {name}!", craft_no_mutation: "Bez mutacji", craft_mutation_note: "Szansa na przeniesienie mutacji: {n}% z każdej karty",
         emerald_multiplier_sub: "Wybierz tryb",
         emerald_wheel_btn: "Koło Fortuny",
         emerald_upgrader_btn: "Ulepszacz Szmaragdów",
@@ -1039,7 +1051,7 @@ const I18N = {
         cases_title: "Magazin de Cutii", open_btn: "Deschide",
         case_contents: "Obiecte posibile", detail_rarity: "Raritate", detail_price: "Preț", detail_case: "Cutie",
         tab_index: "Index", index_title: "Index de Obiecte", index_sub: "Alege o cutie pentru a-i vedea cărțile",
-        rarities: { common: "Comun", rare: "Rar", epic: "Epic", legendary: "Legendar", mythic: "Mitic", secret: "Secret", ultrasecret: "Ultra Secret" },
+        rarities: { common: "Comun", rare: "Rar", epic: "Epic", legendary: "Legendar", mythic: "Mitic", secret: "Secret", ultrasecret: "Ultra Secret", limited: "Limitat" },
         clicker_title: "Minerit de Monede", click_btn: "CLICK", income_text: "Venit curent per click",
         upgrade_btn: "Îmbunătățește", upg_bonus: "+{n} monede pe click",
         upgrades: { base: "Îmbunătățire click", plus5: "Impuls Click", plus10: "Mega Click", plus15: "Super Click", plus25: "Ultra Click", plus100: "CLICK INDOMINUS" },
@@ -1111,7 +1123,8 @@ const I18N = {
                         jjk7: "Soul Curse", jjk8: "Overtime Sorcerer", jjk9: "Lightning Sorcerer",
                         jjk10: "Justice Sorcerer", jjk11: "Hammer Sorcerer", jjk12: "Sorcerer Killer",
                         jjk13: "King Of Curses", jjk14: "Red Scarf Sorcerer", jjk15: "Blood Manipulator",
-                        jjk16: "Projection Sorcerer"
+                        jjk16: "Projection Sorcerer",
+            rickprime: "Rick Prime", emeraldindominus: "Emerald Indominus", crocodile: "Crocodil", ultrasheep: "Oaie Ultra"
         },
         rebirth_title: "Renaștere",
         rebirth_desc: "Renașterea șterge monedele, inventarul și îmbunătățirile clickerului, resetează codurile promoționale folosite (pot fi introduse din nou), dar oferă acces la o cutie specială.",
@@ -1145,7 +1158,7 @@ const I18N = {
         welcome_menu_title: "Unde mergem?",
         welcome_start_btn: "Să începem!", roulette_none: "NU",
         tab_rebirth: "Renaștere",
-        tab_emerald_multiplier: "Multiplicator de Smaralde", tab_exchange: "Schimb Smaralde", exchange_sub: "Curs: 1 000 000 monede = 100 smaralde", exchange_amount_label: "Câte monede să schimbi:", exchange_you_get: "Vei primi:", exchange_btn: "Schimbă", exchange_min_error: "Suma minimă de schimb: {amount} monede", exchange_success: "Schimbat! Primit: {amount} smaralde",
+        tab_emerald_multiplier: "Multiplicator de Smaralde", tab_exchange: "Schimb Smaralde", exchange_sub: "Curs: 1 000 000 monede = 100 smaralde", exchange_amount_label: "Câte monede să schimbi:", exchange_you_get: "Vei primi:", exchange_btn: "Schimbă", exchange_min_error: "Suma minimă de schimb: {amount} monede", exchange_success: "Schimbat! Primit: {amount} smaralde", tab_crafts: "Crafturi", crafts_sub: "Adună obiectele necesare pentru a crea un craft unic", craft_need: "Necesar:", craft_btn: "Creează", craft_missing_alert: "Nu ai suficiente obiecte pentru acest craft!", craft_success: "Creat: {name}!", craft_no_mutation: "Fără mutație", craft_mutation_note: "Șansă de transfer al mutației: {n}% per card",
         emerald_multiplier_sub: "Alege un mod",
         emerald_wheel_btn: "Roata Norocului",
         emerald_upgrader_btn: "Îmbunătățitor de Smaralde",
@@ -1352,7 +1365,12 @@ const ALL_CARDS = [
     { id: 'jjk13', category: 'jjk', price: 175000, rarity: 'mythic', img: 'images/jjk13.jpg' },
     { id: 'jjk14', category: 'jjk', price: 175000, rarity: 'mythic', img: 'images/jjk14.jpg' },
     { id: 'jjk15', category: 'jjk', price: 175000, rarity: 'mythic', img: 'images/jjk15.jpg' },
-    { id: 'jjk16', category: 'jjk', price: 500000, rarity: 'secret', img: 'images/jjk16.jpg' }
+    { id: 'jjk16', category: 'jjk', price: 500000, rarity: 'secret', img: 'images/jjk16.jpg' },
+
+    { id: 'rickprime', category: 'rickmorty', price: 2000000, rarity: 'limited', img: 'images/rickprime.jpg' },
+    { id: 'emeraldindominus', category: 'craft', price: 10000000, rarity: 'limited', img: 'images/emeraldindominus.jpg' },
+    { id: 'crocodile', category: 'rivermonsters', currency: 'emerald', price: 10000, rarity: 'limited', img: 'images/crocodile.jpg' },
+    { id: 'ultrasheep', category: 'craft', price: 1000000, rarity: 'limited', img: 'images/ultrasheep.jpg' }
 ];
 
 const CASES = [
@@ -1425,7 +1443,15 @@ const CASES = [
       ] }
 ];
 
+const CRAFTS = [
+    { id: 'craft_rickprime', resultCardId: 'rickprime', ingredients: ['rm14', 'rm13', 'rm10'] },
+    { id: 'craft_emeraldindominus', resultCardId: 'emeraldindominus', ingredients: ['cs14', 'cs2_14', 'c9', 'jjk16'] },
+    { id: 'craft_crocodile', resultCardId: 'crocodile', ingredients: ['rvm13', 'rvm12'] },
+    { id: 'craft_ultrasheep', resultCardId: 'ultrasheep', ingredients: ['jjk16', 'w14', 'rm15'] }
+];
+
 const MUTATION_CHANCE = 0.20;
+const CRAFT_MUTATION_TRANSFER_CHANCE = 0.20;
 const START_BALANCE = 500, START_CLICK_POWER = 10, START_UPGRADE_COST = 100;
 const REBIRTH_COST = 100000;
 const REBIRTH2_COST = 200; // в эмеральдах
@@ -1824,6 +1850,9 @@ function getItemCategory(cardId) {
     if (cardId.startsWith('cs')) return 'cs';
     if (cardId.startsWith('rvm')) return 'rivermonsters';
     if (cardId.startsWith('jjk')) return 'jjk';
+    if (cardId === 'rickprime') return 'rickmorty';
+    if (cardId === 'crocodile') return 'rivermonsters';
+    if (cardId === 'emeraldindominus' || cardId === 'ultrasheep') return 'craft';
     return 'dino';
 }
 function getCardName(id) { return (t().cards && t().cards[id]) || id; }
@@ -1945,7 +1974,7 @@ function updateUI() {
     document.getElementById('balance').innerText = balance;
     document.getElementById('emeralds').innerText = emeralds;
     document.getElementById('click-power-text').innerText = clickPower;
-    renderUpgrades(); renderShop(); renderInventory(); populateMyItemSelect(); populateTargetSelect(); updateUpgrader(); renderDailyRewards(); updateRebirthUI(); renderIndex(); renderQuests(); updateWheelUI(); updateEmeraldUpgraderUI(); renderCases(); saveData();
+    renderUpgrades(); renderShop(); renderInventory(); populateMyItemSelect(); populateTargetSelect(); updateUpgrader(); renderDailyRewards(); updateRebirthUI(); renderIndex(); renderQuests(); updateWheelUI(); updateEmeraldUpgraderUI(); renderCases(); renderCrafts(); saveData();
 }
 function updateRebirthUI() {
     const status = document.getElementById('rebirth-status');
@@ -2088,6 +2117,99 @@ function renderCases() {
     });
 }
 let currentIndexCaseId = null;
+let craftInstanceChoice = {};
+function getInventoryCountOf(cardId) { return inventory.filter(i => i.id === cardId).length; }
+function getCraftRequiredCounts(ingredients) {
+    const m = {};
+    ingredients.forEach(id => { m[id] = (m[id] || 0) + 1; });
+    return m;
+}
+function canCraft(craft) {
+    const req = getCraftRequiredCounts(craft.ingredients);
+    return Object.entries(req).every(([id, c]) => getInventoryCountOf(id) >= c);
+}
+function getChosenInstanceId(craftId, ingId) {
+    const stored = craftInstanceChoice[craftId] && craftInstanceChoice[craftId][ingId];
+    const instances = inventory.filter(inv => inv.id === ingId);
+    if (stored && instances.some(inst => inst.instanceId === stored)) return stored;
+    return instances.length ? instances[0].instanceId : null;
+}
+function setCraftInstanceChoice(craftId, ingId, instanceId) {
+    if (!craftInstanceChoice[craftId]) craftInstanceChoice[craftId] = {};
+    craftInstanceChoice[craftId][ingId] = Number(instanceId);
+    renderCrafts();
+}
+function renderCrafts() {
+    const grid = document.getElementById('crafts-grid'); if (!grid) return;
+    grid.innerHTML = '';
+    CRAFTS.forEach((craft, idx) => {
+        const result = ALL_CARDS.find(c => c.id === craft.resultCardId);
+        if (!result) return;
+        const req = getCraftRequiredCounts(craft.ingredients);
+        const ready = canCraft(craft);
+        const card = document.createElement('div');
+        card.className = 'case-card';
+        card.style.cursor = 'default';
+        let ingredientsHtml = '';
+        Object.entries(req).forEach(([id, needed]) => {
+            const ing = ALL_CARDS.find(c => c.id === id);
+            if (!ing) return;
+            const instances = inventory.filter(inv => inv.id === id);
+            const have = instances.length;
+            const ok = have >= needed;
+            let pickerHtml = '';
+            if (ok && have > 1) {
+                const chosen = getChosenInstanceId(craft.id, id);
+                pickerHtml = `<select class="upgrader-select" style="margin-top:4px;font-size:12px;padding:4px;" onchange="setCraftInstanceChoice('${craft.id}','${id}', this.value)">
+                    ${instances.map(inst => `<option value="${inst.instanceId}" ${inst.instanceId === chosen ? 'selected' : ''}>${inst.mutation ? '✨ ' + getMutationName(inst.mutation) : (t().craft_no_mutation || 'Без мутации')}</option>`).join('')}
+                </select>`;
+            }
+            ingredientsHtml += `<div class="case-item-row ${ing.rarity}" style="border-left-color:${ok ? '#2ecc71' : '#e74c3c'};">
+                <img src="${ing.img}" onerror="this.style.display='none'">
+                <div class="case-item-info"><span class="case-item-name">${getCardName(ing.id)}</span>
+                <span class="case-item-rarity">${getRarityName(ing.rarity)}</span>
+                ${pickerHtml}</div>
+                <span class="case-item-chance" style="color:${ok ? '#2ecc71' : '#e74c3c'};">${have}/${needed}</span>
+            </div>`;
+        });
+        card.innerHTML = `<h3>${getCardName(result.id)}</h3>
+            <div class="case-img-wrapper"><img src="${result.img}" class="case-img" onerror="this.style.display='none'"></div>
+            <span class="${result.rarity}" style="padding:3px 10px;border-radius:4px;display:inline-block;margin-bottom:10px;">${getRarityName(result.rarity)}</span>
+            <p style="font-size:12px;color:#f39c12;margin:2px 0 8px;">${(t().craft_mutation_note || 'Шанс переноса мутации: {n}% с каждой карты').replace('{n}', Math.round(CRAFT_MUTATION_TRANSFER_CHANCE * 100))}</p>
+            <p style="font-size:13px;color:#aaa;align-self:flex-start;margin:6px 0;" data-i18n="craft_need">${t().craft_need || 'Требуется:'}</p>
+            <div style="width:100%;display:flex;flex-direction:column;gap:6px;margin-bottom:12px;">${ingredientsHtml}</div>
+            <button class="action-btn" style="width:100%;" ${ready ? '' : 'disabled'} onclick="doCraft(${idx})">${t().craft_btn || 'Создать'}</button>`;
+        grid.appendChild(card);
+    });
+}
+function doCraft(craftIndex) {
+    const craft = CRAFTS[craftIndex];
+    if (!craft || !canCraft(craft)) { playSound('fail'); alert(t().craft_missing_alert || 'Недостаточно предметов для этого крафта!'); return; }
+    const req = getCraftRequiredCounts(craft.ingredients);
+    const consumedInstances = [];
+    Object.entries(req).forEach(([id, count]) => {
+        for (let i = 0; i < count; i++) {
+            let instanceId = getChosenInstanceId(craft.id, id);
+            let idx = instanceId != null ? inventory.findIndex(inv => inv.id === id && inv.instanceId === instanceId) : -1;
+            if (idx === -1) idx = inventory.findIndex(inv => inv.id === id);
+            if (idx !== -1) { consumedInstances.push(inventory[idx]); inventory.splice(idx, 1); }
+        }
+    });
+    const resultBase = ALL_CARDS.find(c => c.id === craft.resultCardId);
+    const newCard = { ...resultBase, instanceId: Date.now() + Math.floor(Math.random() * 1000000) };
+    consumedInstances.forEach(inst => {
+        if (inst.mutation && Math.random() < CRAFT_MUTATION_TRANSFER_CHANCE) {
+            const mut = MUTATIONS.find(m => m.id === inst.mutation);
+            if (mut) { newCard.mutation = mut.id; newCard.mutationMult = mut.mult; newCard.price = Math.round(resultBase.price * mut.mult); }
+        }
+    });
+    inventory.push(newCard);
+    delete craftInstanceChoice[craft.id];
+    playSound('win');
+    updateUI();
+    let name = getCardName(newCard.id) + (newCard.mutation ? ` [${getMutationName(newCard.mutation)}]` : '');
+    alert((t().craft_success || 'Скрафчено: {name}!').replace('{name}', name));
+}
 function renderIndex() {
     const grid = document.getElementById('index-cases-grid'); if (!grid) return;
     grid.innerHTML = '';
