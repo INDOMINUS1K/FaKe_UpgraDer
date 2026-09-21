@@ -109,6 +109,19 @@ button.sell-btn:hover { background: #c0392b; }
 .slot { width: 48%; min-width: 200px; background: #2c3e50; padding: 15px; border-radius: 8px; min-height: 140px; font-size: 15px; display: flex; flex-direction: column; justify-content: center; align-items: center; flex-grow: 1; }
 .slot img { max-width: 90px; max-height: 90px; margin-bottom: 8px; border-radius: 6px; object-fit: cover; background: #fff; }
 .chance-text { font-size: 26px; font-weight: bold; color: #f1c40f; margin: 15px 0; }
+.chance-gauge-wrap { display: flex; justify-content: center; margin: 20px 0; }
+.chance-gauge { position: relative; width: 210px; height: 210px; }
+.chance-gauge svg { width: 100%; height: 100%; display: block; }
+.chance-gauge .gauge-ticks { fill: none; stroke: #3a3a42; stroke-width: 2; }
+.chance-gauge .gauge-track { fill: none; stroke: #2a2a30; stroke-width: 16; }
+.chance-gauge .gauge-progress { fill: none; stroke-width: 16; stroke-linecap: round; transition: stroke-dasharray 0.7s cubic-bezier(0.2,0.8,0.2,1), stroke 0.7s ease, filter 0.7s ease; }
+.chance-gauge .gauge-pin { fill: #d8d8e0; stroke: #1a1a20; stroke-width: 2; }
+.chance-gauge .gauge-marker { stroke: #0a0a0c; stroke-width: 2; fill: #fff; }
+.chance-gauge.spinning { animation: gaugePulse 0.9s ease-in-out infinite; }
+@keyframes gaugePulse { 0%,100% { filter: drop-shadow(0 0 0 rgba(255,255,255,0)); } 50% { filter: drop-shadow(0 0 10px rgba(255,255,255,0.25)); } }
+.chance-gauge .gauge-center { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 0 26px; }
+.chance-gauge .gauge-percent { font-size: 32px; font-weight: 800; line-height: 1; transition: color 0.7s ease; }
+.chance-gauge .gauge-label { font-size: 12px; color: #bdc3c7; margin-top: 8px; text-transform: uppercase; letter-spacing: 0.5px; max-width: 150px; }
 .upgrader-controls { display: flex; gap: 15px; margin-bottom: 15px; flex-wrap: wrap; }
 .upgrader-col { flex: 1; min-width: 250px; text-align: left; }
 .upgrader-col label { display: block; margin-bottom: 5px; font-weight: bold; font-size: 14px; }
@@ -281,12 +294,24 @@ select.upgrader-select { width: 100%; padding: 12px; background: #2c3e50; color:
             </select>
         </div>
     </div>
-    <div class="chance-text"><span data-i18n="chance">Шанс</span>: <span id="upgrade-chance">0</span>%</div>
-    <button id="upgrade-btn" class="action-btn" onclick="runUpgrade()" disabled data-i18n="start_upgrade">Начать Апгрейд</button>
-    <div id="upgrade-roulette-wrapper" class="roulette-wrapper">
-        <div class="roulette-marker"></div>
-        <div id="upgrade-roulette-track" class="roulette-track"></div>
+    <div class="chance-gauge-wrap">
+        <div class="chance-gauge" id="upgrade-chance-gauge">
+            <svg viewBox="0 0 200 200">
+                <circle class="gauge-ticks" cx="100" cy="100" r="95" stroke-dasharray="2 8.86"></circle>
+                <circle class="gauge-track" cx="100" cy="100" r="80"></circle>
+                <circle id="upgrade-gauge-progress" class="gauge-progress" cx="100" cy="100" r="80" transform="rotate(90 100 100)"></circle>
+                <circle class="gauge-pin" cx="100" cy="10" r="6"></circle>
+                <g id="upgrade-gauge-needle">
+                    <circle id="upgrade-gauge-marker" class="gauge-marker" cx="100" cy="180" r="7"></circle>
+                </g>
+            </svg>
+            <div class="gauge-center">
+                <div id="upgrade-gauge-percent" class="gauge-percent">0%</div>
+                <div id="upgrade-gauge-label" class="gauge-label" data-i18n="upg_choose_first">Выберите предметы</div>
+            </div>
+        </div>
     </div>
+    <button id="upgrade-btn" class="action-btn" onclick="runUpgrade()" disabled data-i18n="start_upgrade">Начать Апгрейд</button>
     <div id="upgrade-result" style="margin-top: 15px; font-size: 18px; font-weight: bold;"></div>
 </div>
 <div id="tab-crafts" class="tab-content">
@@ -360,6 +385,12 @@ select.upgrader-select { width: 100%; padding: 12px; background: #2c3e50; color:
     <div style="display:flex;flex-direction:column;gap:10px;align-items:center;max-width:420px;margin:0 auto;">
         <button id="rebirth2-btn" class="action-btn" onclick="doRebirth2()" style="width:100%;">Второе перерождение — 200</button>
         <div id="rebirth2-status" style="min-width:150px;text-align:center;font-weight:bold;"></div>
+    </div>
+    <hr style="width:100%;max-width:420px;margin:25px auto;border:none;border-top:1px solid #2c3e50;">
+    <p style="color:#bdc3c7;margin-bottom:15px;max-width:600px;margin-left:auto;margin-right:auto;" data-i18n="rebirth3_desc">Третье перерождение тратит 10000 эмеральдов (доступно после второго перерождения), стирает монеты, инвентарь и апгрейды кликера, сбрасывает использованные промокоды (их можно ввести заново) — эмеральды и купленные в магазине улучшения кейсов сохраняются, а доступ открывается к новому кейсу MM2.</p>
+    <div style="display:flex;flex-direction:column;gap:10px;align-items:center;max-width:420px;margin:0 auto;">
+        <button id="rebirth3-btn" class="action-btn" onclick="doRebirth3()" style="width:100%;">Третье перерождение — 10000</button>
+        <div id="rebirth3-status" style="min-width:150px;text-align:center;font-weight:bold;"></div>
     </div>
 </div>
 <div id="tab-quests" class="tab-content">
@@ -529,7 +560,7 @@ const I18N = {
         promo_success_emeralds: "Промокод активирован! Получено: {amount} эмеральдов!",
         not_enough_coins: "Недостаточно монет!", dropped: "Выпало:",
         upg_success: "Успех! Получен", upg_fail: "Неудача! Предмет сгорел.", burned_item: "Сгоревший предмет",
-        cases: { case_main: "Дино-Кейс", case_ocean: "Океанский Кейс", case_komaru: "Комару Кейс", case_rm: "Rick and Morty Case", case_cs: "Counter Strike Case", case_cs2: "Counter Strike (part2)", case_rivermonsters: "Кейс Речных монстров", case_jjk: "Jujutsu Kaisen Case" },
+        cases: { case_main: "Дино-Кейс", case_ocean: "Океанский Кейс", case_komaru: "Комару Кейс", case_rm: "Rick and Morty Case", case_cs: "Counter Strike Case", case_cs2: "Counter Strike (part2)", case_rivermonsters: "Кейс Речных монстров", case_jjk: "Jujutsu Kaisen Case", case_mm2: "MM2 Кейс" },
         mutations: { silver: "Серебро", gold: "Золото", diamond: "Алмаз", rgb: "РГБ", crystal: "Кристалик", emerald: "Эмеральд" },
         cards: {
             c1: "Раптор", c2: "Компі", c3: "Галимим", c4: "Аллозавр", c5: "Карнотавр", c6: "Трицератопс",
@@ -576,6 +607,12 @@ const I18N = {
                         jjk10: "Justice Sorcerer", jjk11: "Hammer Sorcerer", jjk12: "Sorcerer Killer",
                         jjk13: "King Of Curses", jjk14: "Red Scarf Sorcerer", jjk15: "Blood Manipulator",
                         jjk16: "Projection Sorcerer",
+            mm2_bioblade: "Bio Blade", mm2_eternaliii: "Eternal III", mm2_seer: "Seer",
+            mm2_nebula: "Nebula", mm2_heat: "Heat", mm2_chill: "Chill",
+            mm2_greenluger: "Green Luger", mm2_elderwoodblade: "Elderwood Blade", mm2_redluger: "Red Luger",
+            mm2_australis: "Australis", mm2_snowdagger: "Snow Dagger", mm2_harvester: "Harvester",
+            mm2_vampiresaxe: "Vampire's Axe", mm2_vampiresgun: "Vampire's Gun", mm2_turkey: "Turkey",
+            mm2_evergun: "Evergun", mm2_evergreen: "Evergreen", mm2_alienbeam: "Alien Beam", mm2_raygun: "Raygun",
             rickprime: "Rick Prime", emeraldindominus: "Emerald Indominus", crocodile: "Крокодил", ultrasheep: "Ультра Овца"
         },
         rebirth_title: "Перерождение",
@@ -586,6 +623,10 @@ const I18N = {
         rebirth2_btn: "Второе перерождение — 200",
         rebirth2_unlocked: "Разблокировано", rebirth2_locked: "Требуется второе перерождение",
         rebirth2_need_first: "Сначала пройдите первое перерождение!",
+        rebirth3_desc: "Третье перерождение тратит 10000 эмеральдов (доступно после второго перерождения), стирает монеты, инвентарь и апгрейды кликера, сбрасывает использованные промокоды (их можно ввести заново) — эмеральды и купленные в магазине улучшения кейсов сохраняются, а доступ открывается к новому кейсу MM2.",
+        rebirth3_btn: "Третье перерождение — {cost}",
+        rebirth3_unlocked: "Разблокировано", rebirth3_locked: "Требуется третье перерождение",
+        rebirth3_need_first: "Сначала пройдите второе перерождение!",
         emeralds_word: "эмеральдов",
         secret_upgrade_block: "Секретный предмет нельзя улучшить",
         category_mismatch: "Цель должна быть из той же категории, что и исходный предмет",
@@ -666,7 +707,7 @@ const I18N = {
         promo_success_emeralds: "Promo activated! Received: {amount} emeralds!",
         not_enough_coins: "Not enough coins!", dropped: "Dropped:",
         upg_success: "Success! Received", upg_fail: "Failure! Item burned.", burned_item: "Burned item",
-        cases: { case_main: "Dino Case", case_ocean: "Ocean Case", case_komaru: "Komaru Case", case_rm: "Rick and Morty Case", case_cs: "Counter Strike Case", case_cs2: "Counter Strike (part2)", case_rivermonsters: "River Monsters Case", case_jjk: "Jujutsu Kaisen Case" },
+        cases: { case_main: "Dino Case", case_ocean: "Ocean Case", case_komaru: "Komaru Case", case_rm: "Rick and Morty Case", case_cs: "Counter Strike Case", case_cs2: "Counter Strike (part2)", case_rivermonsters: "River Monsters Case", case_jjk: "Jujutsu Kaisen Case", case_mm2: "MM2 Case" },
         mutations: { silver: "Silver", gold: "Gold", diamond: "Diamond", rgb: "RGB", crystal: "Crystal", emerald: "Emerald" },
         cards: {
             c1: "Raptor", c2: "Compi", c3: "Galimim", c4: "Allosaur", c5: "Carnotaur", c6: "Triceratops",
@@ -713,6 +754,12 @@ const I18N = {
                         jjk10: "Justice Sorcerer", jjk11: "Hammer Sorcerer", jjk12: "Sorcerer Killer",
                         jjk13: "King Of Curses", jjk14: "Red Scarf Sorcerer", jjk15: "Blood Manipulator",
                         jjk16: "Projection Sorcerer",
+            mm2_bioblade: "Bio Blade", mm2_eternaliii: "Eternal III", mm2_seer: "Seer",
+            mm2_nebula: "Nebula", mm2_heat: "Heat", mm2_chill: "Chill",
+            mm2_greenluger: "Green Luger", mm2_elderwoodblade: "Elderwood Blade", mm2_redluger: "Red Luger",
+            mm2_australis: "Australis", mm2_snowdagger: "Snow Dagger", mm2_harvester: "Harvester",
+            mm2_vampiresaxe: "Vampire's Axe", mm2_vampiresgun: "Vampire's Gun", mm2_turkey: "Turkey",
+            mm2_evergun: "Evergun", mm2_evergreen: "Evergreen", mm2_alienbeam: "Alien Beam", mm2_raygun: "Raygun",
             rickprime: "Rick Prime", emeraldindominus: "Emerald Indominus", crocodile: "Crocodile", ultrasheep: "Ultra Sheep"
         },
         rebirth_title: "Rebirth",
@@ -723,6 +770,10 @@ const I18N = {
         rebirth2_btn: "Second Rebirth — 200",
         rebirth2_unlocked: "Unlocked", rebirth2_locked: "Requires second rebirth",
         rebirth2_need_first: "Complete the first rebirth first!",
+        rebirth3_desc: "The third rebirth spends 10000 emeralds (available after the second rebirth), wipes coins, inventory and clicker upgrades, and resets used promo codes (they can be entered again) — emeralds and shop case upgrades are kept, and it unlocks the new MM2 case.",
+        rebirth3_btn: "Third Rebirth — {cost}",
+        rebirth3_unlocked: "Unlocked", rebirth3_locked: "Requires third rebirth",
+        rebirth3_need_first: "Complete the second rebirth first!",
         emeralds_word: "emeralds",
         secret_upgrade_block: "Secret items cannot be upgraded",
         category_mismatch: "Target must be from the same category as the source item",
@@ -803,7 +854,7 @@ const I18N = {
         promo_success_emeralds: "Промокод активовано! Отримано: {amount} емеральдів!",
         not_enough_coins: "Недостатньо монет!", dropped: "Випало:",
         upg_success: "Успіх! Отримано", upg_fail: "Не вдалося! Предмет згорів.", burned_item: "Згорілий предмет",
-        cases: { case_main: "Дино-Кейс", case_ocean: "Океанський Кейс", case_komaru: "Комару Кейс", case_rm: "Rick and Morty Case", case_cs: "Counter Strike Case", case_cs2: "Counter Strike (part2)", case_rivermonsters: "Кейс Річкових монстрів", case_jjk: "Jujutsu Kaisen Case" },
+        cases: { case_main: "Дино-Кейс", case_ocean: "Океанський Кейс", case_komaru: "Комару Кейс", case_rm: "Rick and Morty Case", case_cs: "Counter Strike Case", case_cs2: "Counter Strike (part2)", case_rivermonsters: "Кейс Річкових монстрів", case_jjk: "Jujutsu Kaisen Case", case_mm2: "MM2 Кейс" },
         mutations: { silver: "Срібло", gold: "Золото", diamond: "Алмаз", rgb: "RGB", crystal: "Кристал", emerald: "Смарагд" },
         cards: {
             c1: "Раптор", c2: "Компі", c3: "Галімім", c4: "Алозавр", c5: "Карнотавр", c6: "Трицератопс",
@@ -850,6 +901,12 @@ const I18N = {
                         jjk10: "Justice Sorcerer", jjk11: "Hammer Sorcerer", jjk12: "Sorcerer Killer",
                         jjk13: "King Of Curses", jjk14: "Red Scarf Sorcerer", jjk15: "Blood Manipulator",
                         jjk16: "Projection Sorcerer",
+            mm2_bioblade: "Bio Blade", mm2_eternaliii: "Eternal III", mm2_seer: "Seer",
+            mm2_nebula: "Nebula", mm2_heat: "Heat", mm2_chill: "Chill",
+            mm2_greenluger: "Green Luger", mm2_elderwoodblade: "Elderwood Blade", mm2_redluger: "Red Luger",
+            mm2_australis: "Australis", mm2_snowdagger: "Snow Dagger", mm2_harvester: "Harvester",
+            mm2_vampiresaxe: "Vampire's Axe", mm2_vampiresgun: "Vampire's Gun", mm2_turkey: "Turkey",
+            mm2_evergun: "Evergun", mm2_evergreen: "Evergreen", mm2_alienbeam: "Alien Beam", mm2_raygun: "Raygun",
             rickprime: "Rick Prime", emeraldindominus: "Emerald Indominus", crocodile: "Крокодил", ultrasheep: "Ультра Вівця"
         },
         rebirth_title: "Переродження",
@@ -940,7 +997,7 @@ const I18N = {
         promo_success_emeralds: "Kod aktywowany! Otrzymano: {amount} szmaragdów!",
         not_enough_coins: "Za mało monet!", dropped: "Wypadło:",
         upg_success: "Sukces! Otrzymano", upg_fail: "Niepowodzenie! Przedmiot spłonął.", burned_item: "Spalony przedmiot",
-        cases: { case_main: "Skrzynka Dino", case_ocean: "Skrzynka Oceaniczna", case_komaru: "Skrzynka Komaru", case_rm: "Rick and Morty Case", case_cs: "Counter Strike Case", case_cs2: "Counter Strike (part2)", case_rivermonsters: "Skrzynka Rzecznych Potworów", case_jjk: "Jujutsu Kaisen Case" },
+        cases: { case_main: "Skrzynka Dino", case_ocean: "Skrzynka Oceaniczna", case_komaru: "Skrzynka Komaru", case_rm: "Rick and Morty Case", case_cs: "Counter Strike Case", case_cs2: "Counter Strike (part2)", case_rivermonsters: "Skrzynka Rzecznych Potworów", case_jjk: "Jujutsu Kaisen Case", case_mm2: "Skrzynka MM2" },
         mutations: { silver: "Srebro", gold: "Złoto", diamond: "Diament", rgb: "RGB", crystal: "Kryształ", emerald: "Szmaragd" },
         cards: {
             c1: "Raptor", c2: "Compi", c3: "Galimim", c4: "Allozaur", c5: "Karnotaur", c6: "Trikeratops",
@@ -987,6 +1044,12 @@ const I18N = {
                         jjk10: "Justice Sorcerer", jjk11: "Hammer Sorcerer", jjk12: "Sorcerer Killer",
                         jjk13: "King Of Curses", jjk14: "Red Scarf Sorcerer", jjk15: "Blood Manipulator",
                         jjk16: "Projection Sorcerer",
+            mm2_bioblade: "Bio Blade", mm2_eternaliii: "Eternal III", mm2_seer: "Seer",
+            mm2_nebula: "Nebula", mm2_heat: "Heat", mm2_chill: "Chill",
+            mm2_greenluger: "Green Luger", mm2_elderwoodblade: "Elderwood Blade", mm2_redluger: "Red Luger",
+            mm2_australis: "Australis", mm2_snowdagger: "Snow Dagger", mm2_harvester: "Harvester",
+            mm2_vampiresaxe: "Vampire's Axe", mm2_vampiresgun: "Vampire's Gun", mm2_turkey: "Turkey",
+            mm2_evergun: "Evergun", mm2_evergreen: "Evergreen", mm2_alienbeam: "Alien Beam", mm2_raygun: "Raygun",
             rickprime: "Rick Prime", emeraldindominus: "Emerald Indominus", crocodile: "Krokodyl", ultrasheep: "Ultra Owca"
         },
         rebirth_title: "Odrodzenie",
@@ -1077,7 +1140,7 @@ const I18N = {
         promo_success_emeralds: "Cod activat! Primit: {amount} smaralde!",
         not_enough_coins: "Monede insuficiente!", dropped: "A picat:",
         upg_success: "Succes! Ai primit", upg_fail: "Eșec! Obiectul a ars.", burned_item: "Obiect ars",
-        cases: { case_main: "Cutia Dino", case_ocean: "Cutia Oceanică", case_komaru: "Cutia Komaru", case_rm: "Rick and Morty Case", case_cs: "Counter Strike Case", case_cs2: "Counter Strike (part2)", case_rivermonsters: "Cutia Monștrilor de Râu", case_jjk: "Jujutsu Kaisen Case" },
+        cases: { case_main: "Cutia Dino", case_ocean: "Cutia Oceanică", case_komaru: "Cutia Komaru", case_rm: "Rick and Morty Case", case_cs: "Counter Strike Case", case_cs2: "Counter Strike (part2)", case_rivermonsters: "Cutia Monștrilor de Râu", case_jjk: "Jujutsu Kaisen Case", case_mm2: "Cutia MM2" },
         mutations: { silver: "Argint", gold: "Aur", diamond: "Diamant", rgb: "RGB", crystal: "Cristal", emerald: "Smarald" },
         cards: {
             c1: "Raptor", c2: "Compi", c3: "Galimim", c4: "Allozaur", c5: "Carnotaur", c6: "Triceratops",
@@ -1124,6 +1187,12 @@ const I18N = {
                         jjk10: "Justice Sorcerer", jjk11: "Hammer Sorcerer", jjk12: "Sorcerer Killer",
                         jjk13: "King Of Curses", jjk14: "Red Scarf Sorcerer", jjk15: "Blood Manipulator",
                         jjk16: "Projection Sorcerer",
+            mm2_bioblade: "Bio Blade", mm2_eternaliii: "Eternal III", mm2_seer: "Seer",
+            mm2_nebula: "Nebula", mm2_heat: "Heat", mm2_chill: "Chill",
+            mm2_greenluger: "Green Luger", mm2_elderwoodblade: "Elderwood Blade", mm2_redluger: "Red Luger",
+            mm2_australis: "Australis", mm2_snowdagger: "Snow Dagger", mm2_harvester: "Harvester",
+            mm2_vampiresaxe: "Vampire's Axe", mm2_vampiresgun: "Vampire's Gun", mm2_turkey: "Turkey",
+            mm2_evergun: "Evergun", mm2_evergreen: "Evergreen", mm2_alienbeam: "Alien Beam", mm2_raygun: "Raygun",
             rickprime: "Rick Prime", emeraldindominus: "Emerald Indominus", crocodile: "Crocodil", ultrasheep: "Oaie Ultra"
         },
         rebirth_title: "Renaștere",
@@ -1367,6 +1436,26 @@ const ALL_CARDS = [
     { id: 'jjk15', category: 'jjk', price: 175000, rarity: 'mythic', img: 'images/jjk15.jpg' },
     { id: 'jjk16', category: 'jjk', price: 500000, rarity: 'secret', img: 'images/jjk16.jpg' },
 
+    { id: 'mm2_bioblade', category: 'mm2', price: 5000, rarity: 'common', img: 'images/mm2_bioblade.jpg' },
+    { id: 'mm2_eternaliii', category: 'mm2', price: 5000, rarity: 'common', img: 'images/mm2_eternaliii.jpg' },
+    { id: 'mm2_seer', category: 'mm2', price: 5000, rarity: 'common', img: 'images/mm2_seer.jpg' },
+    { id: 'mm2_nebula', category: 'mm2', price: 10000, rarity: 'rare', img: 'images/mm2_nebula.jpg' },
+    { id: 'mm2_heat', category: 'mm2', price: 10000, rarity: 'rare', img: 'images/mm2_heat.jpg' },
+    { id: 'mm2_chill', category: 'mm2', price: 10000, rarity: 'rare', img: 'images/mm2_chill.jpg' },
+    { id: 'mm2_greenluger', category: 'mm2', price: 45000, rarity: 'epic', img: 'images/mm2_greenluger.jpg' },
+    { id: 'mm2_elderwoodblade', category: 'mm2', price: 45000, rarity: 'epic', img: 'images/mm2_elderwoodblade.jpg' },
+    { id: 'mm2_redluger', category: 'mm2', price: 45000, rarity: 'epic', img: 'images/mm2_redluger.jpg' },
+    { id: 'mm2_australis', category: 'mm2', price: 100000, rarity: 'legendary', img: 'images/mm2_australis.jpg' },
+    { id: 'mm2_snowdagger', category: 'mm2', price: 100000, rarity: 'legendary', img: 'images/mm2_snowdagger.jpg' },
+    { id: 'mm2_harvester', category: 'mm2', price: 100000, rarity: 'legendary', img: 'images/mm2_harvester.jpg' },
+    { id: 'mm2_vampiresaxe', category: 'mm2', price: 200000, rarity: 'mythic', img: 'images/mm2_vampiresaxe.jpg' },
+    { id: 'mm2_vampiresgun', category: 'mm2', price: 200000, rarity: 'mythic', img: 'images/mm2_vampiresgun.jpg' },
+    { id: 'mm2_turkey', category: 'mm2', price: 200000, rarity: 'mythic', img: 'images/mm2_turkey.jpg' },
+    { id: 'mm2_evergun', category: 'mm2', price: 750000, rarity: 'secret', img: 'images/mm2_evergun.jpg' },
+    { id: 'mm2_evergreen', category: 'mm2', price: 750000, rarity: 'secret', img: 'images/mm2_evergreen.jpg' },
+    { id: 'mm2_alienbeam', category: 'mm2', price: 750000, rarity: 'secret', img: 'images/mm2_alienbeam.jpg' },
+    { id: 'mm2_raygun', category: 'mm2', price: 750000, rarity: 'secret', img: 'images/mm2_raygun.jpg' },
+
     { id: 'rickprime', category: 'rickmorty', price: 2000000, rarity: 'limited', img: 'images/rickprime.jpg' },
     { id: 'emeraldindominus', category: 'craft', price: 10000000, rarity: 'limited', img: 'images/emeraldindominus.jpg' },
     { id: 'crocodile', category: 'rivermonsters', currency: 'emerald', price: 10000, rarity: 'limited', img: 'images/crocodile.jpg' },
@@ -1440,6 +1529,15 @@ const CASES = [
         { cardId: 'jjk10', weight: 1.66 }, { cardId: 'jjk11', weight: 1.67 }, { cardId: 'jjk12', weight: 1.67 },
         { cardId: 'jjk13', weight: 0.33 }, { cardId: 'jjk14', weight: 0.33 }, { cardId: 'jjk15', weight: 0.34 },
         { cardId: 'jjk16', weight: 0.1 }
+      ] },
+    { id: 'case_mm2', price: 20000, img: 'images/mm2_case.jpg', fallbackImg: 'images/mm2_case.png',
+      items: [
+        { cardId: 'mm2_bioblade', weight: 16.667 }, { cardId: 'mm2_eternaliii', weight: 16.667 }, { cardId: 'mm2_seer', weight: 16.666 },
+        { cardId: 'mm2_nebula', weight: 6.667 }, { cardId: 'mm2_heat', weight: 6.667 }, { cardId: 'mm2_chill', weight: 6.666 },
+        { cardId: 'mm2_greenluger', weight: 3.333 }, { cardId: 'mm2_elderwoodblade', weight: 3.333 }, { cardId: 'mm2_redluger', weight: 3.334 },
+        { cardId: 'mm2_australis', weight: 1.667 }, { cardId: 'mm2_snowdagger', weight: 1.667 }, { cardId: 'mm2_harvester', weight: 1.666 },
+        { cardId: 'mm2_vampiresaxe', weight: 0.334 }, { cardId: 'mm2_vampiresgun', weight: 0.333 }, { cardId: 'mm2_turkey', weight: 0.333 },
+        { cardId: 'mm2_evergun', weight: 0.025 }, { cardId: 'mm2_evergreen', weight: 0.025 }, { cardId: 'mm2_alienbeam', weight: 0.025 }, { cardId: 'mm2_raygun', weight: 0.025 }
       ] }
 ];
 
@@ -1455,6 +1553,7 @@ const CRAFT_MUTATION_TRANSFER_CHANCE = 0.20;
 const START_BALANCE = 500, START_CLICK_POWER = 10, START_UPGRADE_COST = 100;
 const REBIRTH_COST = 100000;
 const REBIRTH2_COST = 200; // в эмеральдах
+const REBIRTH3_COST = 10000; // в эмеральдах
 const WHEEL_PRICE = 50;
 // NOTE: listed percentages summed to 101% in the spec; the 1500 jackpot chance
 // wasn't given, so it's set very low (0.1%) as a rare jackpot on top of the rest.
@@ -1545,6 +1644,7 @@ const THEMES = {
 let currentAccent = localStorage.getItem('accent') || 'orange';
 let rebirthUnlocked = localStorage.getItem('rebirthUnlocked') === '1';
 let rebirth2Unlocked = localStorage.getItem('rebirth2Unlocked') === '1';
+let rebirth3Unlocked = localStorage.getItem('rebirth3Unlocked') === '1';
 
 function setAccent(name) {
     const c = THEMES[name] || THEMES.orange;
@@ -1820,6 +1920,7 @@ function startRouletteSound(duration) {
 }
 const REBIRTH_LOCKED_CASES = ['case_komaru', 'case_rm', 'case_cs'];
 const REBIRTH2_LOCKED_CASES = ['case_rivermonsters', 'case_cs2', 'case_jjk'];
+const REBIRTH3_LOCKED_CASES = ['case_mm2'];
 function t() { return I18N[currentLang] || I18N.ru; }
 const ICON_FALLBACK_EXTS = ['png', 'jpg', 'jpeg', 'webp'];
 function tryNextImage(imgEl, base) {
@@ -1850,6 +1951,7 @@ function getItemCategory(cardId) {
     if (cardId.startsWith('cs')) return 'cs';
     if (cardId.startsWith('rvm')) return 'rivermonsters';
     if (cardId.startsWith('jjk')) return 'jjk';
+    if (cardId.startsWith('mm2')) return 'mm2';
     if (cardId === 'rickprime') return 'rickmorty';
     if (cardId === 'crocodile') return 'rivermonsters';
     if (cardId === 'emeraldindominus' || cardId === 'ultrasheep') return 'craft';
@@ -1925,6 +2027,7 @@ function saveData() {
     localStorage.setItem('dailyData', JSON.stringify(dailyData));
     localStorage.setItem('rebirthUnlocked', rebirthUnlocked ? '1' : '0');
     localStorage.setItem('rebirth2Unlocked', rebirth2Unlocked ? '1' : '0');
+    localStorage.setItem('rebirth3Unlocked', rebirth3Unlocked ? '1' : '0');
     localStorage.setItem('autoSellRarities', JSON.stringify(autoSellRarities));
     localStorage.setItem('emeralds', emeralds);
     localStorage.setItem('questData', JSON.stringify(questData));
@@ -2015,6 +2118,25 @@ function updateRebirthUI() {
             if (btn2) { btn2.disabled = true; btn2.innerText = `${t().rebirth2_btn || 'Второе перерождение'} (${REBIRTH2_COST})`; }
         }
     }
+    const status3 = document.getElementById('rebirth3-status');
+    const btn3 = document.getElementById('rebirth3-btn');
+    const rebirth3BtnLabel = (t().rebirth3_btn || `Третье перерождение — ${REBIRTH3_COST}`).replace('{cost}', REBIRTH3_COST);
+    if (rebirth3Unlocked) {
+        if (status3) status3.innerText = t().rebirth3_unlocked || 'Unlocked';
+        if (btn3) { btn3.disabled = true; btn3.innerText = t().rebirth3_unlocked || 'Unlocked'; }
+    } else if (!rebirth2Unlocked) {
+        if (status3) status3.innerText = t().rebirth3_need_first || 'Complete the second rebirth first!';
+        if (btn3) { btn3.disabled = true; btn3.innerText = rebirth3BtnLabel; }
+    } else {
+        const need3 = Math.max(0, REBIRTH3_COST - (Number.isFinite(emeralds) ? emeralds : 0));
+        if (need3 === 0) {
+            if (status3) status3.innerText = '';
+            if (btn3) { btn3.disabled = false; btn3.innerText = rebirth3BtnLabel; }
+        } else {
+            if (status3) status3.innerText = `${t().not_enough_emeralds || 'Недостаточно эмеральдов!'} (${need3})`;
+            if (btn3) { btn3.disabled = true; btn3.innerText = `${t().rebirth3_btn ? t().rebirth3_btn.replace('{cost}', REBIRTH3_COST) : 'Третье перерождение'} (${REBIRTH3_COST})`; }
+        }
+    }
 }
 function switchTab(tabName, event) {
     document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
@@ -2099,6 +2221,7 @@ function renderCases() {
         el.setAttribute('data-testid', `case-card-${c.id}`);
         const locked1 = REBIRTH_LOCKED_CASES.includes(c.id) && !rebirthUnlocked;
         const locked2 = REBIRTH2_LOCKED_CASES.includes(c.id) && !rebirth2Unlocked;
+        const locked3 = REBIRTH3_LOCKED_CASES.includes(c.id) && !rebirth3Unlocked;
         if (locked1) {
             el.innerHTML = `<h3>${getCaseName(c.id)}</h3>
                 <div class="case-img-wrapper"><img src="${c.img}" class="case-img" onerror="this.onerror=null; this.src='${c.fallbackImg || ''}';"></div>
@@ -2111,6 +2234,12 @@ function renderCases() {
                 <p style="margin:5px 0;color:#2ecc71;"><b>${c.price} ${curWord(c.currency)}</b></p>
                 <div class="lock-overlay"><div class="lock-text">${t().rebirth2_locked || 'Locked'}</div></div>
                 <button class="action-btn" onclick="event.stopPropagation(); alert(t().rebirth2_desc || 'Second rebirth required to unlock this case.')">${t().open_btn}</button>`;
+        } else if (locked3) {
+            el.innerHTML = `<h3>${getCaseName(c.id)}</h3>
+                <div class="case-img-wrapper"><img src="${c.img}" class="case-img" onerror="this.onerror=null; this.src='${c.fallbackImg || ''}';"></div>
+                <p style="margin:5px 0;color:#2ecc71;"><b>${c.price} ${curWord(c.currency)}</b></p>
+                <div class="lock-overlay"><div class="lock-text">${t().rebirth3_locked || 'Locked'}</div></div>
+                <button class="action-btn" onclick="event.stopPropagation(); alert(t().rebirth3_desc || 'Third rebirth required to unlock this case.')">${t().open_btn}</button>`;
         } else {
             el.setAttribute('onclick', `openCaseModal(${index})`);
             el.innerHTML = `<h3>${getCaseName(c.id)}</h3>
@@ -2290,6 +2419,10 @@ function openCaseModal(index) {
     }
     if (REBIRTH2_LOCKED_CASES.includes(c.id) && !rebirth2Unlocked) {
         alert(t().rebirth2_desc || 'You must perform the second rebirth to unlock this case.');
+        return;
+    }
+    if (REBIRTH3_LOCKED_CASES.includes(c.id) && !rebirth3Unlocked) {
+        alert(t().rebirth3_desc || 'You must perform the third rebirth to unlock this case.');
         return;
     }
     const totalWeight = c.items.reduce((s, i) => s + i.weight, 0);
@@ -2661,24 +2794,106 @@ function selectTargetItemFromSelect() {
     selectedTargetId = (val === "") ? null : val;
     updateUpgrader();
 }
+function chanceGaugeColor(p) {
+    const hue = Math.max(0, Math.min(100, p)) * 1.2; // 0=red -> 100=green
+    return `hsl(${hue}, 85%, 50%)`;
+}
+function chanceGaugeLabel(p) {
+    if (p <= 0) return t().upg_choose_first || 'Выберите предметы';
+    if (p < 10) return t().chance_lvl_1 || 'Крайне низкий шанс';
+    if (p < 25) return t().chance_lvl_2 || 'Низкий шанс';
+    if (p < 45) return t().chance_lvl_3 || 'Ниже среднего';
+    if (p < 60) return t().chance_lvl_4 || 'Средний шанс';
+    if (p < 75) return t().chance_lvl_5 || 'Высокий шанс';
+    if (p < 90) return t().chance_lvl_6 || 'Очень высокий шанс';
+    return t().chance_lvl_7 || 'Максимальный шанс';
+}
+function updateChanceGauge(prefix, percent) {
+    const wrap = document.getElementById(prefix + '-chance-gauge');
+    const progress = document.getElementById(prefix + '-gauge-progress');
+    const needle = document.getElementById(prefix + '-gauge-needle');
+    const percentEl = document.getElementById(prefix + '-gauge-percent');
+    const labelEl = document.getElementById(prefix + '-gauge-label');
+    if (!wrap || !progress) return;
+    const p = Math.max(0, Math.min(100, Number(percent) || 0));
+    const r = 80, circumference = 2 * Math.PI * r;
+    const arcLength = circumference * (p / 100);
+    progress.setAttribute('stroke-dasharray', `${arcLength} ${circumference - arcLength}`);
+    const color = chanceGaugeColor(p);
+    progress.style.stroke = color;
+    progress.style.filter = p > 0 ? `drop-shadow(0 0 6px ${color})` : 'none';
+    if (needle && !wrap.classList.contains('spinning')) {
+        needle.setAttribute('transform', `rotate(${p * 3.6} 100 100)`);
+        const marker = document.getElementById(prefix + '-gauge-marker');
+        if (marker) marker.style.filter = p > 0 ? `drop-shadow(0 0 4px ${color})` : 'none';
+    }
+    percentEl.style.color = p > 0 ? color : '#7f8c8d';
+    percentEl.innerText = (Number.isInteger(p) ? p : p.toFixed(1)) + '%';
+    labelEl.innerText = chanceGaugeLabel(p);
+}
+function pickGaugeLandingFraction(chance, success) {
+    const c = Math.max(0, Math.min(100, chance)) / 100;
+    const margin = 0.025;
+    let start, span;
+    if (success) {
+        start = margin;
+        span = Math.max(c - margin * 2, 0.01);
+    } else {
+        start = c + margin;
+        span = Math.max(1 - start - margin, 0.01);
+    }
+    return Math.min(0.999, Math.max(0.001, start + Math.random() * span));
+}
+function easeOutGaugeSpin(t) { return 1 - Math.pow(1 - t, 4); }
+function animateGaugeNeedle(needle, fromDeg, toDeg, duration, onDone) {
+    const startTime = performance.now();
+    function frame(now) {
+        const elapsed = now - startTime;
+        const t = Math.min(1, elapsed / duration);
+        const deg = fromDeg + (toDeg - fromDeg) * easeOutGaugeSpin(t);
+        // Always rotate strictly around the ring's own center (100,100) so the needle can never drift off it.
+        needle.setAttribute('transform', `rotate(${deg} 100 100)`);
+        if (t < 1) {
+            requestAnimationFrame(frame);
+        } else if (onDone) {
+            onDone();
+        }
+    }
+    requestAnimationFrame(frame);
+}
+function spinChanceGauge(prefix, chance, success, onDone) {
+    const wrap = document.getElementById(prefix + '-chance-gauge');
+    const needle = document.getElementById(prefix + '-gauge-needle');
+    if (!wrap || !needle) { if (onDone) onDone(); return; }
+    wrap.classList.add('spinning');
+    needle.setAttribute('transform', 'rotate(0 100 100)');
+    const f = pickGaugeLandingFraction(chance, success);
+    const spins = fastSpin ? 2 : 5;
+    const finalDeg = spins * 360 + f * 360;
+    const duration = spinDuration();
+    animateGaugeNeedle(needle, 0, finalDeg, duration, () => {
+        wrap.classList.remove('spinning');
+        if (onDone) onDone();
+    });
+}
 function updateUpgrader() {
     const slotFrom = document.getElementById('slot-from'), slotTo = document.getElementById('slot-to');
-    const chanceSpan = document.getElementById('upgrade-chance'), btn = document.getElementById('upgrade-btn');
+    const btn = document.getElementById('upgrade-btn');
     populateTargetSelect();
     if (selectedInvIndex === null || !inventory[selectedInvIndex]) {
-        slotFrom.innerHTML = t().slot_from_empty; slotTo.innerHTML = t().slot_to_empty; chanceSpan.innerText = '0'; btn.disabled = true; return;
+        slotFrom.innerHTML = t().slot_from_empty; slotTo.innerHTML = t().slot_to_empty; updateChanceGauge('upgrade', 0); btn.disabled = true; return;
     }
     const src = inventory[selectedInvIndex];
     let srcName = getCardName(src.id); if (src.mutation) srcName += ` [${getMutationName(src.mutation)}]`;
     slotFrom.innerHTML = `<img src="${src.img}" onerror="this.style.display='none'"><span>${srcName}<br><b>${src.price} ${curWord(src.currency)}</b></span>`;
     if (!selectedTargetId) {
-        slotTo.innerHTML = t().slot_to_empty; chanceSpan.innerText = '0'; btn.disabled = true; return;
+        slotTo.innerHTML = t().slot_to_empty; updateChanceGauge('upgrade', 0); btn.disabled = true; return;
     }
     const target = ALL_CARDS.find(c => c.id === selectedTargetId);
-    if (!target) { slotTo.innerHTML = t().slot_to_empty; chanceSpan.innerText = '0'; btn.disabled = true; return; }
+    if (!target) { slotTo.innerHTML = t().slot_to_empty; updateChanceGauge('upgrade', 0); btn.disabled = true; return; }
     slotTo.innerHTML = `<img src="${target.img}" onerror="this.style.display='none'"><span>${getCardName(target.id)}<br><b>${target.price} ${curWord(target.currency)}</b></span>`;
     const chance = getUpgradeChance(src.rarity, target.rarity);
-    chanceSpan.innerText = chance; btn.disabled = false;
+    updateChanceGauge('upgrade', chance); btn.disabled = false;
 }
 function runUpgrade() {
     if (selectedInvIndex === null || !selectedTargetId || isSpinning) return;
@@ -2686,41 +2901,12 @@ function runUpgrade() {
     const target = ALL_CARDS.find(c => c.id === selectedTargetId); if (!target) return;
     const chance = getUpgradeChance(src.rarity, target.rarity);
     isSpinning = true; document.getElementById('upgrade-btn').disabled = true;
-    const wrapper = document.getElementById('upgrade-roulette-wrapper'), track = document.getElementById('upgrade-roulette-track');
     const resDiv = document.getElementById('upgrade-result');
-    wrapper.style.display = 'block'; track.innerHTML = ''; track.style.transition = 'none'; track.style.transform = 'translateX(0)';
     resDiv.innerText = '';
     const success = Math.random() * 100 < chance;
-    
-    // Правильное чередование: карта ↔ НЕТ
-    let items = [];
-    const putTargetOnEven = success;
-    for (let i = 0; i < 35; i++) {
-        if (i % 2 === 0) {
-            items.push(putTargetOnEven ? target : null);
-        } else {
-            items.push(putTargetOnEven ? null : target);
-        }
-    }
-    
-    items.forEach(it => {
-        let el = document.createElement('div');
-        if (it) {
-            el.className = `roulette-item ${it.rarity}`;
-            el.innerHTML = `<img src="${it.img}" onerror="this.style.display='none'"><span>${getCardName(it.id)}</span>`;
-        } else {
-            el.className = 'roulette-item fail-item';
-            el.innerHTML = `<span style="font-size:32px;line-height:1;color:#e74c3c;">✕</span><span style="font-size:14px;margin-top:4px;">${t().roulette_none || 'НЕТ'}</span>`;
-        }
-        track.appendChild(el);
-    });
-    
+
     startRouletteSound();
-    setTimeout(() => {
-        track.style.transition = spinTransition();
-        track.style.transform = `translateX(-${(28*110)-(wrapper.offsetWidth/2)+55}px)`;
-    }, 50);
-    setTimeout(() => {
+    spinChanceGauge('upgrade', chance, success, () => {
         isSpinning = false;
         inventory.splice(selectedInvIndex, 1);
         if (success) {
@@ -2741,7 +2927,7 @@ function runUpgrade() {
         selectedInvIndex = null; selectedTargetId = null;
         document.getElementById('my-item-select').value = "";
         updateUI();
-    }, spinDuration() + 100);
+    });
 }
 
 function checkDailyReset() {
@@ -3032,6 +3218,18 @@ function doRebirth2() {
     rebirth2Unlocked = true;
     saveData(); updateUI();
     alert(t().rebirth2_unlocked || 'Second rebirth successful! New case unlocked.');
+}
+
+function doRebirth3() {
+    if (rebirth3Unlocked || !rebirth2Unlocked || emeralds < REBIRTH3_COST) return;
+    playSound('win');
+    emeralds -= REBIRTH3_COST; // эмеральды и caseUpgrades (улучшения кейсов из магазина) сохраняются
+    balance = 0; clickPower = START_CLICK_POWER; upgradeLevels = {}; inventory = [];
+    autoSellRarities = [];
+    usedPromos = [];
+    rebirth3Unlocked = true;
+    saveData(); updateUI();
+    alert(t().rebirth3_unlocked || 'Third rebirth successful! New MM2 case unlocked.');
 }
 
 function resetProgress() {
