@@ -2910,7 +2910,7 @@ function populateMyItemSelect() {
     placeholder.onclick = () => selectMyItem(null);
     panel.appendChild(placeholder);
     inventory.forEach((item, index) => {
-        if (item.rarity === 'ultrasecret') return;
+        if (item.rarity === 'ultrasecret' || item.rarity === 'limited') return;
         let name = getCardName(item.id); if (item.mutation) name += ` [${getMutationName(item.mutation)}]`;
         const row = document.createElement('div');
         row.className = 'item-dropdown-option';
@@ -2953,7 +2953,7 @@ function populateTargetSelect() {
     const cat = getItemCategory(src.id);
     const srcOrder = RARITY_ORDER[src.rarity] || 0;
     const validTargets = ALL_CARDS.filter(c => {
-        if (c.category !== cat || c.rarity === 'ultrasecret') return false;
+        if (c.category !== cat || c.rarity === 'ultrasecret' || c.rarity === 'limited') return false;
         const toOrder = RARITY_ORDER[c.rarity] || 0;
         return toOrder > srcOrder;
     });
