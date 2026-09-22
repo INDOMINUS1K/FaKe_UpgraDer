@@ -126,6 +126,24 @@ button.sell-btn:hover { background: #c0392b; }
 .upgrader-col { flex: 1; min-width: 250px; text-align: left; }
 .upgrader-col label { display: block; margin-bottom: 5px; font-weight: bold; font-size: 14px; }
 select.upgrader-select { width: 100%; padding: 12px; background: #2c3e50; color: #fff; border: 1px solid #34495e; border-radius: 5px; font-size: 15px; }
+.item-dropdown { position: relative; width: 100%; }
+.item-dropdown-toggle { width: 100%; display: flex; align-items: center; gap: 10px; padding: 8px 12px; background: #2c3e50; color: #fff; border: 1px solid #34495e; border-radius: 5px; font-size: 15px; cursor: pointer; text-align: left; transition: 0.2s; }
+.item-dropdown-toggle:hover:not(:disabled) { border-color: var(--accent); }
+.item-dropdown-toggle:disabled { cursor: not-allowed; opacity: 0.6; }
+.item-dropdown-toggle img { width: 32px; height: 32px; object-fit: cover; border-radius: 4px; background: #fff; flex-shrink: 0; }
+.item-dropdown-toggle-content { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.item-dropdown-arrow { flex-shrink: 0; opacity: 0.7; transition: transform 0.2s; }
+.item-dropdown.open .item-dropdown-arrow { transform: rotate(180deg); }
+.item-dropdown-panel { display: none; position: absolute; top: calc(100% + 4px); left: 0; right: 0; max-height: 320px; overflow-y: auto; background: #1e1e24; border: 2px solid #34495e; border-radius: 8px; z-index: 50; box-shadow: 0 8px 20px rgba(0,0,0,0.45); padding: 6px; }
+.item-dropdown.open .item-dropdown-panel { display: block; }
+.item-dropdown-option { display: flex; align-items: center; gap: 10px; padding: 8px 10px; border-radius: 6px; border-left: 4px solid transparent; cursor: pointer; text-align: left; }
+.item-dropdown-option:hover { background: rgba(255,255,255,0.06); }
+.item-dropdown-option.placeholder { color: #bdc3c7; font-style: italic; }
+.item-dropdown-option img { width: 36px; height: 36px; object-fit: cover; border-radius: 5px; background: #fff; flex-shrink: 0; }
+.item-dropdown-option-info { flex: 1; min-width: 0; overflow: hidden; }
+.item-dropdown-option-name { display: block; font-weight: bold; font-size: 14px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.item-dropdown-option-price { display: block; font-size: 12px; color: #2ecc71; }
+.item-dropdown-option-rarity { display: block; font-size: 11px; opacity: 0.8; }
 .promo-box { max-width: 450px; margin: 0 auto; background: #2c3e50; padding: 25px; border-radius: 10px; border: 2px solid #34495e; }
 .promo-input { width: 100%; padding: 12px; border-radius: 6px; border: 1px solid #34495e; background: #1e1e24; color: #fff; font-size: 16px; margin-bottom: 12px; text-transform: uppercase; text-align: center; }
 .promo-status { margin-top: 15px; font-weight: bold; font-size: 16px; }
@@ -283,15 +301,23 @@ select.upgrader-select { width: 100%; padding: 12px; background: #2c3e50; color:
     <div class="upgrader-controls">
         <div class="upgrader-col">
             <label data-i18n="upg_step1">1. Ваш предмет:</label>
-            <select id="my-item-select" class="upgrader-select" onchange="selectMyItemFromSelect()">
-                <option value="" data-i18n="opt_inv_empty">-- Инвентарь пуст --</option>
-            </select>
+            <div class="item-dropdown" id="my-item-dropdown">
+                <button type="button" class="item-dropdown-toggle" id="my-item-toggle" onclick="toggleItemDropdown('my-item-dropdown')">
+                    <span class="item-dropdown-toggle-content" id="my-item-toggle-content" data-i18n="opt_inv_empty">-- Инвентарь пуст --</span>
+                    <span class="item-dropdown-arrow">&#9662;</span>
+                </button>
+                <div class="item-dropdown-panel" id="my-item-panel"></div>
+            </div>
         </div>
         <div class="upgrader-col">
             <label data-i18n="upg_step2">2. Желаемая цель:</label>
-            <select id="target-item-select" class="upgrader-select" onchange="selectTargetItemFromSelect()" disabled>
-                <option value="" data-i18n="opt_select_first">-- Сначала выберите свой предмет --</option>
-            </select>
+            <div class="item-dropdown" id="target-item-dropdown">
+                <button type="button" class="item-dropdown-toggle" id="target-item-toggle" onclick="toggleItemDropdown('target-item-dropdown')" disabled>
+                    <span class="item-dropdown-toggle-content" id="target-item-toggle-content" data-i18n="opt_select_first">-- Сначала выберите свой предмет --</span>
+                    <span class="item-dropdown-arrow">&#9662;</span>
+                </button>
+                <div class="item-dropdown-panel" id="target-item-panel"></div>
+            </div>
         </div>
     </div>
     <div class="chance-gauge-wrap">
@@ -415,11 +441,25 @@ select.upgrader-select { width: 100%; padding: 12px; background: #2c3e50; color:
 <div id="tab-index" class="tab-content">
     <h2 data-i18n="index_title">Индекс Предметов</h2>
     <p style="font-size: 14px; color: #aaa; margin-bottom: 15px;" data-i18n="index_sub">Выберите кейс, чтобы посмотреть его карточки</p>
-    <div id="index-cases-grid" class="cases-grid"></div>
-    <div id="index-case-view" style="display:none;">
-        <button class="back-btn" onclick="closeIndexCase()" data-i18n="back_btn">&larr; Назад</button>
-        <h3 id="index-case-title" style="margin:0 0 12px 0;"></h3>
-        <div id="index-list" class="case-items-list" style="max-height:600px;"></div>
+    <div class="welcome-quick-grid" style="max-width:400px;margin:0 auto 20px auto;">
+        <button class="tab-btn active" id="index-subtab-cases" onclick="switchIndexSection('cases')" data-i18n="index_section_cases">Кейсы</button>
+        <button class="tab-btn" id="index-subtab-crafts" onclick="switchIndexSection('crafts')" data-i18n="index_section_crafts">Крафты</button>
+    </div>
+    <div id="index-section-cases">
+        <div id="index-cases-grid" class="cases-grid"></div>
+        <div id="index-case-view" style="display:none;">
+            <button class="back-btn" onclick="closeIndexCase()" data-i18n="back_btn">&larr; Назад</button>
+            <h3 id="index-case-title" style="margin:0 0 12px 0;"></h3>
+            <div id="index-list" class="case-items-list" style="max-height:600px;"></div>
+        </div>
+    </div>
+    <div id="index-section-crafts" style="display:none;">
+        <div id="index-crafts-grid" class="cases-grid"></div>
+        <div id="index-craft-view" style="display:none;">
+            <button class="back-btn" onclick="closeIndexCraft()" data-i18n="back_btn">&larr; Назад</button>
+            <h3 id="index-craft-title" style="margin:0 0 12px 0;"></h3>
+            <div id="index-craft-list" class="case-items-list" style="max-height:600px;"></div>
+        </div>
     </div>
 </div>
 <div id="settings-overlay" class="modal-overlay" onclick="settingsBgClose(event)">
@@ -533,7 +573,7 @@ const I18N = {
         tab_cases: "Кейсы", tab_clicker: "Кликер", tab_inventory: "Инвентарь", tab_upgrader: "Апгрейдер", tab_daily: "Ежедневные", tab_promo: "Промокоды",
         cases_title: "Магазин Кейсов", open_btn: "Открыть",
         case_contents: "Возможные предметы", detail_rarity: "Редкость", detail_price: "Цена", detail_case: "Кейс",
-        tab_index: "Индекс", index_title: "Индекс Предметов", index_sub: "Выберите кейс, чтобы посмотреть его карточки",
+        tab_index: "Индекс", index_title: "Индекс Предметов", index_sub: "Выберите кейс, чтобы посмотреть его карточки", index_section_cases: "Кейсы", index_section_crafts: "Крафты",
         rarities: { common: "Обычный", rare: "Редкий", epic: "Эпический", legendary: "Легендарный", mythic: "Мифик", secret: "Секрет", ultrasecret: "Ультра Секрет", limited: "Лимитед" },
         clicker_title: "Добыча Монет", click_btn: "КЛИК", income_text: "Текущий доход за клик",
         upgrade_btn: "Улучшить", upg_bonus: "+{n} монет к клику",
@@ -613,6 +653,7 @@ const I18N = {
             mm2_australis: "Australis", mm2_snowdagger: "Snow Dagger", mm2_harvester: "Harvester",
             mm2_vampiresaxe: "Vampire's Axe", mm2_vampiresgun: "Vampire's Gun", mm2_turkey: "Turkey",
             mm2_evergun: "Evergun", mm2_evergreen: "Evergreen", mm2_alienbeam: "Alien Beam", mm2_raygun: "Raygun",
+            mm2_chromaheat: "Chroma Heat", mm2_chromaeverset: "Chroma Ever Set", mm2_chromaalienset: "Chroma Alien Set",
             rickprime: "Rick Prime", emeraldindominus: "Emerald Indominus", crocodile: "Крокодил", ultrasheep: "Ультра Овца"
         },
         rebirth_title: "Перерождение",
@@ -680,7 +721,7 @@ const I18N = {
         tab_cases: "Cases", tab_clicker: "Clicker", tab_inventory: "Inventory", tab_upgrader: "Upgrader", tab_daily: "Daily", tab_promo: "Promo",
         cases_title: "Cases Shop", open_btn: "Open",
         case_contents: "Possible items", detail_rarity: "Rarity", detail_price: "Price", detail_case: "Case",
-        tab_index: "Index", index_title: "Item Index", index_sub: "Pick a case to see its cards",
+        tab_index: "Index", index_title: "Item Index", index_sub: "Pick a case to see its cards", index_section_cases: "Cases", index_section_crafts: "Crafts",
         rarities: { common: "Common", rare: "Rare", epic: "Epic", legendary: "Legendary", mythic: "Mythic", secret: "Secret", ultrasecret: "Ultra Secret", limited: "Limited" },
         clicker_title: "Coin Mining", click_btn: "CLICK", income_text: "Current income per click",
         upgrade_btn: "Upgrade", upg_bonus: "+{n} coins per click",
@@ -760,6 +801,7 @@ const I18N = {
             mm2_australis: "Australis", mm2_snowdagger: "Snow Dagger", mm2_harvester: "Harvester",
             mm2_vampiresaxe: "Vampire's Axe", mm2_vampiresgun: "Vampire's Gun", mm2_turkey: "Turkey",
             mm2_evergun: "Evergun", mm2_evergreen: "Evergreen", mm2_alienbeam: "Alien Beam", mm2_raygun: "Raygun",
+            mm2_chromaheat: "Chroma Heat", mm2_chromaeverset: "Chroma Ever Set", mm2_chromaalienset: "Chroma Alien Set",
             rickprime: "Rick Prime", emeraldindominus: "Emerald Indominus", crocodile: "Crocodile", ultrasheep: "Ultra Sheep"
         },
         rebirth_title: "Rebirth",
@@ -827,7 +869,7 @@ const I18N = {
         tab_cases: "Кейси", tab_clicker: "Клікер", tab_inventory: "Інвентар", tab_upgrader: "Апгрейдер", tab_daily: "Щоденні", tab_promo: "Промокоди",
         cases_title: "Магазин Кейсів", open_btn: "Відкрити",
         case_contents: "Можливі предмети", detail_rarity: "Рідкість", detail_price: "Ціна", detail_case: "Кейс",
-        tab_index: "Індекс", index_title: "Індекс Предметів", index_sub: "Оберіть кейс, щоб побачити його картки",
+        tab_index: "Індекс", index_title: "Індекс Предметів", index_sub: "Оберіть кейс, щоб побачити його картки", index_section_cases: "Кейси", index_section_crafts: "Крафти",
         rarities: { common: "Звичайний", rare: "Рідкісний", epic: "Епічний", legendary: "Легендарний", mythic: "Міфічний", secret: "Секрет", ultrasecret: "Ультра Секрет", limited: "Лімітед" },
         clicker_title: "Добування Монет", click_btn: "КЛІК", income_text: "Поточний дохід за клік",
         upgrade_btn: "Покращити", upg_bonus: "+{n} монет за клік",
@@ -907,6 +949,7 @@ const I18N = {
             mm2_australis: "Australis", mm2_snowdagger: "Snow Dagger", mm2_harvester: "Harvester",
             mm2_vampiresaxe: "Vampire's Axe", mm2_vampiresgun: "Vampire's Gun", mm2_turkey: "Turkey",
             mm2_evergun: "Evergun", mm2_evergreen: "Evergreen", mm2_alienbeam: "Alien Beam", mm2_raygun: "Raygun",
+            mm2_chromaheat: "Chroma Heat", mm2_chromaeverset: "Chroma Ever Set", mm2_chromaalienset: "Chroma Alien Set",
             rickprime: "Rick Prime", emeraldindominus: "Emerald Indominus", crocodile: "Крокодил", ultrasheep: "Ультра Вівця"
         },
         rebirth_title: "Переродження",
@@ -970,7 +1013,7 @@ const I18N = {
         tab_cases: "Skrzynki", tab_clicker: "Klikacz", tab_inventory: "Ekwipunek", tab_upgrader: "Ulepszacz", tab_daily: "Codzienne", tab_promo: "Kody Promo",
         cases_title: "Sklep ze Skrzynkami", open_btn: "Otwórz",
         case_contents: "Możliwe przedmioty", detail_rarity: "Rzadkość", detail_price: "Cena", detail_case: "Skrzynka",
-        tab_index: "Indeks", index_title: "Indeks Przedmiotów", index_sub: "Wybierz skrzynkę, aby zobaczyć jej karty",
+        tab_index: "Indeks", index_title: "Indeks Przedmiotów", index_sub: "Wybierz skrzynkę, aby zobaczyć jej karty", index_section_cases: "Skrzynki", index_section_crafts: "Craftowanie",
         rarities: { common: "Zwykły", rare: "Rzadki", epic: "Epicki", legendary: "Legendarny", mythic: "Mityczny", secret: "Sekretny", ultrasecret: "Ultra Sekretny", limited: "Limitowany" },
         clicker_title: "Wydobywanie Monet", click_btn: "KLIK", income_text: "Aktualny dochód za klik",
         upgrade_btn: "Ulepsz", upg_bonus: "+{n} monet za klik",
@@ -1050,6 +1093,7 @@ const I18N = {
             mm2_australis: "Australis", mm2_snowdagger: "Snow Dagger", mm2_harvester: "Harvester",
             mm2_vampiresaxe: "Vampire's Axe", mm2_vampiresgun: "Vampire's Gun", mm2_turkey: "Turkey",
             mm2_evergun: "Evergun", mm2_evergreen: "Evergreen", mm2_alienbeam: "Alien Beam", mm2_raygun: "Raygun",
+            mm2_chromaheat: "Chroma Heat", mm2_chromaeverset: "Chroma Ever Set", mm2_chromaalienset: "Chroma Alien Set",
             rickprime: "Rick Prime", emeraldindominus: "Emerald Indominus", crocodile: "Krokodyl", ultrasheep: "Ultra Owca"
         },
         rebirth_title: "Odrodzenie",
@@ -1113,7 +1157,7 @@ const I18N = {
         tab_cases: "Cutii", tab_clicker: "Clicker", tab_inventory: "Inventar", tab_upgrader: "Îmbunătățire", tab_daily: "Zilnic", tab_promo: "Cod Promo",
         cases_title: "Magazin de Cutii", open_btn: "Deschide",
         case_contents: "Obiecte posibile", detail_rarity: "Raritate", detail_price: "Preț", detail_case: "Cutie",
-        tab_index: "Index", index_title: "Index de Obiecte", index_sub: "Alege o cutie pentru a-i vedea cărțile",
+        tab_index: "Index", index_title: "Index de Obiecte", index_sub: "Alege o cutie pentru a-i vedea cărțile", index_section_cases: "Cutii", index_section_crafts: "Crafturi",
         rarities: { common: "Comun", rare: "Rar", epic: "Epic", legendary: "Legendar", mythic: "Mitic", secret: "Secret", ultrasecret: "Ultra Secret", limited: "Limitat" },
         clicker_title: "Minerit de Monede", click_btn: "CLICK", income_text: "Venit curent per click",
         upgrade_btn: "Îmbunătățește", upg_bonus: "+{n} monede pe click",
@@ -1193,6 +1237,7 @@ const I18N = {
             mm2_australis: "Australis", mm2_snowdagger: "Snow Dagger", mm2_harvester: "Harvester",
             mm2_vampiresaxe: "Vampire's Axe", mm2_vampiresgun: "Vampire's Gun", mm2_turkey: "Turkey",
             mm2_evergun: "Evergun", mm2_evergreen: "Evergreen", mm2_alienbeam: "Alien Beam", mm2_raygun: "Raygun",
+            mm2_chromaheat: "Chroma Heat", mm2_chromaeverset: "Chroma Ever Set", mm2_chromaalienset: "Chroma Alien Set",
             rickprime: "Rick Prime", emeraldindominus: "Emerald Indominus", crocodile: "Crocodil", ultrasheep: "Oaie Ultra"
         },
         rebirth_title: "Renaștere",
@@ -1455,6 +1500,9 @@ const ALL_CARDS = [
     { id: 'mm2_evergreen', category: 'mm2', price: 750000, rarity: 'secret', img: 'images/mm2_evergreen.jpg' },
     { id: 'mm2_alienbeam', category: 'mm2', price: 750000, rarity: 'secret', img: 'images/mm2_alienbeam.jpg' },
     { id: 'mm2_raygun', category: 'mm2', price: 750000, rarity: 'secret', img: 'images/mm2_raygun.jpg' },
+    { id: 'mm2_chromaheat', category: 'mm2', price: 10, rarity: 'limited', img: 'images/mm2_chromaheat.jpg' },
+    { id: 'mm2_chromaeverset', category: 'mm2', price: 3000000, rarity: 'limited', img: 'images/mm2_chromaeverset.jpg' },
+    { id: 'mm2_chromaalienset', category: 'mm2', price: 3000000, rarity: 'limited', img: 'images/mm2_chromaalienset.jpg' },
 
     { id: 'rickprime', category: 'rickmorty', price: 2000000, rarity: 'limited', img: 'images/rickprime.jpg' },
     { id: 'emeraldindominus', category: 'craft', price: 10000000, rarity: 'limited', img: 'images/emeraldindominus.jpg' },
@@ -1545,7 +1593,10 @@ const CRAFTS = [
     { id: 'craft_rickprime', resultCardId: 'rickprime', ingredients: ['rm14', 'rm13', 'rm10'] },
     { id: 'craft_emeraldindominus', resultCardId: 'emeraldindominus', ingredients: ['cs14', 'cs2_14', 'c9', 'jjk16'] },
     { id: 'craft_crocodile', resultCardId: 'crocodile', ingredients: ['rvm13', 'rvm12'] },
-    { id: 'craft_ultrasheep', resultCardId: 'ultrasheep', ingredients: ['jjk16', 'w14', 'rm15'] }
+    { id: 'craft_ultrasheep', resultCardId: 'ultrasheep', ingredients: ['jjk16', 'w14', 'rm15'] },
+    { id: 'craft_chromaheat', resultCardId: 'mm2_chromaheat', ingredients: ['mm2_nebula', 'mm2_chill', 'mm2_heat'] },
+    { id: 'craft_chromaeverset', resultCardId: 'mm2_chromaeverset', ingredients: ['mm2_evergun', 'mm2_evergreen', 'mm2_chromaheat'] },
+    { id: 'craft_chromaalienset', resultCardId: 'mm2_chromaalienset', ingredients: ['mm2_alienbeam', 'mm2_raygun', 'mm2_chromaheat'] }
 ];
 
 const MUTATION_CHANCE = 0.20;
@@ -2082,7 +2133,7 @@ function updateUI() {
     document.getElementById('balance').innerText = balance;
     document.getElementById('emeralds').innerText = emeralds;
     document.getElementById('click-power-text').innerText = clickPower;
-    renderUpgrades(); renderShop(); renderInventory(); populateMyItemSelect(); populateTargetSelect(); updateUpgrader(); renderDailyRewards(); updateRebirthUI(); renderIndex(); renderQuests(); updateWheelUI(); updateEmeraldUpgraderUI(); renderCases(); renderCrafts(); saveData();
+    renderUpgrades(); renderShop(); renderInventory(); populateMyItemSelect(); populateTargetSelect(); updateUpgrader(); renderDailyRewards(); updateRebirthUI(); renderIndex(); renderIndexCrafts(); renderQuests(); updateWheelUI(); updateEmeraldUpgraderUI(); renderCases(); renderCrafts(); saveData();
 }
 function updateRebirthUI() {
     const status = document.getElementById('rebirth-status');
@@ -2148,6 +2199,7 @@ function switchTab(tabName, event) {
         if (btn) btn.classList.add('active');
     }
     document.getElementById(`tab-${tabName}`).classList.add('active');
+    if (tabName === 'index') switchIndexSection(currentIndexSection);
     closeSidebar();
 }
 function clickCoin() {
@@ -2251,7 +2303,23 @@ function renderCases() {
     });
 }
 let currentIndexCaseId = null;
+let currentIndexCraftId = null;
+let currentIndexSection = 'cases';
 let craftInstanceChoice = {};
+function switchIndexSection(section) {
+    const casesBtn = document.getElementById('index-subtab-cases');
+    const craftsBtn = document.getElementById('index-subtab-crafts');
+    const casesSection = document.getElementById('index-section-cases');
+    const craftsSection = document.getElementById('index-section-crafts');
+    if (!casesBtn || !craftsBtn || !casesSection || !craftsSection) return;
+    currentIndexSection = section;
+    const isCases = section === 'cases';
+    casesBtn.classList.toggle('active', isCases);
+    craftsBtn.classList.toggle('active', !isCases);
+    casesSection.style.display = isCases ? '' : 'none';
+    craftsSection.style.display = isCases ? 'none' : '';
+    if (isCases) renderIndex(); else renderIndexCrafts();
+}
 function getInventoryCountOf(cardId) { return inventory.filter(i => i.id === cardId).length; }
 function getCraftRequiredCounts(ingredients) {
     const m = {};
@@ -2388,6 +2456,57 @@ function renderIndexCaseItems(caseId) {
             <div class="case-item-info"><span class="case-item-name">${getCardName(card.id)}</span>
             <span class="case-item-rarity">${getRarityName(card.rarity)}</span></div>
             <span class="case-item-chance" style="font-size:12px; opacity:0.85; text-align:right;">${card.price} ${curWord(card.currency)}</span>`;
+        container.appendChild(row);
+    });
+}
+function renderIndexCrafts() {
+    const grid = document.getElementById('index-crafts-grid'); if (!grid) return;
+    grid.innerHTML = '';
+    CRAFTS.forEach(craft => {
+        const result = ALL_CARDS.find(c => c.id === craft.resultCardId);
+        if (!result) return;
+        const card = document.createElement('div');
+        card.className = 'case-card';
+        card.setAttribute('data-testid', `index-craft-${craft.id}`);
+        card.onclick = () => openIndexCraft(craft.id);
+        card.innerHTML = `<h3>${getCardName(result.id)}</h3>
+            <div class="case-img-wrapper"><img src="${result.img}" class="case-img" onerror="this.style.display='none'"></div>
+            <span class="${result.rarity}" style="padding:3px 10px;border-radius:4px;display:inline-block;">${getRarityName(result.rarity)}</span>`;
+        grid.appendChild(card);
+    });
+    if (currentIndexCraftId) renderIndexCraftItems(currentIndexCraftId);
+}
+function openIndexCraft(craftId) {
+    currentIndexCraftId = craftId;
+    document.getElementById('index-crafts-grid').style.display = 'none';
+    document.getElementById('index-craft-view').style.display = '';
+    renderIndexCraftItems(craftId);
+}
+function closeIndexCraft() {
+    currentIndexCraftId = null;
+    document.getElementById('index-craft-view').style.display = 'none';
+    document.getElementById('index-crafts-grid').style.display = '';
+}
+function renderIndexCraftItems(craftId) {
+    const craft = CRAFTS.find(cr => cr.id === craftId);
+    const container = document.getElementById('index-craft-list');
+    const titleEl = document.getElementById('index-craft-title');
+    if (!craft || !container) return;
+    const result = ALL_CARDS.find(c => c.id === craft.resultCardId);
+    if (titleEl) titleEl.innerText = result ? getCardName(result.id) : '';
+    container.innerHTML = '';
+    const req = getCraftRequiredCounts(craft.ingredients);
+    Object.entries(req).forEach(([id, needed]) => {
+        const card = ALL_CARDS.find(cd => cd.id === id);
+        if (!card) return;
+        const row = document.createElement('div');
+        row.className = `case-item-row ${card.rarity}`;
+        row.style.cursor = 'pointer';
+        row.onclick = () => showCardDetail(card.id);
+        row.innerHTML = `<img src="${card.img}" onerror="this.style.display='none'">
+            <div class="case-item-info"><span class="case-item-name">${getCardName(card.id)}</span>
+            <span class="case-item-rarity">${getRarityName(card.rarity)}</span></div>
+            <span class="case-item-chance" style="font-size:12px; opacity:0.85; text-align:right;">x${needed}</span>`;
         container.appendChild(row);
     });
 }
@@ -2753,28 +2872,72 @@ function sellAllCommon() {
     else { alert(t().no_common_cards); }
 }
 
+let openItemDropdownId = null;
+function toggleItemDropdown(id) {
+    const el = document.getElementById(id);
+    if (!el || el.querySelector('.item-dropdown-toggle').disabled) return;
+    const willOpen = !el.classList.contains('open');
+    closeAllItemDropdowns();
+    if (willOpen) { el.classList.add('open'); openItemDropdownId = id; }
+}
+function closeAllItemDropdowns() {
+    document.querySelectorAll('.item-dropdown.open').forEach(el => el.classList.remove('open'));
+    openItemDropdownId = null;
+}
+document.addEventListener('click', (e) => {
+    if (!openItemDropdownId) return;
+    const el = document.getElementById(openItemDropdownId);
+    if (el && !el.contains(e.target)) closeAllItemDropdowns();
+});
 function populateMyItemSelect() {
-    const sel = document.getElementById('my-item-select'); if (!sel) return;
-    const prev = sel.value; sel.innerHTML = `<option value="">${t().opt_inv_empty}</option>`;
+    const panel = document.getElementById('my-item-panel'); if (!panel) return;
+    const toggleContent = document.getElementById('my-item-toggle-content');
+    panel.innerHTML = '';
+    const placeholder = document.createElement('div');
+    placeholder.className = 'item-dropdown-option placeholder';
+    placeholder.innerText = t().opt_inv_empty;
+    placeholder.onclick = () => selectMyItem(null);
+    panel.appendChild(placeholder);
     inventory.forEach((item, index) => {
         if (item.rarity === 'ultrasecret') return;
         let name = getCardName(item.id); if (item.mutation) name += ` [${getMutationName(item.mutation)}]`;
-        const opt = document.createElement('option'); opt.value = index; opt.innerText = `${name} (${item.price} ${curWord(item.currency)})`;
-        sel.appendChild(opt);
+        const row = document.createElement('div');
+        row.className = 'item-dropdown-option';
+        row.onclick = () => selectMyItem(index);
+        row.innerHTML = `<img src="${item.img}" onerror="this.style.display='none'">
+            <div class="item-dropdown-option-info">
+                <span class="item-dropdown-option-name">${name}</span>
+                <span class="item-dropdown-option-rarity ${item.rarity}" style="display:inline-block;padding:1px 6px;border-radius:4px;">${getRarityName(item.rarity)}</span>
+                <span class="item-dropdown-option-price">${item.price} ${curWord(item.currency)}</span>
+            </div>`;
+        panel.appendChild(row);
     });
-    sel.value = prev;
+    if (selectedInvIndex !== null && inventory[selectedInvIndex]) {
+        const item = inventory[selectedInvIndex];
+        let name = getCardName(item.id); if (item.mutation) name += ` [${getMutationName(item.mutation)}]`;
+        toggleContent.innerHTML = `<span style="display:flex;align-items:center;gap:8px;"><img src="${item.img}" onerror="this.style.display='none'" style="width:24px;height:24px;object-fit:cover;border-radius:4px;background:#fff;">${name}</span>`;
+    } else {
+        toggleContent.innerText = t().opt_inv_empty;
+    }
 }
-function selectMyItemFromSelect() {
-    const val = document.getElementById('my-item-select').value;
-    selectedInvIndex = (val === "") ? null : parseInt(val);
+function selectMyItem(index) {
+    selectedInvIndex = index;
     selectedTargetId = null;
+    closeAllItemDropdowns();
+    populateMyItemSelect();
     updateUpgrader();
 }
 function populateTargetSelect() {
-    const sel = document.getElementById('target-item-select'); if (!sel) return;
-    const prev = sel.value; sel.innerHTML = `<option value="">${t().opt_select_inv}</option>`;
-    if (selectedInvIndex === null || !inventory[selectedInvIndex]) { sel.disabled = true; sel.value = ""; return; }
-    sel.disabled = false;
+    const panel = document.getElementById('target-item-panel'); if (!panel) return;
+    const toggle = document.getElementById('target-item-toggle');
+    const toggleContent = document.getElementById('target-item-toggle-content');
+    panel.innerHTML = '';
+    if (selectedInvIndex === null || !inventory[selectedInvIndex]) {
+        toggle.disabled = true;
+        toggleContent.innerText = t().opt_select_first;
+        return;
+    }
+    toggle.disabled = false;
     const src = inventory[selectedInvIndex];
     const cat = getItemCategory(src.id);
     const srcOrder = RARITY_ORDER[src.rarity] || 0;
@@ -2783,15 +2946,38 @@ function populateTargetSelect() {
         const toOrder = RARITY_ORDER[c.rarity] || 0;
         return toOrder > srcOrder;
     });
+    const placeholder = document.createElement('div');
+    placeholder.className = 'item-dropdown-option placeholder';
+    placeholder.innerText = t().opt_select_inv;
+    placeholder.onclick = () => selectTargetItem(null);
+    panel.appendChild(placeholder);
     validTargets.forEach(c => {
-        const opt = document.createElement('option'); opt.value = c.id; opt.innerText = `${getCardName(c.id)} (${getRarityName(c.rarity)}) — ${c.price} ${curWord(c.currency)}`;
-        sel.appendChild(opt);
+        const row = document.createElement('div');
+        row.className = 'item-dropdown-option';
+        row.onclick = () => selectTargetItem(c.id);
+        row.innerHTML = `<img src="${c.img}" onerror="this.style.display='none'">
+            <div class="item-dropdown-option-info">
+                <span class="item-dropdown-option-name">${getCardName(c.id)}</span>
+                <span class="item-dropdown-option-rarity ${c.rarity}" style="display:inline-block;padding:1px 6px;border-radius:4px;">${getRarityName(c.rarity)}</span>
+                <span class="item-dropdown-option-price">${c.price} ${curWord(c.currency)}</span>
+            </div>`;
+        panel.appendChild(row);
     });
-    sel.value = prev;
+    if (selectedTargetId) {
+        const target = ALL_CARDS.find(c => c.id === selectedTargetId);
+        if (target) {
+            toggleContent.innerHTML = `<span style="display:flex;align-items:center;gap:8px;"><img src="${target.img}" onerror="this.style.display='none'" style="width:24px;height:24px;object-fit:cover;border-radius:4px;background:#fff;">${getCardName(target.id)}</span>`;
+        } else {
+            toggleContent.innerText = t().opt_select_inv;
+        }
+    } else {
+        toggleContent.innerText = t().opt_select_inv;
+    }
 }
-function selectTargetItemFromSelect() {
-    const val = document.getElementById('target-item-select').value;
-    selectedTargetId = (val === "") ? null : val;
+function selectTargetItem(id) {
+    selectedTargetId = id;
+    closeAllItemDropdowns();
+    populateTargetSelect();
     updateUpgrader();
 }
 function chanceGaugeColor(p) {
@@ -2925,7 +3111,7 @@ function runUpgrade() {
             resDiv.innerHTML = `<span style="color:#e74c3c;">❌ ${t().upg_fail}</span>`;
         }
         selectedInvIndex = null; selectedTargetId = null;
-        document.getElementById('my-item-select').value = "";
+        document.getElementById('my-item-toggle-content').innerText = t().opt_inv_empty;
         updateUI();
     });
 }
