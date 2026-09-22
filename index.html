@@ -398,6 +398,17 @@ select.upgrader-select { width: 100%; padding: 12px; background: #2c3e50; color:
         <button id="exchange-btn" class="action-btn" onclick="doExchange()" data-i18n="exchange_btn">Обменять</button>
         <div id="exchange-status" style="margin-top: 15px; font-size: 16px; font-weight: bold;"></div>
     </div>
+    <div class="emerald-section-box" style="margin-top:20px;">
+        <p style="font-size: 14px; color: #aaa; margin-bottom: 15px;" data-i18n="exchange_reverse_sub">Курс: 100 эмеральдов = 500 000 монет</p>
+        <label style="display:block;text-align:left;margin-bottom:6px;font-weight:bold;font-size:14px;" data-i18n="exchange_emeralds_amount_label">Сколько эмеральдов обменять:</label>
+        <input type="number" id="exchange-emeralds-amount" class="emerald-amount-input" min="1" step="1" placeholder="0" oninput="updateReverseExchangeUI()">
+        <p style="font-size: 14px; margin: 10px 0;">
+            <span data-i18n="exchange_you_get_coins">Вы получите:</span> <b id="exchange-coins-preview">0</b>
+            <img src="images/coin.png" class="coin-icon small" alt="coin" onerror="tryNextImage(this,'images/coin')">
+        </p>
+        <button id="exchange-reverse-btn" class="action-btn" onclick="doReverseExchange()" data-i18n="exchange_reverse_btn">Обменять</button>
+        <div id="exchange-reverse-status" style="margin-top: 15px; font-size: 16px; font-weight: bold;"></div>
+    </div>
 </div>
 <div id="tab-rebirth" class="tab-content">
     <h2 data-i18n="rebirth_title">Перерождение</h2>
@@ -692,7 +703,7 @@ const I18N = {
         welcome_menu_title: "Куда пойти?",
         welcome_start_btn: "Поехали!", roulette_none: "НЕТ",
         tab_rebirth: "Перерождение",
-        tab_emerald_multiplier: "Умножитель Эмеральдов", tab_exchange: "Обменник Эмеральдов", exchange_sub: "Курс: 1 000 000 монет = 100 эмеральдов", exchange_amount_label: "Сколько монет обменять:", exchange_you_get: "Вы получите:", exchange_btn: "Обменять", exchange_min_error: "Минимальная сумма для обмена: {amount} монет", exchange_success: "Обменяно! Получено: {amount} эмеральдов", tab_crafts: "Крафты", crafts_sub: "Собери нужные предметы, чтобы создать уникальный крафт", craft_need: "Требуется:", craft_btn: "Создать", craft_missing_alert: "Недостаточно предметов для этого крафта!", craft_success: "Скрафчено: {name}!", craft_no_mutation: "Без мутации", craft_mutation_note: "Шанс переноса мутации: {n}% с каждой карты",
+        tab_emerald_multiplier: "Умножитель Эмеральдов", tab_exchange: "Обменник Эмеральдов", exchange_sub: "Курс: 1 000 000 монет = 100 эмеральдов", exchange_amount_label: "Сколько монет обменять:", exchange_you_get: "Вы получите:", exchange_btn: "Обменять", exchange_min_error: "Минимальная сумма для обмена: {amount} монет", exchange_success: "Обменяно! Получено: {amount} эмеральдов", exchange_reverse_sub: "Курс: 100 эмеральдов = 500 000 монет", exchange_emeralds_amount_label: "Сколько эмеральдов обменять:", exchange_you_get_coins: "Вы получите:", exchange_reverse_btn: "Обменять", exchange_reverse_min_error: "Минимальная сумма для обмена: {amount} эмеральдов", exchange_reverse_success: "Обменяно! Получено: {amount} монет", tab_crafts: "Крафты", crafts_sub: "Собери нужные предметы, чтобы создать уникальный крафт", craft_need: "Требуется:", craft_btn: "Создать", craft_missing_alert: "Недостаточно предметов для этого крафта!", craft_success: "Скрафчено: {name}!", craft_no_mutation: "Без мутации", craft_mutation_note: "Шанс переноса мутации: {n}% с каждой карты",
         emerald_multiplier_sub: "Выберите режим",
         emerald_wheel_btn: "Колесо Фортуны",
         emerald_upgrader_btn: "Эмеральд Апгрейдер",
@@ -840,7 +851,7 @@ const I18N = {
         welcome_menu_title: "Where to go?",
         welcome_start_btn: "Let's go!", roulette_none: "NONE",
         tab_rebirth: "Rebirth",
-        tab_emerald_multiplier: "Emerald Multiplier", tab_exchange: "Emerald Exchange", exchange_sub: "Rate: 1,000,000 coins = 100 emeralds", exchange_amount_label: "How many coins to exchange:", exchange_you_get: "You will receive:", exchange_btn: "Exchange", exchange_min_error: "Minimum exchange amount: {amount} coins", exchange_success: "Exchanged! Received: {amount} emeralds", tab_crafts: "Crafts", crafts_sub: "Collect the required items to create a unique craft", craft_need: "Required:", craft_btn: "Craft", craft_missing_alert: "Not enough items for this craft!", craft_success: "Crafted: {name}!", craft_no_mutation: "No mutation", craft_mutation_note: "Mutation transfer chance: {n}% per card",
+        tab_emerald_multiplier: "Emerald Multiplier", tab_exchange: "Emerald Exchange", exchange_sub: "Rate: 1,000,000 coins = 100 emeralds", exchange_amount_label: "How many coins to exchange:", exchange_you_get: "You will receive:", exchange_btn: "Exchange", exchange_min_error: "Minimum exchange amount: {amount} coins", exchange_success: "Exchanged! Received: {amount} emeralds", exchange_reverse_sub: "Rate: 100 emeralds = 500,000 coins", exchange_emeralds_amount_label: "How many emeralds to exchange:", exchange_you_get_coins: "You will receive:", exchange_reverse_btn: "Exchange", exchange_reverse_min_error: "Minimum exchange amount: {amount} emeralds", exchange_reverse_success: "Exchanged! Received: {amount} coins", tab_crafts: "Crafts", crafts_sub: "Collect the required items to create a unique craft", craft_need: "Required:", craft_btn: "Craft", craft_missing_alert: "Not enough items for this craft!", craft_success: "Crafted: {name}!", craft_no_mutation: "No mutation", craft_mutation_note: "Mutation transfer chance: {n}% per card",
         emerald_multiplier_sub: "Choose a mode",
         emerald_wheel_btn: "Fortune Wheel",
         emerald_upgrader_btn: "Emerald Upgrader",
@@ -984,7 +995,7 @@ const I18N = {
         welcome_menu_title: "Куди піти?",
         welcome_start_btn: "Поїхали!", roulette_none: "НІ",
         tab_rebirth: "Переродження",
-        tab_emerald_multiplier: "Множник Емеральдів", tab_exchange: "Обмінник Емеральдів", exchange_sub: "Курс: 1 000 000 монет = 100 емеральдів", exchange_amount_label: "Скільки монет обміняти:", exchange_you_get: "Ви отримаєте:", exchange_btn: "Обміняти", exchange_min_error: "Мінімальна сума для обміну: {amount} монет", exchange_success: "Обміняно! Отримано: {amount} емеральдів", tab_crafts: "Крафти", crafts_sub: "Збери потрібні предмети, щоб створити унікальний крафт", craft_need: "Потрібно:", craft_btn: "Створити", craft_missing_alert: "Недостатньо предметів для цього крафту!", craft_success: "Скрафчено: {name}!", craft_no_mutation: "Без мутації", craft_mutation_note: "Шанс переносу мутації: {n}% з кожної карти",
+        tab_emerald_multiplier: "Множник Емеральдів", tab_exchange: "Обмінник Емеральдів", exchange_sub: "Курс: 1 000 000 монет = 100 емеральдів", exchange_amount_label: "Скільки монет обміняти:", exchange_you_get: "Ви отримаєте:", exchange_btn: "Обміняти", exchange_min_error: "Мінімальна сума для обміну: {amount} монет", exchange_success: "Обміняно! Отримано: {amount} емеральдів", exchange_reverse_sub: "Курс: 100 емеральдів = 500 000 монет", exchange_emeralds_amount_label: "Скільки емеральдів обміняти:", exchange_you_get_coins: "Ви отримаєте:", exchange_reverse_btn: "Обміняти", exchange_reverse_min_error: "Мінімальна сума для обміну: {amount} емеральдів", exchange_reverse_success: "Обміняно! Отримано: {amount} монет", tab_crafts: "Крафти", crafts_sub: "Збери потрібні предмети, щоб створити унікальний крафт", craft_need: "Потрібно:", craft_btn: "Створити", craft_missing_alert: "Недостатньо предметів для цього крафту!", craft_success: "Скрафчено: {name}!", craft_no_mutation: "Без мутації", craft_mutation_note: "Шанс переносу мутації: {n}% з кожної карти",
         emerald_multiplier_sub: "Оберіть режим",
         emerald_wheel_btn: "Колесо Фортуни",
         emerald_upgrader_btn: "Емеральд Апгрейдер",
@@ -1128,7 +1139,7 @@ const I18N = {
         welcome_menu_title: "Dokąd pójść?",
         welcome_start_btn: "Zaczynajmy!", roulette_none: "NIE",
         tab_rebirth: "Odrodzenie",
-        tab_emerald_multiplier: "Mnożnik Szmaragdów", tab_exchange: "Kantor Szmaragdów", exchange_sub: "Kurs: 1 000 000 monet = 100 szmaragdów", exchange_amount_label: "Ile monet wymienić:", exchange_you_get: "Otrzymasz:", exchange_btn: "Wymień", exchange_min_error: "Minimalna kwota wymiany: {amount} monet", exchange_success: "Wymieniono! Otrzymano: {amount} szmaragdów", tab_crafts: "Craftowanie", crafts_sub: "Zbierz potrzebne przedmioty, aby stworzyć unikalny craft", craft_need: "Wymagane:", craft_btn: "Stwórz", craft_missing_alert: "Za mało przedmiotów do tego craftu!", craft_success: "Stworzono: {name}!", craft_no_mutation: "Bez mutacji", craft_mutation_note: "Szansa na przeniesienie mutacji: {n}% z każdej karty",
+        tab_emerald_multiplier: "Mnożnik Szmaragdów", tab_exchange: "Kantor Szmaragdów", exchange_sub: "Kurs: 1 000 000 monet = 100 szmaragdów", exchange_amount_label: "Ile monet wymienić:", exchange_you_get: "Otrzymasz:", exchange_btn: "Wymień", exchange_min_error: "Minimalna kwota wymiany: {amount} monet", exchange_success: "Wymieniono! Otrzymano: {amount} szmaragdów", exchange_reverse_sub: "Kurs: 100 szmaragdów = 500 000 monet", exchange_emeralds_amount_label: "Ile szmaragdów wymienić:", exchange_you_get_coins: "Otrzymasz:", exchange_reverse_btn: "Wymień", exchange_reverse_min_error: "Minimalna kwota wymiany: {amount} szmaragdów", exchange_reverse_success: "Wymieniono! Otrzymano: {amount} monet", tab_crafts: "Craftowanie", crafts_sub: "Zbierz potrzebne przedmioty, aby stworzyć unikalny craft", craft_need: "Wymagane:", craft_btn: "Stwórz", craft_missing_alert: "Za mało przedmiotów do tego craftu!", craft_success: "Stworzono: {name}!", craft_no_mutation: "Bez mutacji", craft_mutation_note: "Szansa na przeniesienie mutacji: {n}% z każdej karty",
         emerald_multiplier_sub: "Wybierz tryb",
         emerald_wheel_btn: "Koło Fortuny",
         emerald_upgrader_btn: "Ulepszacz Szmaragdów",
@@ -1272,7 +1283,7 @@ const I18N = {
         welcome_menu_title: "Unde mergem?",
         welcome_start_btn: "Să începem!", roulette_none: "NU",
         tab_rebirth: "Renaștere",
-        tab_emerald_multiplier: "Multiplicator de Smaralde", tab_exchange: "Schimb Smaralde", exchange_sub: "Curs: 1 000 000 monede = 100 smaralde", exchange_amount_label: "Câte monede să schimbi:", exchange_you_get: "Vei primi:", exchange_btn: "Schimbă", exchange_min_error: "Suma minimă de schimb: {amount} monede", exchange_success: "Schimbat! Primit: {amount} smaralde", tab_crafts: "Crafturi", crafts_sub: "Adună obiectele necesare pentru a crea un craft unic", craft_need: "Necesar:", craft_btn: "Creează", craft_missing_alert: "Nu ai suficiente obiecte pentru acest craft!", craft_success: "Creat: {name}!", craft_no_mutation: "Fără mutație", craft_mutation_note: "Șansă de transfer al mutației: {n}% per card",
+        tab_emerald_multiplier: "Multiplicator de Smaralde", tab_exchange: "Schimb Smaralde", exchange_sub: "Curs: 1 000 000 monede = 100 smaralde", exchange_amount_label: "Câte monede să schimbi:", exchange_you_get: "Vei primi:", exchange_btn: "Schimbă", exchange_min_error: "Suma minimă de schimb: {amount} monede", exchange_success: "Schimbat! Primit: {amount} smaralde", exchange_reverse_sub: "Curs: 100 smaralde = 500 000 monede", exchange_emeralds_amount_label: "Câte smaralde să schimbi:", exchange_you_get_coins: "Vei primi:", exchange_reverse_btn: "Schimbă", exchange_reverse_min_error: "Suma minimă de schimb: {amount} smaralde", exchange_reverse_success: "Schimbat! Primit: {amount} monede", tab_crafts: "Crafturi", crafts_sub: "Adună obiectele necesare pentru a crea un craft unic", craft_need: "Necesar:", craft_btn: "Creează", craft_missing_alert: "Nu ai suficiente obiecte pentru acest craft!", craft_success: "Creat: {name}!", craft_no_mutation: "Fără mutație", craft_mutation_note: "Șansă de transfer al mutației: {n}% per card",
         emerald_multiplier_sub: "Alege un mod",
         emerald_wheel_btn: "Roata Norocului",
         emerald_upgrader_btn: "Îmbunătățitor de Smaralde",
@@ -3322,6 +3333,39 @@ function doExchange() {
     status.innerText = (t().exchange_success || 'Обменяно! Получено: {amount} эмеральдов').replace('{amount}', emeraldsGained);
     input.value = '';
     updateExchangeUI();
+    updateUI();
+}
+const REVERSE_EXCHANGE_RATE = 5000; // монет за 1 эмеральд (500 000 монет = 100 эмеральдов)
+function updateReverseExchangeUI() {
+    const input = document.getElementById('exchange-emeralds-amount');
+    const preview = document.getElementById('exchange-coins-preview');
+    if (!input || !preview) return;
+    let amount = parseInt(input.value) || 0;
+    if (amount < 0) amount = 0;
+    preview.innerText = amount * REVERSE_EXCHANGE_RATE;
+}
+function doReverseExchange() {
+    const input = document.getElementById('exchange-emeralds-amount');
+    const status = document.getElementById('exchange-reverse-status');
+    if (!input || !status) return;
+    const amount = parseInt(input.value) || 0;
+    if (amount < 1) {
+        status.style.color = '#e74c3c';
+        status.innerText = (t().exchange_reverse_min_error || 'Минимальная сумма для обмена: {amount} эмеральдов').replace('{amount}', 1);
+        return;
+    }
+    if (amount > emeralds) {
+        status.style.color = '#e74c3c';
+        status.innerText = t().not_enough_emeralds || 'Недостаточно эмеральдов!';
+        return;
+    }
+    const coinsGained = amount * REVERSE_EXCHANGE_RATE;
+    emeralds -= amount;
+    balance += coinsGained;
+    status.style.color = '#2ecc71';
+    status.innerText = (t().exchange_reverse_success || 'Обменяно! Получено: {amount} монет').replace('{amount}', coinsGained);
+    input.value = '';
+    updateReverseExchangeUI();
     updateUI();
 }
 function updateEmeraldUpgraderUI() {
