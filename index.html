@@ -420,7 +420,7 @@ select.upgrader-select { width: 100%; padding: 12px; background: #2c3e50; color:
     <button class="tab-btn" data-target="daily" onclick="switchTab('daily', event)" data-i18n="tab_daily">Ежедневные</button>
     <button class="tab-btn" data-target="promo" onclick="switchTab('promo', event)" data-i18n="tab_promo">Промокоды</button>
     <button class="tab-btn" data-target="index" onclick="switchTab('index', event)" data-i18n="tab_index">Индекс</button>
-    <button class="tab-btn" data-target="leaderboard" onclick="switchTab('leaderboard', event)">🏆 Лидерборды</button>
+    <button class="tab-btn" data-target="leaderboard" onclick="switchTab('leaderboard', event)" data-i18n="tab_leaderboard">🏆 Лидерборды</button>
 </div>
 <div id="tab-cases" class="tab-content active">
     <h2 data-i18n="cases_title">Магазин Кейсов</h2><br>
@@ -633,12 +633,12 @@ select.upgrader-select { width: 100%; padding: 12px; background: #2c3e50; color:
     </div>
 </div>
 <div id="tab-leaderboard" class="tab-content">
-    <h2>🏆 Лидерборды</h2>
-    <p style="font-size: 14px; color: #aaa; margin-bottom: 15px;">Войдите через Google, чтобы попасть в таблицу. Свой ник можно задать в Настройках.</p>
+    <h2 data-i18n="tab_leaderboard">🏆 Лидерборды</h2>
+    <p style="font-size: 14px; color: #aaa; margin-bottom: 15px;" data-i18n="leaderboard_sub">Войдите через Google, чтобы попасть в таблицу. Свой ник можно задать в Настройках.</p>
     <div class="welcome-quick-grid" style="max-width:500px;margin:0 auto 20px auto;">
-        <button class="tab-btn active" id="lb-subtab-coins" onclick="switchLeaderboard('coins')">Монеты</button>
-        <button class="tab-btn" id="lb-subtab-emeralds" onclick="switchLeaderboard('emeralds')">Эмеральды</button>
-        <button class="tab-btn" id="lb-subtab-secrets" onclick="switchLeaderboard('secrets')">Секретки</button>
+        <button class="tab-btn active" id="lb-subtab-coins" onclick="switchLeaderboard('coins')" data-i18n="lb_coins">Монеты</button>
+        <button class="tab-btn" id="lb-subtab-emeralds" onclick="switchLeaderboard('emeralds')" data-i18n="lb_emeralds">Эмеральды</button>
+        <button class="tab-btn" id="lb-subtab-secrets" onclick="switchLeaderboard('secrets')" data-i18n="lb_secrets">Секретки</button>
     </div>
     <div id="leaderboard-status" style="font-size:13px;color:#aaa;margin-bottom:10px;text-align:center;"></div>
     <div id="leaderboard-list" style="max-width:600px;margin:0 auto;text-align:left;"></div>
@@ -678,11 +678,23 @@ select.upgrader-select { width: 100%; padding: 12px; background: #2c3e50; color:
             <span class="volume-value" id="music-volume-value">30%</span>
         </div>
 
-        <h3>Никнейм в лидерборде</h3>
-        <p style="font-size: 12px; color: #aaa; margin-bottom: 10px;">Этот ник будет показан в лидербордах вместо имени из Google. Оставьте поле пустым, чтобы использовать имя из Google-аккаунта.</p>
+        <h3 data-i18n="click_sound_title">Звук клика</h3>
+        <p style="font-size: 12px; color: #aaa; margin-bottom: 10px;" data-i18n="click_sound_desc">Выбери звук, который будет играть при клике по монете, продаже и получении из банка. Нажми на вариант, чтобы прослушать и выбрать его.</p>
+        <div class="welcome-quick-grid" id="click-sound-grid" style="max-width:500px;margin:0 auto 15px auto;">
+            <button class="tab-btn" data-click-sound="default" onclick="selectClickSound('default')" data-i18n="click_sound_default">🔈 Обычный</button>
+            <button class="tab-btn" data-click-sound="click1" onclick="selectClickSound('click1')" data-i18n="click_sound_cat">🐱 Котик</button>
+            <button class="tab-btn" data-click-sound="click2" onclick="selectClickSound('click2')" data-i18n="click_sound_keyboard">⌨️ Клавиатура</button>
+            <button class="tab-btn" data-click-sound="click3" onclick="selectClickSound('click3')">🎵 Звук 3</button>
+            <button class="tab-btn" data-click-sound="click4" onclick="selectClickSound('click4')">🎵 Звук 4</button>
+            <button class="tab-btn" data-click-sound="click5" onclick="selectClickSound('click5')">🎵 Звук 5</button>
+        </div>
+
+        <h3 data-i18n="nickname_title">Никнейм в лидерборде</h3>
+        <p style="font-size: 12px; color: #aaa; margin-bottom: 10px;" data-i18n="nickname_desc">Этот ник будет показан в лидербордах вместо имени из Google. Оставьте поле пустым, чтобы использовать имя из Google-аккаунта.</p>
         <div class="volume-row">
             <input type="text" id="nickname-input" maxlength="20" placeholder="Ваш ник" style="flex:1;padding:10px;border-radius:6px;border:1px solid #34495e;background:#1e1e24;color:#fff;font-size:14px;">
-            <button class="action-btn" style="width:auto;margin-top:0;padding:10px 16px;" onclick="saveNickname()">Сохранить</button>
+            <button class="action-btn" style="width:auto;margin-top:0;padding:10px 16px;" onclick="saveNickname()" data-i18n="nickname_save_btn">Сохранить</button>
+
         </div>
 
         <h3 data-i18n="autosell_title">Автопродажа</h3>
@@ -798,6 +810,14 @@ const I18N = {
         promo_success_emeralds: "Промокод активирован! Получено: {amount} эмеральдов!",
         not_enough_coins: "Недостаточно монет!", dropped: "Выпало:",
         upg_success: "Успех! Получен", upg_fail: "Неудача! Предмет сгорел.", burned_item: "Сгоревший предмет",
+        tab_leaderboard: "🏆 Лидерборды", leaderboard_sub: "Войдите через Google, чтобы попасть в таблицу. Свой ник можно задать в Настройках.",
+        lb_coins: "Монеты", lb_emeralds: "Эмеральды", lb_secrets: "Секретки",
+        lb_loading: "Загрузка...", lb_empty: "Пока никого нет в таблице — станьте первым!",
+        lb_unavailable: "Лидерборд временно недоступен.", lb_error: "Ошибка загрузки лидерборда.",
+        nickname_title: "Никнейм в лидерборде", nickname_desc: "Этот ник будет показан в лидербордах вместо имени из Google. Оставьте поле пустым, чтобы использовать имя из Google-аккаунта.",
+        nickname_placeholder: "Ваш ник", nickname_save_btn: "Сохранить",
+        nickname_saved_alert: "Никнейм сохранён: {name}", nickname_reset_alert: "Никнейм сброшен — будет использовано имя из Google.",
+        click_sound_title: "Звук клика", click_sound_desc: "Выбери звук, который будет играть при клике по монете, продаже и получении из банка. Нажми на вариант, чтобы прослушать и выбрать его.", click_sound_default: "🔈 Обычный", click_sound_cat: "🐱 Котик", click_sound_keyboard: "⌨️ Клавиатура",
         cases: { case_main: "Дино-Кейс", case_ocean: "Океанский Кейс", case_komaru: "Комару Кейс", case_rm: "Rick and Morty Case", case_cs: "Counter Strike Case", case_cs2: "Counter Strike (part2)", case_rivermonsters: "Кейс Речных монстров", case_jjk: "Jujutsu Kaisen Case", case_mm2: "MM2 Кейс" },
         mutations: { silver: "Серебро", gold: "Золото", diamond: "Алмаз", rgb: "РГБ", crystal: "Кристалик", emerald: "Эмеральд" },
         cards: {
@@ -947,6 +967,14 @@ const I18N = {
         promo_success_emeralds: "Promo activated! Received: {amount} emeralds!",
         not_enough_coins: "Not enough coins!", dropped: "Dropped:",
         upg_success: "Success! Received", upg_fail: "Failure! Item burned.", burned_item: "Burned item",
+        tab_leaderboard: "🏆 Leaderboards", leaderboard_sub: "Sign in with Google to join the table. You can set your own nickname in Settings.",
+        lb_coins: "Coins", lb_emeralds: "Emeralds", lb_secrets: "Secrets",
+        lb_loading: "Loading...", lb_empty: "No one here yet — be the first!",
+        lb_unavailable: "Leaderboard is temporarily unavailable.", lb_error: "Failed to load the leaderboard.",
+        nickname_title: "Leaderboard nickname", nickname_desc: "This nickname will be shown on the leaderboards instead of your Google name. Leave it empty to use your Google account name.",
+        nickname_placeholder: "Your nickname", nickname_save_btn: "Save",
+        nickname_saved_alert: "Nickname saved: {name}", nickname_reset_alert: "Nickname cleared — your Google name will be used.",
+        click_sound_title: "Click sound", click_sound_desc: "Choose the sound that plays when you click the coin, sell an item, or withdraw from the bank. Click an option to preview and select it.", click_sound_default: "🔈 Default", click_sound_cat: "🐱 Cat", click_sound_keyboard: "⌨️ Keyboard",
         cases: { case_main: "Dino Case", case_ocean: "Ocean Case", case_komaru: "Komaru Case", case_rm: "Rick and Morty Case", case_cs: "Counter Strike Case", case_cs2: "Counter Strike (part2)", case_rivermonsters: "River Monsters Case", case_jjk: "Jujutsu Kaisen Case", case_mm2: "MM2 Case" },
         mutations: { silver: "Silver", gold: "Gold", diamond: "Diamond", rgb: "RGB", crystal: "Crystal", emerald: "Emerald" },
         cards: {
@@ -1096,6 +1124,14 @@ const I18N = {
         promo_success_emeralds: "Промокод активовано! Отримано: {amount} емеральдів!",
         not_enough_coins: "Недостатньо монет!", dropped: "Випало:",
         upg_success: "Успіх! Отримано", upg_fail: "Не вдалося! Предмет згорів.", burned_item: "Згорілий предмет",
+        tab_leaderboard: "🏆 Лідерборди", leaderboard_sub: "Увійдіть через Google, щоб потрапити в таблицю. Свій нік можна встановити в Налаштуваннях.",
+        lb_coins: "Монети", lb_emeralds: "Емеральди", lb_secrets: "Секретки",
+        lb_loading: "Завантаження...", lb_empty: "Поки що тут нікого немає — станьте першим!",
+        lb_unavailable: "Лідерборд тимчасово недоступний.", lb_error: "Помилка завантаження лідерборду.",
+        nickname_title: "Нікнейм у лідерборді", nickname_desc: "Цей нік буде показано в лідербордах замість імені з Google. Залиште поле порожнім, щоб використовувати ім'я з Google-акаунта.",
+        nickname_placeholder: "Ваш нік", nickname_save_btn: "Зберегти",
+        nickname_saved_alert: "Нікнейм збережено: {name}", nickname_reset_alert: "Нікнейм скинуто — буде використано ім'я з Google.",
+        click_sound_title: "Звук кліку", click_sound_desc: "Обери звук, який гратиме при кліку по монеті, продажу та отриманні з банку. Натисни на варіант, щоб прослухати і обрати його.", click_sound_default: "🔈 Звичайний", click_sound_cat: "🐱 Кіт", click_sound_keyboard: "⌨️ Клавіатура",
         cases: { case_main: "Дино-Кейс", case_ocean: "Океанський Кейс", case_komaru: "Комару Кейс", case_rm: "Rick and Morty Case", case_cs: "Counter Strike Case", case_cs2: "Counter Strike (part2)", case_rivermonsters: "Кейс Річкових монстрів", case_jjk: "Jujutsu Kaisen Case", case_mm2: "MM2 Кейс" },
         mutations: { silver: "Срібло", gold: "Золото", diamond: "Алмаз", rgb: "RGB", crystal: "Кристал", emerald: "Смарагд" },
         cards: {
@@ -1241,6 +1277,14 @@ const I18N = {
         promo_success_emeralds: "Kod aktywowany! Otrzymano: {amount} szmaragdów!",
         not_enough_coins: "Za mało monet!", dropped: "Wypadło:",
         upg_success: "Sukces! Otrzymano", upg_fail: "Niepowodzenie! Przedmiot spłonął.", burned_item: "Spalony przedmiot",
+        tab_leaderboard: "🏆 Rankingi", leaderboard_sub: "Zaloguj się przez Google, aby dołączyć do rankingu. Własny nick możesz ustawić w Ustawieniach.",
+        lb_coins: "Monety", lb_emeralds: "Szmaragdy", lb_secrets: "Sekrety",
+        lb_loading: "Ładowanie...", lb_empty: "Nikogo tu jeszcze nie ma — bądź pierwszy!",
+        lb_unavailable: "Ranking jest chwilowo niedostępny.", lb_error: "Błąd ładowania rankingu.",
+        nickname_title: "Nick w rankingu", nickname_desc: "Ten nick będzie wyświetlany w rankingach zamiast imienia z Google. Zostaw pole puste, aby użyć nazwy z konta Google.",
+        nickname_placeholder: "Twój nick", nickname_save_btn: "Zapisz",
+        nickname_saved_alert: "Nick zapisany: {name}", nickname_reset_alert: "Nick wyczyszczony — zostanie użyta nazwa z Google.",
+        click_sound_title: "Dźwięk kliknięcia", click_sound_desc: "Wybierz dźwięk odtwarzany przy kliknięciu monety, sprzedaży przedmiotu lub wypłacie z banku. Kliknij opcję, aby odsłuchać i wybrać.", click_sound_default: "🔈 Domyślny", click_sound_cat: "🐱 Kot", click_sound_keyboard: "⌨️ Klawiatura",
         cases: { case_main: "Skrzynka Dino", case_ocean: "Skrzynka Oceaniczna", case_komaru: "Skrzynka Komaru", case_rm: "Rick and Morty Case", case_cs: "Counter Strike Case", case_cs2: "Counter Strike (part2)", case_rivermonsters: "Skrzynka Rzecznych Potworów", case_jjk: "Jujutsu Kaisen Case", case_mm2: "Skrzynka MM2" },
         mutations: { silver: "Srebro", gold: "Złoto", diamond: "Diament", rgb: "RGB", crystal: "Kryształ", emerald: "Szmaragd" },
         cards: {
@@ -1386,6 +1430,14 @@ const I18N = {
         promo_success_emeralds: "Cod activat! Primit: {amount} smaralde!",
         not_enough_coins: "Monede insuficiente!", dropped: "A picat:",
         upg_success: "Succes! Ai primit", upg_fail: "Eșec! Obiectul a ars.", burned_item: "Obiect ars",
+        tab_leaderboard: "🏆 Clasamente", leaderboard_sub: "Conectează-te cu Google pentru a apărea în clasament. Îți poți seta propria poreclă din Setări.",
+        lb_coins: "Monede", lb_emeralds: "Smaralde", lb_secrets: "Secrete",
+        lb_loading: "Se încarcă...", lb_empty: "Încă nu e nimeni aici — fii primul!",
+        lb_unavailable: "Clasamentul este temporar indisponibil.", lb_error: "Eroare la încărcarea clasamentului.",
+        nickname_title: "Poreclă în clasament", nickname_desc: "Această poreclă va fi afișată în clasamente în loc de numele din Google. Lasă câmpul gol pentru a folosi numele din contul Google.",
+        nickname_placeholder: "Porecla ta", nickname_save_btn: "Salvează",
+        nickname_saved_alert: "Poreclă salvată: {name}", nickname_reset_alert: "Poreclă resetată — se va folosi numele din Google.",
+        click_sound_title: "Sunet de clic", click_sound_desc: "Alege sunetul redat la clic pe monedă, vânzare sau retragere din bancă. Apasă o opțiune pentru a o asculta și selecta.", click_sound_default: "🔈 Implicit", click_sound_cat: "🐱 Pisică", click_sound_keyboard: "⌨️ Tastatură",
         cases: { case_main: "Cutia Dino", case_ocean: "Cutia Oceanică", case_komaru: "Cutia Komaru", case_rm: "Rick and Morty Case", case_cs: "Counter Strike Case", case_cs2: "Counter Strike (part2)", case_rivermonsters: "Cutia Monștrilor de Râu", case_jjk: "Jujutsu Kaisen Case", case_mm2: "Cutia MM2" },
         mutations: { silver: "Argint", gold: "Aur", diamond: "Diamant", rgb: "RGB", crystal: "Cristal", emerald: "Smarald" },
         cards: {
@@ -1913,13 +1965,23 @@ async function renderLeaderboard() {
     const statusEl = document.getElementById('leaderboard-status');
     const listEl = document.getElementById('leaderboard-list');
     if (!listEl || !statusEl) return;
-    if (!window.fetchLeaderboardTop) { statusEl.innerText = 'Лидерборд временно недоступен.'; return; }
-    statusEl.innerText = 'Загрузка...';
+    if (!window.fetchLeaderboardTop) { statusEl.innerText = t().lb_unavailable || 'Лидерборд временно недоступен.'; return; }
+    statusEl.innerText = t().lb_loading || 'Загрузка...';
     listEl.innerHTML = '';
     try {
-        const data = await window.fetchLeaderboardTop(currentLeaderboardField);
+        const raw = await window.fetchLeaderboardTop(currentLeaderboardField);
+        // Убираем дубликаты одного и того же ника (например, если вход был выполнен с
+        // нескольких Google-аккаунтов) — оставляем только запись с лучшим результатом.
+        const seen = new Set();
+        const data = [];
+        raw.forEach(entry => {
+            const key = (entry.nickname || '').trim().toLowerCase();
+            if (key && seen.has(key)) return;
+            if (key) seen.add(key);
+            data.push(entry);
+        });
         statusEl.innerText = '';
-        if (!data.length) { listEl.innerHTML = '<p style="color:#aaa;text-align:center;">Пока никого нет в таблице — станьте первым!</p>'; return; }
+        if (!data.length) { listEl.innerHTML = `<p style="color:#aaa;text-align:center;">${t().lb_empty || 'Пока никого нет в таблице — станьте первым!'}</p>`; return; }
         data.forEach((entry, i) => {
             const row = document.createElement('div');
             row.className = 'card common';
@@ -1928,7 +1990,7 @@ async function renderLeaderboard() {
             listEl.appendChild(row);
         });
     } catch (e) {
-        statusEl.innerText = 'Ошибка загрузки лидерборда.';
+        statusEl.innerText = t().lb_error || 'Ошибка загрузки лидерборда.';
         console.error('Ошибка загрузки лидерборда:', e);
     }
 }
@@ -1970,6 +2032,7 @@ function setAccent(name) {
 function openSettings() {
     document.getElementById('settings-overlay').classList.add('open');
     renderAutosellButtons();
+    renderClickSoundActive();
     const nickInput = document.getElementById('nickname-input');
     if (nickInput) nickInput.value = localStorage.getItem('customNickname') || '';
 }
@@ -1980,7 +2043,7 @@ function saveNickname() {
     input.value = name;
     if (window.setNicknameAndSync) window.setNicknameAndSync(name);
     else localStorage.setItem('customNickname', name);
-    alert(name ? ('Никнейм сохранён: ' + name) : 'Никнейм сброшен — будет использовано имя из Google.');
+    alert(name ? (t().nickname_saved_alert || 'Никнейм сохранён: {name}').replace('{name}', name) : (t().nickname_reset_alert || 'Никнейм сброшен — будет использовано имя из Google.'));
 }
 function closeSettings() { document.getElementById('settings-overlay').classList.remove('open'); }
 function settingsBgClose(e) { if (e.target.id === 'settings-overlay') closeSettings(); }
@@ -1991,6 +2054,38 @@ function toggleSidebar() {
     if (sb.classList.contains('open')) closeSidebar(); else openSidebar();
 }
 const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+
+/* ===== Кастомные звуки (файлы) =====
+   Положи в папку "sounds/" (рядом с index.html, на одном уровне с папкой "images/")
+   файл с одним из имён ниже — и игра будет проигрывать именно его вместо стандартного
+   синтезированного звука. Формат: mp3, wav или ogg (пробуются по очереди).
+   Например: sounds/click.mp3 — заменит звук клика (клик по монете, продажа, выдача из банка).
+   Если файла нет — ничего менять не нужно, останется звук по умолчанию. */
+const CUSTOM_SOUND_TYPES = ['click', 'tick', 'win', 'mutation', 'fail', 'click1', 'click2', 'click3', 'click4', 'click5'];
+const CUSTOM_SOUND_EXTS = ['mp3', 'wav', 'ogg'];
+const customSoundUrl = {};    // type -> найденный путь к файлу
+const customSoundStatus = {}; // type -> 'ok' | 'none'
+function detectCustomSound(type, extIdx) {
+    extIdx = extIdx || 0;
+    if (extIdx >= CUSTOM_SOUND_EXTS.length) { customSoundStatus[type] = 'none'; return; }
+    const url = `sounds/${type}.${CUSTOM_SOUND_EXTS[extIdx]}`;
+    const probe = new Audio();
+    probe.addEventListener('canplaythrough', () => { customSoundUrl[type] = url; customSoundStatus[type] = 'ok'; }, { once: true });
+    probe.addEventListener('error', () => detectCustomSound(type, extIdx + 1), { once: true });
+    probe.src = url;
+    probe.load();
+}
+CUSTOM_SOUND_TYPES.forEach(type => detectCustomSound(type));
+let selectedClickSound = localStorage.getItem('selectedClickSound') || 'default';
+function selectClickSound(key) {
+    selectedClickSound = key;
+    localStorage.setItem('selectedClickSound', key);
+    document.querySelectorAll('#click-sound-grid [data-click-sound]').forEach(b => b.classList.toggle('active', b.getAttribute('data-click-sound') === key));
+    playSound('click');
+}
+function renderClickSoundActive() {
+    document.querySelectorAll('#click-sound-grid [data-click-sound]').forEach(b => b.classList.toggle('active', b.getAttribute('data-click-sound') === selectedClickSound));
+}
 
 /* ===== Background ambient music ===== */
 let musicGain = null;
@@ -2224,6 +2319,13 @@ function welcomeGoTo(tabName) {
     switchTab(tabName);
 }
 function playSound(type) {
+    const soundKey = (type === 'click' && selectedClickSound !== 'default') ? selectedClickSound : type;
+    if (customSoundStatus[soundKey] === 'ok' && customSoundUrl[soundKey]) {
+        const custom = new Audio(customSoundUrl[soundKey]);
+        const p = custom.play();
+        if (p && p.catch) p.catch(() => {});
+        return;
+    }
     if (audioCtx.state === 'suspended') { audioCtx.resume(); }
     const osc = audioCtx.createOscillator(); const gainNode = audioCtx.createGain();
     osc.connect(gainNode); gainNode.connect(audioCtx.destination);
@@ -2380,7 +2482,10 @@ function setLanguage(lang) {
     });
     const promoInput = document.getElementById('promo-input');
     if (promoInput) promoInput.placeholder = (dict && dict.promo_placeholder) ? dict.promo_placeholder : promoInput.placeholder;
+    const nicknameInput = document.getElementById('nickname-input');
+    if (nicknameInput) nicknameInput.placeholder = (dict && dict.nickname_placeholder) ? dict.nickname_placeholder : nicknameInput.placeholder;
     renderCases(); renderUpgrades(); renderShop(); renderDailyRewards(); renderBank(); updateUI();
+    if (document.getElementById('tab-leaderboard') && document.getElementById('tab-leaderboard').classList.contains('active')) renderLeaderboard();
 }
 
 function renderAutosellButtons() {
