@@ -240,6 +240,17 @@ select.upgrader-select { width: 100%; padding: 12px; background: #2c3e50; color:
     signOut,
     onAuthStateChanged
   } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-auth.js";
+  import {
+    getFirestore,
+    doc,
+    setDoc,
+    collection,
+    query,
+    orderBy,
+    limit,
+    getDocs,
+    serverTimestamp
+  } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-firestore.js";
   // TODO: Add SDKs for Firebase products that you want to use
   // https://firebase.google.com/docs/web/setup#available-libraries
 
@@ -260,6 +271,55 @@ select.upgrader-select { width: 100%; padding: 12px; background: #2c3e50; color:
   const analytics = getAnalytics(app);
   const auth = getAuth(app);
   const googleProvider = new GoogleAuthProvider();
+  const db = getFirestore(app);
+  let currentFirebaseUser = null;
+
+  // Ник, который показывается в лидерборде: свой ник из настроек, иначе имя из Google
+  function getEffectiveDisplayName() {
+    const custom = (localStorage.getItem('customNickname') || '').trim();
+    if (custom) return custom;
+    if (currentFirebaseUser) return currentFirebaseUser.displayName || currentFirebaseUser.email || 'Игрок';
+    return 'Игрок';
+  }
+
+  // Отправка своей статистики в общий лидерборд (не чаще раза в 20 сек, если force=false)
+  let leaderboardLastPush = 0;
+  async function pushLeaderboardData(force) {
+    if (!currentFirebaseUser) return;
+    const now = Date.now();
+    if (!force && now - leaderboardLastPush < 20000) return;
+    leaderboardLastPush = now;
+    try {
+      await setDoc(doc(db, 'leaderboard', currentFirebaseUser.uid), {
+        nickname: getEffectiveDisplayName(),
+        coins: window.getLeaderboardCoins ? window.getLeaderboardCoins() : 0,
+        emeralds: window.getLeaderboardEmeralds ? window.getLeaderboardEmeralds() : 0,
+        secrets: window.getLeaderboardSecrets ? window.getLeaderboardSecrets() : 0,
+        updatedAt: serverTimestamp()
+      }, { merge: true });
+    } catch (e) {
+      console.error('Ошибка синхронизации лидерборда:', e);
+    }
+  }
+
+  // Топ-50 игроков по выбранному полю ('coins' | 'emeralds' | 'secrets')
+  async function fetchLeaderboardTop(field) {
+    const q = query(collection(db, 'leaderboard'), orderBy(field, 'desc'), limit(50));
+    const snap = await getDocs(q);
+    const arr = [];
+    snap.forEach(d => arr.push(d.data()));
+    return arr;
+  }
+
+  window.pushLeaderboardData = pushLeaderboardData;
+  window.fetchLeaderboardTop = fetchLeaderboardTop;
+  window.getEffectiveDisplayName = getEffectiveDisplayName;
+  window.setNicknameAndSync = function (name) {
+    localStorage.setItem('customNickname', (name || '').trim());
+    const userNameEl = document.getElementById('google-user-name');
+    if (userNameEl && currentFirebaseUser) userNameEl.textContent = getEffectiveDisplayName();
+    pushLeaderboardData(true);
+  };
 
   // Вход через Google
   function loginWithGoogle() {
@@ -280,6 +340,7 @@ select.upgrader-select { width: 100%; padding: 12px; background: #2c3e50; color:
 
   // Обновление интерфейса шапки в зависимости от статуса входа
   onAuthStateChanged(auth, (user) => {
+    currentFirebaseUser = user;
     const loginBtn = document.getElementById('google-login-btn');
     const userBox = document.getElementById('google-user-box');
     const userAvatar = document.getElementById('google-user-avatar');
@@ -289,7 +350,8 @@ select.upgrader-select { width: 100%; padding: 12px; background: #2c3e50; color:
       loginBtn.style.display = 'none';
       userBox.style.display = 'flex';
       if (userAvatar) userAvatar.src = user.photoURL || 'images/coin.png';
-      if (userName) userName.textContent = user.displayName || user.email || 'Игрок';
+      if (userName) userName.textContent = getEffectiveDisplayName();
+      pushLeaderboardData(true);
     } else {
       loginBtn.style.display = 'inline-flex';
       userBox.style.display = 'none';
@@ -358,6 +420,7 @@ select.upgrader-select { width: 100%; padding: 12px; background: #2c3e50; color:
     <button class="tab-btn" data-target="daily" onclick="switchTab('daily', event)" data-i18n="tab_daily">Ежедневные</button>
     <button class="tab-btn" data-target="promo" onclick="switchTab('promo', event)" data-i18n="tab_promo">Промокоды</button>
     <button class="tab-btn" data-target="index" onclick="switchTab('index', event)" data-i18n="tab_index">Индекс</button>
+    <button class="tab-btn" data-target="leaderboard" onclick="switchTab('leaderboard', event)">🏆 Лидерборды</button>
 </div>
 <div id="tab-cases" class="tab-content active">
     <h2 data-i18n="cases_title">Магазин Кейсов</h2><br>
@@ -569,6 +632,17 @@ select.upgrader-select { width: 100%; padding: 12px; background: #2c3e50; color:
         </div>
     </div>
 </div>
+<div id="tab-leaderboard" class="tab-content">
+    <h2>🏆 Лидерборды</h2>
+    <p style="font-size: 14px; color: #aaa; margin-bottom: 15px;">Войдите через Google, чтобы попасть в таблицу. Свой ник можно задать в Настройках.</p>
+    <div class="welcome-quick-grid" style="max-width:500px;margin:0 auto 20px auto;">
+        <button class="tab-btn active" id="lb-subtab-coins" onclick="switchLeaderboard('coins')">Монеты</button>
+        <button class="tab-btn" id="lb-subtab-emeralds" onclick="switchLeaderboard('emeralds')">Эмеральды</button>
+        <button class="tab-btn" id="lb-subtab-secrets" onclick="switchLeaderboard('secrets')">Секретки</button>
+    </div>
+    <div id="leaderboard-status" style="font-size:13px;color:#aaa;margin-bottom:10px;text-align:center;"></div>
+    <div id="leaderboard-list" style="max-width:600px;margin:0 auto;text-align:left;"></div>
+</div>
 <div id="settings-overlay" class="modal-overlay" onclick="settingsBgClose(event)">
     <div class="modal">
         <div class="modal-head">
@@ -602,6 +676,13 @@ select.upgrader-select { width: 100%; padding: 12px; background: #2c3e50; color:
             <button id="music-mute-btn" class="music-mute-btn" onclick="toggleMusicMute()" title="Mute">&#128266;</button>
             <input type="range" id="music-volume-slider" min="0" max="100" value="30" oninput="setMusicVolume(this.value/100)">
             <span class="volume-value" id="music-volume-value">30%</span>
+        </div>
+
+        <h3>Никнейм в лидерборде</h3>
+        <p style="font-size: 12px; color: #aaa; margin-bottom: 10px;">Этот ник будет показан в лидербордах вместо имени из Google. Оставьте поле пустым, чтобы использовать имя из Google-аккаунта.</p>
+        <div class="volume-row">
+            <input type="text" id="nickname-input" maxlength="20" placeholder="Ваш ник" style="flex:1;padding:10px;border-radius:6px;border:1px solid #34495e;background:#1e1e24;color:#fff;font-size:14px;">
+            <button class="action-btn" style="width:auto;margin-top:0;padding:10px 16px;" onclick="saveNickname()">Сохранить</button>
         </div>
 
         <h3 data-i18n="autosell_title">Автопродажа</h3>
@@ -1808,6 +1889,50 @@ let wheelSpinning = false, wheelTimers = [];
 let emeraldUpgradeSpinning = false, emeraldUpgradeTimers = [];
 let selectedEmeraldChance = null;
 
+/* ===== Лидерборды (Firestore) ===== */
+// Эти функции читают текущие значения переменных выше и используются
+// модулем Firebase (см. <script type="module"> в <head>) для отправки данных.
+window.getLeaderboardCoins = () => balance;
+window.getLeaderboardEmeralds = () => emeralds;
+window.getLeaderboardSecrets = () => inventory.filter(i => i.rarity === 'secret').length;
+
+let currentLeaderboardField = 'coins';
+function switchLeaderboard(field) {
+    currentLeaderboardField = field;
+    document.querySelectorAll('#tab-leaderboard .welcome-quick-grid .tab-btn').forEach(b => b.classList.remove('active'));
+    const activeBtn = document.getElementById('lb-subtab-' + field);
+    if (activeBtn) activeBtn.classList.add('active');
+    renderLeaderboard();
+}
+function escapeHtmlText(str) {
+    const div = document.createElement('div');
+    div.innerText = str == null ? '' : str;
+    return div.innerHTML;
+}
+async function renderLeaderboard() {
+    const statusEl = document.getElementById('leaderboard-status');
+    const listEl = document.getElementById('leaderboard-list');
+    if (!listEl || !statusEl) return;
+    if (!window.fetchLeaderboardTop) { statusEl.innerText = 'Лидерборд временно недоступен.'; return; }
+    statusEl.innerText = 'Загрузка...';
+    listEl.innerHTML = '';
+    try {
+        const data = await window.fetchLeaderboardTop(currentLeaderboardField);
+        statusEl.innerText = '';
+        if (!data.length) { listEl.innerHTML = '<p style="color:#aaa;text-align:center;">Пока никого нет в таблице — станьте первым!</p>'; return; }
+        data.forEach((entry, i) => {
+            const row = document.createElement('div');
+            row.className = 'card common';
+            const value = entry[currentLeaderboardField] || 0;
+            row.innerHTML = `<div class="card-info"><span style="font-weight:bold;width:32px;display:inline-block;">#${i + 1}</span><span class="card-text">${escapeHtmlText(entry.nickname || 'Игрок')}</span></div><div class="card-price">${Number(value).toLocaleString('ru-RU')}</div>`;
+            listEl.appendChild(row);
+        });
+    } catch (e) {
+        statusEl.innerText = 'Ошибка загрузки лидерборда.';
+        console.error('Ошибка загрузки лидерборда:', e);
+    }
+}
+
 /* ===== Банк (сохранение карт при перерождении) ===== */
 // Стоимость открытия слотов в эмеральдах. Слот 1 (индекс 0) всегда бесплатный.
 // Цены для слотов 2-7 заданы явно; цена 8-го слота не была указана, поэтому продолжена
@@ -1842,7 +1967,21 @@ function setAccent(name) {
     currentAccent = name; localStorage.setItem('accent', name);
     document.querySelectorAll('[data-theme]').forEach(b => b.classList.toggle('active', b.getAttribute('data-theme') === name));
 }
-function openSettings() { document.getElementById('settings-overlay').classList.add('open'); renderAutosellButtons(); }
+function openSettings() {
+    document.getElementById('settings-overlay').classList.add('open');
+    renderAutosellButtons();
+    const nickInput = document.getElementById('nickname-input');
+    if (nickInput) nickInput.value = localStorage.getItem('customNickname') || '';
+}
+function saveNickname() {
+    const input = document.getElementById('nickname-input');
+    if (!input) return;
+    const name = input.value.trim().slice(0, 20);
+    input.value = name;
+    if (window.setNicknameAndSync) window.setNicknameAndSync(name);
+    else localStorage.setItem('customNickname', name);
+    alert(name ? ('Никнейм сохранён: ' + name) : 'Никнейм сброшен — будет использовано имя из Google.');
+}
 function closeSettings() { document.getElementById('settings-overlay').classList.remove('open'); }
 function settingsBgClose(e) { if (e.target.id === 'settings-overlay') closeSettings(); }
 function openSidebar() { document.getElementById('sidebar').classList.add('open'); document.getElementById('sidebar-overlay').classList.add('open'); }
@@ -2156,6 +2295,7 @@ function getUpgradeChance(fromRarity, toRarity) {
     const chances = {
         'common-rare': 50,
         'rare-epic': 50,
+        'common-epic': 25,
         'epic-legendary': 50,
         'legendary-mythic': 25,
         'legendary-secret': 10,
@@ -2222,6 +2362,7 @@ function saveData() {
     localStorage.setItem('questData', JSON.stringify(questData));
     localStorage.setItem('bankUnlocked', JSON.stringify(bankUnlocked));
     localStorage.setItem('bankSlots', JSON.stringify(bankSlots));
+    if (window.pushLeaderboardData) window.pushLeaderboardData(false);
 }
 
 function setLanguage(lang) {
@@ -2340,6 +2481,7 @@ function switchTab(tabName, event) {
     }
     document.getElementById(`tab-${tabName}`).classList.add('active');
     if (tabName === 'index') switchIndexSection(currentIndexSection);
+    if (tabName === 'leaderboard') renderLeaderboard();
     closeSidebar();
 }
 function clickCoin() {
