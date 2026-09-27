@@ -1627,6 +1627,9 @@ const EMERALD_PROMO_CODES = {
     'EMERALDUPDT': 1000,
     'MLNEMERTALDSADMIN': 1000000
 };
+const DUAL_PROMO_CODES = {
+    'GDZILLAUPDT': { coins: 20000, emeralds: 2500 }
+};
 const DAILY_REWARDS = [
     { day: 1, reward: 250 }, { day: 2, reward: 500 }, { day: 3, reward: 1000 },
     { day: 4, reward: 2000 }, { day: 5, reward: 4000 }, { day: 6, reward: 7500 }, { day: 7, reward: 15000 }
@@ -3710,6 +3713,20 @@ function applyPromoCode() {
             updateUI();
             return;
         }
+    }
+
+    // Промокоды с двойной наградой (монеты + эмеральды)
+    if (DUAL_PROMO_CODES[code]) {
+        const reward = DUAL_PROMO_CODES[code];
+        playSound('win');
+        balance += reward.coins;
+        emeralds += reward.emeralds;
+        usedPromos.push(code);
+        status.style.color = '#2ecc71';
+        status.innerText = t().promo_success.replace('{amount}', reward.coins) + ' + ' + t().promo_success_emeralds.replace('{amount}', reward.emeralds);
+        input.value = '';
+        updateUI();
+        return;
     }
 
     // Промокоды на эмеральды
