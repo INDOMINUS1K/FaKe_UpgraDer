@@ -244,7 +244,6 @@ select.upgrader-select { width: 100%; padding: 12px; background: #2c3e50; color:
     getFirestore,
     doc,
     setDoc,
-    getDoc,
     collection,
     query,
     orderBy,
@@ -252,7 +251,11 @@ select.upgrader-select { width: 100%; padding: 12px; background: #2c3e50; color:
     getDocs,
     serverTimestamp
   } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-firestore.js";
+  // TODO: Add SDKs for Firebase products that you want to use
+  // https://firebase.google.com/docs/web/setup#available-libraries
 
+  // Your web app's Firebase configuration
+  // For Firebase JS SDK v7.20.0 and later, measurementId is optional
   const firebaseConfig = {
     apiKey: "AIzaSyAEPYH1zBfsw_5IcvUR1708jDPpPls66YI",
     authDomain: "indo-drop.firebaseapp.com",
@@ -263,6 +266,7 @@ select.upgrader-select { width: 100%; padding: 12px; background: #2c3e50; color:
     measurementId: "G-Z7W8ES7TGH"
   };
 
+  // Initialize Firebase
   const app = initializeApp(firebaseConfig);
   const analytics = getAnalytics(app);
   const auth = getAuth(app);
@@ -270,12 +274,7 @@ select.upgrader-select { width: 100%; padding: 12px; background: #2c3e50; color:
   const db = getFirestore(app);
   let currentFirebaseUser = null;
 
-  // Флаги синхронизации прогресса
-  let progressLastPush = 0;
-  let cloudSyncInProgress = false;
-  let suppressCloudPush = false;
-  let cloudSyncDone = false; // true после первой загрузки облака в этой сессии
-
+  // Ник, который показывается в лидерборде: свой ник из настроек, иначе имя из Google
   function getEffectiveDisplayName() {
     const custom = (localStorage.getItem('customNickname') || '').trim();
     if (custom) return custom;
@@ -283,6 +282,7 @@ select.upgrader-select { width: 100%; padding: 12px; background: #2c3e50; color:
     return 'Игрок';
   }
 
+  // Отправка своей статистики в общий лидерборд (не чаще раза в 20 сек, если force=false)
   let leaderboardLastPush = 0;
   async function pushLeaderboardData(force) {
     if (!currentFirebaseUser) return;
@@ -291,96 +291,29 @@ select.upgrader-select { width: 100%; padding: 12px; background: #2c3e50; color:
     leaderboardLastPush = now;
     try {
       await setDoc(doc(db, 'leaderboard', currentFirebaseUser.uid), {
-        uid: currentFirebaseUser.uid,
         nickname: getEffectiveDisplayName(),
-        coins: Number(window.getLeaderboardCoins ? window.getLeaderboardCoins() : 0) || 0,
-        emeralds: Number(window.getLeaderboardEmeralds ? window.getLeaderboardEmeralds() : 0) || 0,
-        secrets: Number(window.getLeaderboardSecrets ? window.getLeaderboardSecrets() : 0) || 0,
-        updatedAt: serverTimestamp(),
-        updatedAtMs: now
+        coins: window.getLeaderboardCoins ? window.getLeaderboardCoins() : 0,
+        emeralds: window.getLeaderboardEmeralds ? window.getLeaderboardEmeralds() : 0,
+        secrets: window.getLeaderboardSecrets ? window.getLeaderboardSecrets() : 0,
+        updatedAt: serverTimestamp()
       }, { merge: true });
     } catch (e) {
       console.error('Ошибка синхронизации лидерборда:', e);
     }
   }
 
+  // Топ-50 игроков по выбранному полю ('coins' | 'emeralds' | 'secrets')
   async function fetchLeaderboardTop(field) {
     const q = query(collection(db, 'leaderboard'), orderBy(field, 'desc'), limit(50));
     const snap = await getDocs(q);
     const arr = [];
-    snap.forEach(d => {
-      const data = d.data() || {};
-      if (!data.uid) data.uid = d.id;
-      arr.push(data);
-    });
+    snap.forEach(d => arr.push(d.data()));
     return arr;
-  }
-
-  // Сохранить текущий прогресс в Firestore (progress/{uid})
-  async function pushCloudProgress(force) {
-    if (!currentFirebaseUser || suppressCloudPush) return;
-    // Пока не завершили первую загрузку из облака — не затираем облако локальными данными
-    if (!cloudSyncDone && !force) return;
-    const now = Date.now();
-    if (!force && now - progressLastPush < 12000) return;
-    if (typeof window.collectGameProgress !== 'function') return;
-    const payload = window.collectGameProgress({ forceNewTimestamp: true });
-    if (!payload) return;
-    progressLastPush = now;
-    try {
-      localStorage.setItem('progressUpdatedAtMs', String(payload.updatedAtMs));
-      await setDoc(doc(db, 'progress', currentFirebaseUser.uid), {
-        ...payload,
-        updatedAt: serverTimestamp(),
-        updatedAtMs: payload.updatedAtMs
-      }, { merge: true });
-      console.log('Прогресс сохранён в облако');
-    } catch (e) {
-      console.error('Ошибка сохранения прогресса в облако:', e);
-    }
-  }
-
-  // При входе: облако — источник правды. Если в облаке есть данные — применяем их.
-  // Если облака нет — заливаем локальный прогресс.
-  async function loadAndMergeCloudProgress() {
-    if (!currentFirebaseUser || cloudSyncInProgress) return;
-    cloudSyncInProgress = true;
-    try {
-      const snap = await getDoc(doc(db, 'progress', currentFirebaseUser.uid));
-      if (snap.exists()) {
-        const cloud = snap.data();
-        if (cloud && typeof window.applyGameProgress === 'function') {
-          suppressCloudPush = true;
-          window.applyGameProgress(cloud);
-          suppressCloudPush = false;
-          if (typeof window.updateUI === 'function') {
-            // updateUI вызывает saveData — suppressCloudPush уже снят, но cloudSyncDone ещё false,
-            // поэтому pushCloudProgress не затрёт только что загруженные данные
-            window.updateUI();
-          }
-          console.log('Прогресс загружен из облака');
-        }
-      } else {
-        // В облаке пусто — загружаем локальный прогресс на этот аккаунт
-        cloudSyncDone = true;
-        await pushCloudProgress(true);
-        console.log('Локальный прогресс загружен в облако (первый раз)');
-      }
-      cloudSyncDone = true;
-      await pushLeaderboardData(true);
-    } catch (e) {
-      console.error('Ошибка загрузки прогресса из облака:', e);
-      cloudSyncDone = true; // чтобы дальше можно было сохранять
-    } finally {
-      cloudSyncInProgress = false;
-    }
   }
 
   window.pushLeaderboardData = pushLeaderboardData;
   window.fetchLeaderboardTop = fetchLeaderboardTop;
   window.getEffectiveDisplayName = getEffectiveDisplayName;
-  window.pushCloudProgress = pushCloudProgress;
-  window.loadAndMergeCloudProgress = loadAndMergeCloudProgress;
   window.setNicknameAndSync = function (name) {
     localStorage.setItem('customNickname', (name || '').trim());
     const userNameEl = document.getElementById('google-user-name');
@@ -388,6 +321,7 @@ select.upgrader-select { width: 100%; padding: 12px; background: #2c3e50; color:
     pushLeaderboardData(true);
   };
 
+  // Вход через Google
   function loginWithGoogle() {
     signInWithPopup(auth, googleProvider)
       .then((result) => {
@@ -399,11 +333,12 @@ select.upgrader-select { width: 100%; padding: 12px; background: #2c3e50; color:
       });
   }
 
+  // Выход из аккаунта
   function logoutGoogle() {
-    cloudSyncDone = false;
     signOut(auth).catch((error) => console.error("Ошибка выхода:", error));
   }
 
+  // Обновление интерфейса шапки в зависимости от статуса входа
   onAuthStateChanged(auth, (user) => {
     currentFirebaseUser = user;
     const loginBtn = document.getElementById('google-login-btn');
@@ -416,16 +351,14 @@ select.upgrader-select { width: 100%; padding: 12px; background: #2c3e50; color:
       userBox.style.display = 'flex';
       if (userAvatar) userAvatar.src = user.photoURL || 'images/coin.png';
       if (userName) userName.textContent = getEffectiveDisplayName();
-      // Сначала тянем прогресс из облака, потом уже можно сохранять
-      cloudSyncDone = false;
-      loadAndMergeCloudProgress();
+      pushLeaderboardData(true);
     } else {
       loginBtn.style.display = 'inline-flex';
       userBox.style.display = 'none';
-      cloudSyncDone = false;
     }
   });
 
+  // Делаем функции доступными для onclick в обычной разметке (модули не глобальны по умолчанию)
   window.loginWithGoogle = loginWithGoogle;
   window.logoutGoogle = logoutGoogle;
 </script>
@@ -769,8 +702,8 @@ select.upgrader-select { width: 100%; padding: 12px; background: #2c3e50; color:
         <div class="autosell-grid" id="autosell-buttons"></div>
 
         <h3 data-i18n="reset_progress_title" style="color:#e74c3c;">Сброс прогресса</h3>
-        <p style="font-size: 12px; color: #aaa; margin-bottom: 10px;" data-i18n="reset_progress_desc">Полностью стирает весь прогресс на сайте. Отменить это будет нельзя.</p>
-        <button class="action-btn" style="background:#e74c3c;border-color:#c0392b;width:100%;" onclick="resetProgress()" data-i18n="reset_progress_btn">Сбросить прогресс</button>
+        <p style="font-size: 12px; color: #aaa; margin-bottom: 10px;" data-i18n="reset_progress_desc">Стирает монеты, эмеральды и все карты из инвентаря. Апгрейды, перерождения, банк и настройки сохраняются. Отменить нельзя.</p>
+        <button class="action-btn" style="background:#e74c3c;border-color:#c0392b;width:100%;" onclick="resetProgress()" data-i18n="reset_progress_btn">Сбросить монеты, эмеральды и карты</button>
 
     </div>
 </div>
@@ -996,11 +929,12 @@ const I18N = {
         emerald_amount_invalid: "Введите корректную сумму эмеральдов!",
         emerald_choose_chance_first: "Сначала выберите шанс!",
         reset_progress_title: "Сброс прогресса",
-        reset_progress_desc: "Полностью стирает весь прогресс на сайте. Отменить это будет нельзя.",
-        reset_progress_btn: "Сбросить прогресс",
+        reset_progress_desc: "Стирает монеты, эмеральды и все карты из инвентаря. Апгрейды, перерождения, банк и настройки сохраняются. Отменить нельзя.",
+        reset_progress_btn: "Сбросить монеты, эмеральды и карты",
         reset_confirm1: "Вы уверены?",
         reset_confirm2: "Вы прям точно точно уверены?",
-        reset_confirm3: "Вы ну супер точно уверены?"
+        reset_confirm3: "Вы ну супер точно уверены?",
+        reset_done_alert: "Монеты, эмеральды и карты сброшены."
     },
     en: {
         balance: "Balance", coins: "coins", day: "Day", menu_title: "Menu",
@@ -1153,8 +1087,9 @@ const I18N = {
         emerald_amount_invalid: "Enter a valid emerald amount!",
         emerald_choose_chance_first: "Choose a chance first!",
         reset_progress_title: "Reset Progress",
-        reset_progress_desc: "Completely wipes all progress on the site. This cannot be undone.",
-        reset_progress_btn: "Reset Progress",
+        reset_progress_desc: "Clears coins, emeralds and all cards from inventory. Upgrades, rebirths, bank and settings are kept. Cannot be undone.",
+        reset_progress_btn: "Reset coins, emeralds and cards",
+        reset_done_alert: "Coins, emeralds and cards have been reset.",
         reset_confirm1: "Are you sure?",
         reset_confirm2: "Are you really, really sure?",
         reset_confirm3: "Are you super duper sure?"
@@ -1306,8 +1241,9 @@ const I18N = {
         emerald_amount_invalid: "Введіть коректну суму емеральдів!",
         emerald_choose_chance_first: "Спочатку оберіть шанс!",
         reset_progress_title: "Скидання прогресу",
-        reset_progress_desc: "Повністю стирає весь прогрес на сайті. Скасувати це буде неможливо.",
-        reset_progress_btn: "Скинути прогрес",
+        reset_progress_desc: "Стирає монети, емеральди та всі карти з інвентаря. Апгрейди, переродження, банк і налаштування зберігаються. Скасувати не можна.",
+        reset_progress_btn: "Скинути монети, емеральди та карти",
+        reset_done_alert: "Монети, емеральди та карти скинуто.",
         reset_confirm1: "Ви впевнені?",
         reset_confirm2: "Ви прямо точно-точно впевнені?",
         reset_confirm3: "Ви ну супер точно впевнені?"
@@ -1459,8 +1395,9 @@ const I18N = {
         emerald_amount_invalid: "Wpisz poprawną ilość szmaragdów!",
         emerald_choose_chance_first: "Najpierw wybierz szansę!",
         reset_progress_title: "Reset postępu",
-        reset_progress_desc: "Całkowicie kasuje cały postęp na stronie. Nie można tego cofnąć.",
-        reset_progress_btn: "Zresetuj postęp",
+        reset_progress_desc: "Kasuje monety, szmaragdy i wszystkie karty z ekwipunku. Ulepszenia, odrodzenia, bank i ustawienia zostają. Nie można cofnąć.",
+        reset_progress_btn: "Resetuj monety, szmaragdy i karty",
+        reset_done_alert: "Monety, szmaragdy i karty zostały zresetowane.",
         reset_confirm1: "Czy jesteś pewien?",
         reset_confirm2: "Czy na pewno na pewno jesteś pewien?",
         reset_confirm3: "Czy jesteś super mega pewien?"
@@ -1612,8 +1549,9 @@ const I18N = {
         emerald_amount_invalid: "Introdu o sumă validă de smaralde!",
         emerald_choose_chance_first: "Alege mai întâi o șansă!",
         reset_progress_title: "Resetare progres",
-        reset_progress_desc: "Șterge complet tot progresul de pe site. Nu se poate anula.",
-        reset_progress_btn: "Resetează progresul",
+        reset_progress_desc: "Șterge monedele, emeraudele și toate cărțile din inventar. Upgrade-urile, rebirth-urile, banca și setările rămân. Nu se poate anula.",
+        reset_progress_btn: "Resetează monede, emeraude și cărți",
+        reset_done_alert: "Monedele, emeraudele și cărțile au fost resetate.",
         reset_confirm1: "Ești sigur?",
         reset_confirm2: "Ești chiar foarte foarte sigur?",
         reset_confirm3: "Ești super mega sigur?"
@@ -2037,34 +1975,23 @@ async function renderLeaderboard() {
     listEl.innerHTML = '';
     try {
         const raw = await window.fetchLeaderboardTop(currentLeaderboardField);
-        const field = currentLeaderboardField;
-        const byUid = new Map();
-        (raw || []).forEach(entry => {
-            if (!entry) return;
-            const uid = entry.uid || ('nick_' + (entry.nickname || ''));
-            const val = Number(entry[field]) || 0;
-            const prev = byUid.get(uid);
-            if (!prev || val > (Number(prev[field]) || 0)) byUid.set(uid, entry);
+        // Убираем дубликаты одного и того же ника (например, если вход был выполнен с
+        // нескольких Google-аккаунтов) — оставляем только запись с лучшим результатом.
+        const seen = new Set();
+        const data = [];
+        raw.forEach(entry => {
+            const key = (entry.nickname || '').trim().toLowerCase();
+            if (key && seen.has(key)) return;
+            if (key) seen.add(key);
+            data.push(entry);
         });
-        const byNick = new Map();
-        byUid.forEach(entry => {
-            const nickKey = (entry.nickname || 'Игрок').trim().toLowerCase() || 'игрок';
-            const val = Number(entry[field]) || 0;
-            const prev = byNick.get(nickKey);
-            if (!prev || val > (Number(prev[field]) || 0)) byNick.set(nickKey, entry);
-        });
-        const data = Array.from(byNick.values());
-        data.sort((a, b) => (Number(b[field]) || 0) - (Number(a[field]) || 0));
         statusEl.innerText = '';
-        if (!data.length) {
-            listEl.innerHTML = `<p style="color:#aaa;text-align:center;">${t().lb_empty || 'Пока никого нет в таблице — станьте первым!'}</p>`;
-            return;
-        }
+        if (!data.length) { listEl.innerHTML = `<p style="color:#aaa;text-align:center;">${t().lb_empty || 'Пока никого нет в таблице — станьте первым!'}</p>`; return; }
         data.forEach((entry, i) => {
             const row = document.createElement('div');
             row.className = 'card common';
-            const value = Number(entry[field]) || 0;
-            row.innerHTML = `<div class="card-info"><span style="font-weight:bold;width:32px;display:inline-block;">#${i + 1}</span><span class="card-text">${escapeHtmlText(entry.nickname || 'Игрок')}</span></div><div class="card-price">${value.toLocaleString('ru-RU')}</div>`;
+            const value = entry[currentLeaderboardField] || 0;
+            row.innerHTML = `<div class="card-info"><span style="font-weight:bold;width:32px;display:inline-block;">#${i + 1}</span><span class="card-text">${escapeHtmlText(entry.nickname || 'Игрок')}</span></div><div class="card-price">${Number(value).toLocaleString('ru-RU')}</div>`;
             listEl.appendChild(row);
         });
     } catch (e) {
@@ -2524,83 +2451,7 @@ function chooseLangGate(lang) {
     updateUI();
     openWelcomeModal();
 }
-function collectGameProgress(opts) {
-    const forceNew = opts && opts.forceNewTimestamp;
-    let updatedAtMs = forceNew ? Date.now() : (parseInt(localStorage.getItem('progressUpdatedAtMs'), 10) || 0);
-    if (!updatedAtMs) updatedAtMs = Date.now();
-    return {
-        lang: currentLang,
-        balance: balance,
-        clickPower: clickPower,
-        upgradeLevels: upgradeLevels,
-        caseUpgrades: caseUpgrades,
-        inventory: inventory,
-        usedPromos: usedPromos,
-        dailyData: dailyData,
-        rebirthUnlocked: !!rebirthUnlocked,
-        rebirth2Unlocked: !!rebirth2Unlocked,
-        rebirth3Unlocked: !!rebirth3Unlocked,
-        autoSellRarities: autoSellRarities,
-        emeralds: emeralds,
-        questData: questData,
-        bankUnlocked: bankUnlocked,
-        bankSlots: bankSlots,
-        customNickname: (localStorage.getItem('customNickname') || '').trim(),
-        accent: currentAccent,
-        fastSpin: !!fastSpin,
-        selectedClickSound: (typeof selectedClickSound !== 'undefined') ? selectedClickSound : 'default',
-        musicVolume: (typeof musicVolume !== 'undefined') ? musicVolume : 0.3,
-        musicMuted: !!(typeof musicMuted !== 'undefined' && musicMuted),
-        updatedAtMs: updatedAtMs
-    };
-}
-window.collectGameProgress = collectGameProgress;
-
-function applyGameProgress(data) {
-    if (!data || typeof data !== 'object') return;
-    if (typeof data.balance === 'number' && !isNaN(data.balance)) balance = data.balance;
-    if (typeof data.clickPower === 'number' && !isNaN(data.clickPower)) clickPower = data.clickPower;
-    if (data.upgradeLevels && typeof data.upgradeLevels === 'object') upgradeLevels = data.upgradeLevels;
-    if (data.caseUpgrades && typeof data.caseUpgrades === 'object') caseUpgrades = data.caseUpgrades;
-    if (Array.isArray(data.inventory)) inventory = data.inventory;
-    if (Array.isArray(data.usedPromos)) usedPromos = data.usedPromos;
-    if (data.dailyData && typeof data.dailyData === 'object') dailyData = data.dailyData;
-    if (typeof data.rebirthUnlocked === 'boolean') rebirthUnlocked = data.rebirthUnlocked;
-    if (typeof data.rebirth2Unlocked === 'boolean') rebirth2Unlocked = data.rebirth2Unlocked;
-    if (typeof data.rebirth3Unlocked === 'boolean') rebirth3Unlocked = data.rebirth3Unlocked;
-    if (Array.isArray(data.autoSellRarities)) autoSellRarities = data.autoSellRarities;
-    if (typeof data.emeralds === 'number' && !isNaN(data.emeralds)) emeralds = data.emeralds;
-    if (data.questData !== undefined) questData = data.questData;
-    if (Array.isArray(data.bankUnlocked) && data.bankUnlocked.length === BANK_SLOTS_COUNT) bankUnlocked = data.bankUnlocked;
-    if (Array.isArray(data.bankSlots) && data.bankSlots.length === BANK_SLOTS_COUNT) bankSlots = data.bankSlots;
-    if (typeof data.customNickname === 'string') {
-        localStorage.setItem('customNickname', data.customNickname.trim());
-        const userNameEl = document.getElementById('google-user-name');
-        if (userNameEl && window.getEffectiveDisplayName) userNameEl.textContent = window.getEffectiveDisplayName();
-    }
-    if (data.accent && typeof setAccent === 'function') setAccent(data.accent);
-    if (typeof data.fastSpin === 'boolean' && typeof setSpinSpeed === 'function') setSpinSpeed(data.fastSpin ? 'fast' : 'normal');
-    if (typeof data.selectedClickSound === 'string') {
-        selectedClickSound = data.selectedClickSound;
-        localStorage.setItem('selectedClickSound', selectedClickSound);
-        if (typeof renderClickSoundActive === 'function') renderClickSoundActive();
-    }
-    if (typeof data.musicVolume === 'number' && !isNaN(data.musicVolume)) {
-        musicVolume = data.musicVolume;
-        localStorage.setItem('musicVolume', musicVolume);
-        if (typeof updateMusicUI === 'function') updateMusicUI();
-    }
-    if (typeof data.musicMuted === 'boolean') {
-        musicMuted = data.musicMuted;
-        localStorage.setItem('musicMuted', musicMuted ? '1' : '0');
-        if (typeof updateMusicUI === 'function') updateMusicUI();
-    }
-    if (typeof data.updatedAtMs === 'number') localStorage.setItem('progressUpdatedAtMs', String(data.updatedAtMs));
-    saveDataLocalOnly();
-}
-window.applyGameProgress = applyGameProgress;
-
-function saveDataLocalOnly() {
+function saveData() {
     localStorage.setItem('lang', currentLang);
     localStorage.setItem('balance', balance);
     localStorage.setItem('clickPower', clickPower);
@@ -2618,12 +2469,7 @@ function saveDataLocalOnly() {
     localStorage.setItem('questData', JSON.stringify(questData));
     localStorage.setItem('bankUnlocked', JSON.stringify(bankUnlocked));
     localStorage.setItem('bankSlots', JSON.stringify(bankSlots));
-}
-
-function saveData() {
-    saveDataLocalOnly();
     if (window.pushLeaderboardData) window.pushLeaderboardData(false);
-    if (window.pushCloudProgress) window.pushCloudProgress(false);
 }
 
 function setLanguage(lang) {
@@ -4091,8 +3937,17 @@ function resetProgress() {
     if (!confirm(t().reset_confirm1 || 'Вы уверены?')) return;
     if (!confirm(t().reset_confirm2 || 'Вы прям точно точно уверены?')) return;
     if (!confirm(t().reset_confirm3 || 'Вы ну супер точно уверены?')) return;
-    localStorage.clear();
-    location.reload();
+    // Стираем только монеты, эмеральды и карты (инвентарь)
+    balance = 0;
+    emeralds = 0;
+    inventory = [];
+    selectedInvIndex = null;
+    selectedTargetId = null;
+    saveData();
+    if (window.pushCloudProgress) window.pushCloudProgress(true);
+    if (window.pushLeaderboardData) window.pushLeaderboardData(true);
+    updateUI();
+    alert(t().reset_done_alert || 'Монеты, эмеральды и карты сброшены.');
 }
 </script>
 </body>
